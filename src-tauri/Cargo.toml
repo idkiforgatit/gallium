@@ -1,0 +1,27 @@
+[package]
+name = "gallium"
+version = "1.0.0"
+description = "An Arc-style browser"
+edition = "2021"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+# "unstable" = several webviews in one window (one per tab); "devtools" = F12 in release builds.
+tauri = { version = "2", features = ["unstable", "devtools"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = "3" # search suggestions + Chrome Web Store downloads
+base64 = "0.22" # extension icons as data: URLs
+zip = { version = "9", default-features = false, features = ["deflate"] } # unpack .crx extensions
+
+# Gallium is Windows-only: it talks to WebView2 (Chromium) directly for snapshots, find and extensions.
+# Same versions Tauri uses, so the COM types line up.
+[target.'cfg(windows)'.dependencies]
+webview2-com = "0.39"
+windows = { version = "0.62", features = ["Win32_System_Com", "Win32_UI_Shell", "Win32_Graphics_Gdi"] }
+
+[profile.release]
+lto = true
+strip = true

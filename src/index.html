@@ -1,0 +1,2374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Gallium</title>
+<style>
+@property --c1{syntax:'<color>';inherits:true;initial-value:#d9c8ff}
+@property --c2{syntax:'<color>';inherits:true;initial-value:#ffd1ea}
+@property --w1{syntax:'<color>';inherits:true;initial-value:#2a2433}
+@property --w2{syntax:'<color>';inherits:true;initial-value:#22303a}
+@property --w3{syntax:'<color>';inherits:true;initial-value:#1e2a33}
+/* Theme tokens. JS overwrites these per space theme (see applyTheme). */
+:root{--sbw:264px;--ink:#1f1b2e;--inv:#fff;--soft:rgba(255,255,255,.34);--soft2:rgba(255,255,255,.55);--hard:rgba(255,255,255,.94);
+  --surface:rgba(255,255,255,.98);--surface2:#f2eff8;--line:rgba(0,0,0,.07);--frame:#fff;--accent:#6b4dff;--sel:linear-gradient(90deg,var(--c1),var(--c2));
+  --font:"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;--font-d:"Segoe UI Variable Display","Segoe UI",sans-serif;
+  --r:1;--tab-r:9px;--frame-r:10px;--tab-h:36px;--fav-h:52px;--gap:8px;--ga:40%;
+  --ease:cubic-bezier(.2,.9,.25,1);--bounce:cubic-bezier(.34,1.45,.64,1);--out:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{font:13px/1.3 var(--font);color:var(--ink);display:flex;
+  background:linear-gradient(140deg,var(--c1),var(--c2));transition:--c1 .5s ease,--c2 .5s ease,--w1 .6s ease,--w2 .6s ease,--w3 .6s ease;user-select:none;-webkit-user-select:none;cursor:default}
+body.dark{color-scheme:dark}
+body.boot *,body.resizing *{transition:none!important}
+body.resizing{cursor:col-resize}
+button,select,input{font:inherit;color:inherit}
+button:focus:not(:focus-visible){outline:none}
+button{background:none;border:0;padding:0;cursor:default}
+svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none;flex:none}
+img{-webkit-user-drag:none}
+[hidden]{display:none!important}
+.press{transition:background .15s,opacity .15s,transform .18s var(--bounce),box-shadow .2s}
+.press:active{transform:scale(.96)}
+kbd{font:inherit;font-size:11px;padding:1px 6px;border-radius:5px;background:var(--surface2)}
+
+/* ---- layout: spacer reserves room for the sidebar, the sidebar floats over it ---- */
+#spacer{width:var(--sbw);flex:none;transition:width .32s var(--ease)}
+body.collapsed #spacer{width:var(--gap)}
+#col{flex:1;min-width:0;display:flex;flex-direction:column;position:relative;z-index:1}
+#sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sbw);z-index:6;display:flex;flex-direction:column;gap:8px;padding:5px 10px 0;
+  transition:transform .32s var(--ease),box-shadow .3s}
+body.collapsed #sidebar{top:8px;bottom:8px;left:8px;border-radius:calc(12px * var(--r));padding-top:6px;transform:translateX(calc(-100% - 20px));
+  background:linear-gradient(160deg,var(--c1),var(--c2));box-shadow:0 0 0 1px rgba(255,255,255,.4) inset,0 18px 50px rgba(20,10,40,.3)}
+body.collapsed.peek #sidebar{transform:none}
+.edge{display:none;position:fixed;left:0;top:0;bottom:0;width:10px;z-index:5}
+body.collapsed .edge{display:block}
+#resizer{position:fixed;top:0;bottom:0;left:calc(var(--sbw) - 6px);width:8px;cursor:col-resize;z-index:7}
+body.collapsed #resizer{display:none}
+
+/* ---- title bar: find bar, extras, window buttons ---- */
+#titlebar{height:38px;flex:none;display:flex;align-items:center;gap:4px;padding-left:2px}
+#titlebar svg,.pop svg{stroke-width:1.75}
+#b-dl svg,#b-ext svg{width:16px;height:16px}
+#titlebar .grow{flex:1;align-self:stretch}
+.caption{display:flex;align-items:center;height:30px;border-radius:15px;padding:0 1px;margin:0 8px 0 2px;background:var(--cap);color:var(--ink);--shade:.08;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,var(--caphi)),0 1px 2px rgba(0,0,0,.06)}
+.caption button{width:34px;height:30px;border-radius:15px;display:grid;place-items:center;font:9px "Segoe Fluent Icons","Segoe MDL2 Assets";opacity:.8;transition:background .2s,color .2s,opacity .2s}
+.caption button:hover{background:color-mix(in srgb,var(--ink) 9%,transparent);opacity:1}
+.caption [data-win=close]:hover{background:#ff5f57;color:#fff}
+.caption [data-win=close]:active{background:#e0443e;color:#fff}
+.lights{display:none;gap:8px;align-items:center;padding:0 6px 0 6px;height:28px}
+.lights button{width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 .5px rgba(0,0,0,.2);display:grid;place-items:center}
+.lights svg{width:8px;height:8px;stroke-width:3;color:rgba(0,0,0,.55);opacity:0;transition:opacity .12s}
+.lights:hover svg{opacity:1}
+.lights [data-win=close]{background:#ff5f57}.lights [data-win=min]{background:#febc2e}.lights [data-win=max]{background:#28c840}
+body.mac .caption{display:none}
+body.mac #sidebar .lights{display:flex}
+body.mac.collapsed #titlebar .lights{display:flex;padding-left:10px}
+.tb{height:28px;min-width:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;gap:6px;opacity:.65;position:relative}
+.tb:hover{background:var(--soft);opacity:1}
+/* downloads button: a progress ring while something downloads, a dot when one has finished */
+#b-dl.busy::after{content:'';position:absolute;inset:2px;border-radius:50%;opacity:.9;
+  background:conic-gradient(var(--accent) calc(var(--dlp,12) * 1%),color-mix(in srgb,var(--ink) 12%,transparent) 0);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 2.5px),#000 calc(100% - 2px))}
+#b-dl.busy.unknown::after{background:conic-gradient(var(--accent) 25%,color-mix(in srgb,var(--ink) 12%,transparent) 0);animation:spin .9s linear infinite}
+#b-dl.new::before{content:'';position:absolute;top:4px;right:4px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 2px var(--cap2)}
+#b-addext{padding:0 14px;font-weight:600;font-size:12px;animation:fadein .4s var(--out)}
+@keyframes fadein{from{opacity:0;transform:translateY(-3px)}}
+#findbar{display:flex;align-items:center;gap:2px;height:30px;padding:0 3px 0 12px;border-radius:15px;background:var(--cap2);position:relative;--shade:.08;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,var(--caphi)),0 1px 2px rgba(0,0,0,.06),0 0 0 2px color-mix(in srgb,var(--accent) 35%,transparent);animation:fadein .35s var(--out)}
+#findbar svg{opacity:.5}
+#fq{width:200px;border:0;outline:0;background:none;padding:0 6px}
+#fcount{font-size:12px;opacity:.5;min-width:54px;text-align:right;padding-right:4px}
+#findbar button{width:24px;height:24px;border-radius:12px;display:grid;place-items:center;opacity:.6}
+#findbar button:hover{background:var(--soft);opacity:1}
+
+/* ---- sidebar ---- */
+.top{display:flex;align-items:center;gap:2px;height:28px;flex:none}
+.top .grow{flex:1;align-self:stretch}
+.icon{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;opacity:.6}
+.icon:hover{background:var(--soft);opacity:1}
+#urlbar{height:36px;border-radius:calc(10px * var(--r));background:var(--soft);display:flex;align-items:center;gap:6px;padding:0 4px 0 12px;flex:none;position:relative;overflow:hidden}
+#urlbar:hover{background:var(--soft2)}
+#url{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:.72}
+#urlbar .icon{width:26px;height:26px;opacity:0}
+#urlbar:hover .icon{opacity:.55}
+#urlbar .icon:hover{opacity:1}
+#urlbar::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:40%;border-radius:2px;background:var(--ink);opacity:0;transform:translateX(-100%)}
+#urlbar.loading::after{opacity:.22;animation:bar 1.1s var(--ease) infinite}
+@keyframes bar{to{transform:translateX(260%)}}
+
+#favorites{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:8px;flex:none;border-radius:12px;min-height:4px}
+.fav{height:var(--fav-h);border-radius:calc(14px * var(--r));background:var(--cap);display:grid;place-items:center;position:relative;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,var(--caphi)),0 1px 2px rgba(0,0,0,.06)}
+.fav:hover{background:var(--cap2)}
+.fav.on{background:var(--hard);box-shadow:0 1px 4px rgba(40,20,80,.13)}
+.fav img{width:20px;height:20px;border-radius:4px;transition:transform .2s var(--bounce),opacity .2s}
+.fav.live::after{content:'';position:absolute;bottom:5px;left:50%;margin-left:-2px;width:4px;height:4px;border-radius:50%;background:var(--ink);opacity:.28}
+.fav.loading img{opacity:.45;transform:scale(.8)}
+
+.lists{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:2px;margin:0 -4px;padding:0 4px 8px}
+.lists::-webkit-scrollbar{width:0}
+.space-head{display:flex;align-items:center;gap:4px;padding:8px 2px 4px 8px;flex:none}
+#space-name{flex:1;font-weight:600;opacity:.78;outline:0;padding:2px 4px;margin-left:-4px;border-radius:5px;white-space:nowrap;overflow:hidden;transition:background .15s}
+#space-name:hover{background:var(--soft)}
+#space-name:focus{background:var(--soft2);opacity:1;user-select:text;-webkit-user-select:text;cursor:text}
+.space-head .icon{width:24px;height:24px;opacity:0}
+.space-head:hover .icon{opacity:.55}
+.zone{display:flex;flex-direction:column;gap:2px;flex:none;border-radius:10px;min-height:2px}
+body.dragging .zone:empty,body.dragging #favorites:empty{min-height:36px;outline:1.5px dashed color-mix(in srgb,var(--ink) 25%,transparent);outline-offset:-2px}
+.tab{height:var(--tab-h);border-radius:calc(var(--tab-r) * var(--r));display:flex;align-items:center;gap:10px;padding:0 5px 0 11px;flex:none;overflow:hidden;position:relative}
+.tab:hover{background:var(--soft)}
+.tab.on{background:var(--hard);box-shadow:0 1px 4px rgba(40,20,80,.1)}
+.tab:not(.live):not(.on) .fi img{opacity:.75}
+.fi{position:relative;width:16px;height:16px;flex:none}
+.fi img{width:16px;height:16px;border-radius:3px;display:block;transition:transform .2s var(--bounce),opacity .2s}
+.loading .fi img{opacity:.4;transform:scale(.7)}
+.loading .fi::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:2px solid transparent;border-top-color:var(--ink);opacity:.45;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tab .t{flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;outline:0;border-radius:4px}
+.tab .t[contenteditable]{background:var(--soft2);padding:1px 4px;margin:0 -4px;text-overflow:clip;user-select:text;-webkit-user-select:text;cursor:text}
+.tab .snd{width:22px;height:22px;border-radius:6px;display:none;place-items:center;opacity:.6;flex:none;transition:opacity .15s,background .15s}
+.tab .snd.on{display:grid}
+.tab .snd:hover{opacity:1;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.snd svg{width:14px;height:14px}
+.snd.play svg path:last-child{animation:wave 1.4s ease-in-out infinite}
+@keyframes wave{50%{opacity:.25}}
+.fav .snd{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:9px;background:var(--hard);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.18);display:none;place-items:center}
+.fav .snd.on{display:grid}
+.fav .snd svg{width:11px;height:11px}
+.tab .x{width:24px;height:24px;border-radius:6px;display:grid;place-items:center;opacity:0;transform:scale(.8);transition:opacity .12s,transform .15s var(--bounce),background .12s}
+.tab:hover .x{opacity:.5;transform:none}
+.tab .x:hover{background:color-mix(in srgb,var(--ink) 8%,transparent);opacity:1}
+.enter{animation:enter .28s var(--ease)}
+@keyframes enter{from{height:0;opacity:0;transform:translateX(-10px)}}
+.leave{animation:leave .2s var(--ease) forwards;pointer-events:none}
+@keyframes leave{to{height:0;opacity:0;transform:translateX(-14px);margin-top:-2px}}
+.fav.enter{animation:pop .3s var(--bounce)}
+.fav.leave{animation:fade .18s forwards}
+@keyframes pop{from{transform:scale(.6);opacity:0}}
+@keyframes fade{to{transform:scale(.6);opacity:0}}
+.divider{display:flex;align-items:center;gap:8px;padding:6px 6px 6px 8px;font-size:12px;flex:none;height:30px}
+.divider hr{flex:1;border:0;border-top:1px solid color-mix(in srgb,var(--ink) 13%,transparent)}
+.divider button{opacity:0;display:flex;align-items:center;gap:4px;padding:3px 6px;border-radius:6px}
+.divider:hover button{opacity:.55}
+.divider button:hover{opacity:1;background:var(--soft)}
+.divider svg{width:12px;height:12px}
+#newtab .t{opacity:.62}
+#newtab:hover .t{opacity:1}
+#newtab .fi svg{opacity:.62}
+#newtab kbd{opacity:0;transition:opacity .15s;background:var(--soft)}
+#newtab:hover kbd{opacity:.6}
+.bottom{display:flex;align-items:center;height:46px;gap:2px;flex:none}
+#dots{flex:1;display:flex;justify-content:center;gap:2px}
+.dot{width:24px;height:24px;border-radius:6px;display:grid;place-items:center}
+.dot:hover{background:var(--soft)}
+.dot i{width:7px;height:7px;border-radius:50%;background:var(--ink);opacity:.26;transition:opacity .2s,transform .3s var(--bounce);pointer-events:none}
+.dot.on i{opacity:.85;transform:scale(1.25)}
+.sl{animation:cubeL .6s var(--out);transform-origin:0 50%}.sr{animation:cubeR .6s var(--out);transform-origin:100% 50%}
+@keyframes cubeL{from{transform:perspective(700px) translateX(70%) rotateY(-70deg);opacity:0}}
+@keyframes cubeR{from{transform:perspective(700px) translateX(-70%) rotateY(70deg);opacity:0}}
+#dropline{position:fixed;z-index:9;background:var(--ink);opacity:.55;border-radius:2px;pointer-events:none;display:none}
+body.dragging #dropline{display:block}
+
+/* ---- content frame: tab pages are native views placed exactly over <main> ---- */
+main{flex:1;position:relative;margin:0 var(--gap) var(--gap) 0;border-radius:calc(var(--frame-r) * var(--r));background:var(--frame);box-shadow:0 0 0 1px var(--line),0 6px 24px rgba(40,20,80,.14);overflow:hidden}
+#snap{position:absolute;left:0;top:0;display:block}
+
+/* home: wallpaper, clock, liquid-glass search capsule, dock and chips */
+#home{position:absolute;inset:0;overflow:hidden;color:#fff;background:#15131c;
+  --hl:rgba(255,255,255,.14)}
+#home.light{color:#1d1b26;--hl:rgba(0,0,0,.07)}
+#wall{position:absolute;inset:-28px;background:var(--wall,linear-gradient(140deg,var(--c1),var(--c2))) center/cover no-repeat;
+  }
+#wallshade{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 100% at 50% 35%,transparent 45%,rgba(0,0,0,.3)),linear-gradient(rgba(0,0,0,.14),transparent 35%)}
+#home.light #wallshade{background:radial-gradient(130% 100% at 50% 35%,transparent 55%,rgba(255,255,255,.3))}
+.hwrap{position:relative;z-index:1;height:100%;width:min(700px,calc(100% - 48px));margin:0 auto;display:flex;flex-direction:column;align-items:center;padding-top:clamp(36px,13vh,150px)}
+#clock{font:200 clamp(64px,9.5vw,116px)/1 var(--font-d);letter-spacing:-.045em;text-shadow:0 2px 40px rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
+#home.light #clock{text-shadow:0 0 24px rgba(255,255,255,.75),0 0 60px rgba(255,255,255,.5)}
+#greet{margin:12px 0 30px;font-size:16px;font-weight:500;opacity:.88;text-shadow:0 1px 14px rgba(0,0,0,.28)}
+#home.light #greet{text-shadow:0 0 12px rgba(255,255,255,.9),0 0 30px rgba(255,255,255,.6)}
+.hbox{width:100%;position:relative;z-index:3}
+/* home search: a frosted Spotlight/Safari-style capsule (light or dark to match the theme) */
+.hsearch{height:58px;border-radius:29px;display:flex;align-items:center;gap:12px;padding:0 8px 0 22px;position:relative;color:#1d1b26;
+  outline:3px solid transparent;outline-offset:8px;transition:outline-color .35s ease,outline-offset .5s var(--out),box-shadow .4s var(--out)}
+#home .hsearch.lg:not(#_){--tint:rgba(255,255,255,.74);--rimHi:.9;--rimLo:.35;--shade:.2}
+body.dark #home .hsearch.lg:not(#_){--tint:rgba(28,26,34,.72);--rimHi:.35;--rimLo:.08;--shade:.35}
+body.dark .hsearch{color:#f3f1f8}
+#home .hsearch.lg:focus-within:not(#_){--hov:.1;outline-color:color-mix(in srgb,var(--accent) 50%,transparent);outline-offset:2px}
+.hsearch>span:first-child svg{width:19px;height:19px;opacity:.55}
+#hq{flex:1;min-width:0;border:0;outline:0;background:none;font-size:17px;color:inherit;letter-spacing:-.01em}
+#hq::placeholder{color:currentColor;opacity:.5}
+#heng{height:40px;border-radius:20px;display:flex;align-items:center;gap:7px;padding:0 10px 0 9px;flex:none;font-size:12px;font-weight:600;
+  background:color-mix(in srgb,currentColor 7%,transparent);transition:background .15s}
+#heng:hover{background:color-mix(in srgb,currentColor 13%,transparent)}
+#heng img{width:16px;height:16px;border-radius:4px}
+#heng svg{width:12px;height:12px;opacity:.55}
+#hsugg{position:absolute;top:calc(100% + 10px);left:0;right:0;border-radius:20px;padding:6px;color:var(--ink);background:var(--surface);
+  box-shadow:0 24px 60px rgba(0,0,0,.28),0 0 0 1px var(--line);opacity:0;transform:translateY(-8px);clip-path:inset(0 0 92% 0 round 16px);visibility:hidden;pointer-events:none;transition:opacity .16s ease,transform .28s var(--out),clip-path .28s var(--out),visibility 0s linear .28s}
+.hwrap:focus-within #hsugg{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 16px);visibility:visible;pointer-events:auto;transition:opacity .22s ease,transform .45s var(--out),clip-path .5s var(--out),visibility 0s}
+#hengs{position:absolute;top:calc(100% + 10px);right:0;width:230px;border-radius:16px;padding:6px;z-index:4;color:var(--ink);background:var(--surface);
+  box-shadow:0 24px 60px rgba(0,0,0,.28),0 0 0 1px var(--line);animation:reveal .45s var(--out)}
+@keyframes reveal{from{opacity:0;transform:translateY(-8px);clip-path:inset(0 0 92% 0 round 16px)}to{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 16px)}}
+#hengs button{width:100%;height:36px;display:flex;align-items:center;gap:12px;padding:0 12px;border-radius:8px;text-align:left}
+#hengs button:hover{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+#hengs button.on{background:var(--accent);color:#fff}
+#hengs img{width:16px;height:16px;border-radius:3px}
+/* while searching, everything else on the home page steps back */
+#home :is(#clock,#greet,#hdock,#hrecent){transition:opacity .35s var(--ease),filter .35s var(--ease)}
+#home:has(.hbox:focus-within) :is(#clock,#greet,#hdock,#hrecent){opacity:.3;filter:blur(2px)}
+#hdock{margin-top:42px;display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:12px;border-radius:28px}
+#hdock:empty{display:none}
+.hfav{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none;position:relative;background:rgba(255,255,255,.94);
+  box-shadow:0 3px 10px rgba(0,0,0,.18),inset 0 0 0 .5px rgba(0,0,0,.06);transition:transform .45s var(--bounce),box-shadow .3s;
+  --lift:0px;--sc:1;transform:perspective(420px) translateY(var(--lift)) scale(var(--sc)) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg))}
+.hfav:hover{--lift:-7px;--sc:1.14;box-shadow:0 14px 26px rgba(0,0,0,.22),inset 0 0 0 .5px rgba(0,0,0,.06);transition:transform .2s var(--out),box-shadow .3s}
+.hfav:active{--sc:.9;transition-duration:.15s}
+.hfav img{width:28px;height:28px;border-radius:6px}
+.hfav span{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translate(-50%,4px);white-space:nowrap;font-size:12px;font-weight:500;padding:4px 10px;border-radius:9px;
+  background:rgba(20,18,30,.78);color:#fff;opacity:0;pointer-events:none;transition:opacity .15s,transform .2s var(--ease)}
+.hfav:hover span{opacity:1;transform:translate(-50%,0)}
+#hrecent{margin-top:22px;display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.hchip{height:36px;max-width:230px;display:flex;align-items:center;gap:8px;padding:0 15px 0 11px;border-radius:18px;font-size:12px;font-weight:500;transition:transform .35s var(--bounce)}
+.hchip{transform:perspective(420px) translateY(var(--lift,0px)) rotateX(var(--tx,0deg)) rotateY(var(--ty,0deg))}
+.hchip:hover{--lift:-2px;transition:transform .2s var(--out)}
+.hchip:active{transform:scale(.95)}
+.hchip img{width:16px;height:16px;border-radius:3px;flex:none}
+.hchip span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#hcustom{position:absolute;right:18px;bottom:18px;z-index:2;height:36px;padding:0 15px 0 12px;border-radius:18px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
+.hwrap.anim .hin{animation:hin .8s var(--ease) backwards;animation-delay:var(--d,0s)}
+@keyframes hin{from{opacity:0;transform:translateY(16px) scale(.98)}}
+
+/* wallpaper picker */
+.walls{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:12px;margin:8px 0 6px}
+.wcard{display:flex;flex-direction:column;gap:6px;text-align:left;transition:transform .2s var(--bounce)}
+.wcard:hover{transform:translateY(-2px)}
+.wcard img,.wcard .ph{width:100%;height:66px;object-fit:cover;border-radius:11px;box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;background:var(--surface2)}
+.wcard.on img,.wcard.on .ph{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.wcard span{font-size:12px;opacity:.75;padding-left:2px}
+
+/* ---- overlays (drawn over a snapshot of the page) ---- */
+.overlay{position:fixed;inset:0;z-index:20;display:flex;justify-content:center;align-items:center;background:rgba(15,10,30,0);transition:background .2s}
+.overlay.in{background:rgba(15,10,30,.22)}
+.overlay>div{opacity:0;transform:perspective(1200px) rotateX(7deg) translateY(-12px) scale(.985)}
+.overlay.in>div{opacity:1;transform:none;transition:opacity .22s ease,transform .5s var(--out)}
+#cmdk{align-items:flex-start;padding-top:15vh}
+.box{width:min(680px,calc(100vw - 32px));background:var(--surface);border-radius:calc(14px * var(--r));overflow:hidden;box-shadow:0 30px 80px rgba(20,10,40,.32),0 0 0 1px var(--line)}
+.box .row{display:flex;align-items:center;gap:12px;height:60px;padding:0 20px}
+.box .row svg{opacity:.4;width:18px;height:18px}
+#q{flex:1;border:0;outline:0;background:none;font-size:17px}
+.slist{padding:6px;position:relative}
+.slist:empty{display:none}
+#sugg{border-top:1px solid var(--line)}
+.s{height:34px;display:flex;align-items:center;gap:10px;padding:0 12px;border-radius:8px;position:relative;z-index:1}
+.s img{width:16px;height:16px;flex:none;border-radius:3px}
+.s svg{opacity:.5}
+.s .t{flex:0 1 auto;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.s small{flex:1 1 0;min-width:0;opacity:.5;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.s small::before{content:'— '}
+.s.sel{color:#fff}
+.s.sel small{opacity:.85}
+.s.sel svg{opacity:.9}
+.sh{font-size:11px;font-weight:600;opacity:.5;padding:8px 12px 3px;position:relative;z-index:1}
+.sh:first-of-type{padding-top:4px}
+.s .ret{opacity:0;font-size:12px}
+.s.sel .ret{opacity:.5}
+.hl{position:absolute;left:6px;right:6px;top:0;height:34px;border-radius:8px;background:var(--accent);transition:transform .26s var(--out),height .26s var(--out)}
+
+/* settings panel */
+.sheet{width:min(860px,calc(100vw - 40px));height:min(620px,calc(100vh - 60px));display:flex;background:var(--surface);border-radius:calc(16px * var(--r));overflow:hidden;position:relative;
+  box-shadow:0 30px 80px rgba(20,10,40,.32),0 0 0 1px var(--line)}
+#pnav{width:200px;flex:none;padding:18px 10px;display:flex;flex-direction:column;gap:2px;
+  background:linear-gradient(170deg,color-mix(in srgb,var(--c1) 50%,var(--surface)),color-mix(in srgb,var(--c2) 40%,var(--surface)))}
+#pnav .ptitle{font:600 18px var(--font-d);padding:0 10px 14px}
+#pnav button{height:34px;border-radius:8px;display:flex;align-items:center;gap:10px;padding:0 10px;text-align:left}
+#pnav button svg{opacity:.6}
+#pnav button:hover{background:var(--soft)}
+#pnav button.on{background:var(--hard);box-shadow:0 1px 3px rgba(40,20,80,.1)}
+#psec{flex:1;overflow-y:auto;padding:26px 30px 30px}
+#psec h2{font:600 20px var(--font-d);margin-bottom:16px}
+#psec h3{font-size:12px;font-weight:600;opacity:.5;text-transform:uppercase;letter-spacing:.04em;margin:24px 0 6px}
+#psec h4{font-size:12px;font-weight:600;opacity:.6;margin:14px 0 2px}
+#psec .lead{opacity:.7;margin-bottom:14px;line-height:1.5}
+#psec .note{opacity:.55;font-size:12px;margin-top:14px;line-height:1.5}
+.field{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid var(--line)}
+.field b{font-weight:600}
+.field p{opacity:.55;font-size:12px;margin-top:2px;line-height:1.4;max-width:420px}
+.field select{height:32px;border-radius:8px;border:1px solid var(--line);background:var(--surface2);padding:0 8px;outline:0;min-width:170px}
+.field input[type=range]{width:170px;accent-color:var(--accent)}
+.btn{height:32px;padding:0 14px;border-radius:8px;background:var(--surface2);font-weight:600;font-size:12px;white-space:nowrap;transition:background .15s,transform .18s var(--bounce)}
+.btn:hover{background:color-mix(in srgb,var(--ink) 10%,var(--surface2))}
+.btn:active{transform:scale(.96)}
+.btn.danger{color:#d93a2b}
+.btn.sm{height:28px;padding:0 10px}
+.switch{position:relative;width:40px;height:22px;flex:none}
+.switch input{position:absolute;opacity:0;inset:0;margin:0}
+.switch i{position:absolute;inset:0;border-radius:11px;background:color-mix(in srgb,var(--ink) 20%,transparent);transition:background .2s;pointer-events:none}
+.switch i::after{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2);transition:transform .25s var(--bounce)}
+.switch input:checked+i{background:var(--accent)}
+.switch input:checked+i::after{transform:translateX(18px)}
+.themes-head{display:flex;align-items:flex-end;justify-content:space-between}
+.themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:12px;margin:8px 0 6px}
+.tcard{display:flex;flex-direction:column;gap:6px;text-align:left;border-radius:12px;transition:transform .2s var(--bounce)}
+.tcard:hover{transform:translateY(-2px)}
+.tcard:active{transform:scale(.97)}
+.tprev{height:66px;border-radius:11px;background:linear-gradient(140deg,var(--a),var(--b));box-shadow:inset 0 0 0 1px var(--line);display:flex;flex-direction:column;gap:5px;padding:10px 0 0 8px;position:relative;overflow:hidden}
+.tprev i{display:block;width:30%;height:7px;border-radius:4px;background:rgba(255,255,255,.5)}
+.tprev i:first-child{background:rgba(255,255,255,.92)}
+.tprev::after{content:'';position:absolute;right:6px;top:7px;bottom:7px;left:44%;border-radius:6px;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.tprev.d i{background:rgba(255,255,255,.16)}
+.tprev.d i:first-child{background:rgba(255,255,255,.34)}
+.tprev.d::after{background:#1c1b22}
+.tprev.a i{background:rgba(0,0,0,.08)}
+.tprev.a i:first-child{background:rgba(0,0,0,.13)}
+.tprev.a.d i{background:rgba(255,255,255,.1)}
+.tprev.a.d i:first-child{background:rgba(255,255,255,.2)}
+.tprev.g::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.75),rgba(255,255,255,.1) 45%,transparent 60%),repeating-linear-gradient(115deg,rgba(255,255,255,.12) 0 6px,transparent 6px 14px)}
+.tcard.on .tprev{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.tname{font-size:12px;opacity:.75;padding-left:2px}
+.custom{display:flex;gap:8px;align-items:center}
+.custom input[type=color]{width:40px;height:32px;border:0;padding:0;background:none;border-radius:8px;cursor:pointer}
+.item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.item .grow{flex:1;min-width:0}
+.item .name{font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.item small{opacity:.5;font-size:12px}
+.item .ic{width:32px;height:32px;border-radius:8px;background:var(--surface2);display:grid;place-items:center;flex:none}
+.empty-list{opacity:.5;padding:18px 0}
+.dlbar{height:4px;border-radius:2px;margin:6px 0 4px;background:color-mix(in srgb,var(--ink) 10%,transparent);overflow:hidden}
+.dlbar i{display:block;height:100%;border-radius:2px;background:var(--accent);transition:width .4s var(--out)}
+.dlbar.unknown i{animation:bar 1.2s var(--ease) infinite}
+.about{display:flex;align-items:center;gap:18px;margin-bottom:10px}
+.about .logo{width:64px;height:64px}
+.about h2{margin:0!important}
+#pclose{position:absolute;top:12px;right:12px}
+
+/* right-click menus (macOS style) */
+.ctx{position:fixed;z-index:60;min-width:224px;max-width:340px;padding:5px;border-radius:11px;color:var(--ink);font-size:13px;
+  background:color-mix(in srgb,var(--surface) 86%,transparent);-webkit-backdrop-filter:blur(26px) saturate(1.7);backdrop-filter:blur(26px) saturate(1.7);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.2),inset 0 .5px 0 rgba(255,255,255,.35),0 14px 44px rgba(0,0,0,.24);animation:menuin .18s var(--out);user-select:none}
+@keyframes menuin{from{opacity:0;transform:translateY(-3px)}}
+/* mini windows under the Downloads and Extensions buttons */
+.pop{position:fixed;z-index:45;width:340px;max-height:min(470px,72vh);overflow:auto;padding:6px;border-radius:14px;color:var(--ink);background:var(--surface);
+  box-shadow:0 22px 60px rgba(0,0,0,.28),0 0 0 1px var(--line);
+  opacity:0;transform:translateY(-8px);clip-path:inset(0 0 92% 0 round 16px);visibility:hidden;pointer-events:none;transition:opacity .16s ease,transform .28s var(--out),clip-path .28s var(--out),visibility 0s linear .28s}
+.pop.show{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 16px);visibility:visible;pointer-events:auto;transition:opacity .22s ease,transform .45s var(--out),clip-path .5s var(--out),visibility 0s}
+.pop::-webkit-scrollbar{width:0}
+.pop h5{font-size:13px;font-weight:600;padding:8px 10px 6px}
+.prow{display:flex;align-items:center;gap:11px;padding:7px 8px 7px 10px;border-radius:9px;transition:background .15s}
+.prow:hover{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.prow .grow{flex:1;min-width:0}
+.prow .name{font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.prow small{opacity:.5;font-size:11.5px;display:block;margin-top:1px}
+.prow .dlbar{margin:5px 0 3px}
+.mini{width:26px;height:26px;border-radius:13px;display:grid;place-items:center;flex:none;opacity:.55;transition:background .15s,opacity .15s}
+.mini:hover{opacity:1;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.mini svg{width:17px;height:17px}
+.mini.on{opacity:1;color:var(--accent)}
+.mini.pin svg{width:15px;height:15px}
+#xpins{display:flex;gap:6px}
+#xpins:empty{display:none}
+.xpin img{width:16px;height:16px;border-radius:4px}
+.xpin span{font-size:11px;font-weight:700}
+.fic{width:28px;height:34px;flex:none;border-radius:4px 9px 4px 4px;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;position:relative}
+.fic::before{content:'';position:absolute;top:0;right:0;width:9px;height:9px;border-radius:0 8px 0 3px;background:color-mix(in srgb,var(--ink) 10%,transparent)}
+.fic span{font-size:7.5px;font-weight:700;letter-spacing:.02em;color:var(--accent);text-transform:uppercase}
+.eic{width:30px;height:30px;flex:none;border-radius:8px;background:var(--surface2);display:grid;place-items:center;font-size:12px;font-weight:700;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.eic img{width:22px;height:22px}
+.prow .switch{transform:scale(.85)}
+.pempty{padding:22px 10px;text-align:center;opacity:.5}
+.pfoot{display:flex;gap:4px;padding:6px 2px 0;margin-top:4px;border-top:1px solid var(--line)}
+.pfoot button{flex:1;height:30px;border-radius:8px;font-size:12px;font-weight:600;color:var(--accent);transition:background .15s}
+.pfoot button:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.ci{height:26px;display:flex;align-items:center;gap:6px;padding:0 10px 0 6px;border-radius:6px;white-space:nowrap}
+.ci .ck{width:16px;flex:none;text-align:center;font-size:12px}
+.ci .lb{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.ci .kb{opacity:.45;font-size:12px;padding-left:18px}
+.ci .ar{display:grid;place-items:center;opacity:.55}
+.ci .ar svg{width:12px;height:12px}
+.ci:not(.off):hover,.ci.hot{background:var(--accent);color:#fff}
+.ci:not(.off):hover .kb,.ci.hot .kb,.ci:not(.off):hover .ar,.ci.hot .ar{opacity:.85}
+.ci.off{opacity:.35}
+.ci.danger{color:#e5484d}
+.ci.danger:not(.off):hover,.ci.danger.hot{background:#e5484d;color:#fff}
+.cs{height:1px;margin:5px 8px;background:color-mix(in srgb,var(--ink) 12%,transparent)}
+/* ---- Tab Overview: a 3D Cover Flow of the space's tabs (Ctrl+Shift+A) ---- */
+#ov{flex-direction:column;justify-content:center;gap:0}
+#ov.in{background:rgba(8,6,16,.62);-webkit-backdrop-filter:blur(22px) saturate(1.3);backdrop-filter:blur(22px) saturate(1.3)}
+.ovstage{width:100%;height:58vh;perspective:1500px;position:relative}
+#ovcards{position:absolute;inset:0;transform-style:preserve-3d}
+.ovc{--w:min(44vw,620px);position:absolute;left:50%;top:50%;width:var(--w);height:calc(var(--w) * .62);margin:calc(var(--w) * -.31) 0 0 calc(var(--w) * -.5);
+  border-radius:16px;overflow:hidden;background:#fff;cursor:pointer;
+  box-shadow:0 40px 90px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.14);transition:transform .7s var(--out),opacity .45s ease,filter .45s ease;
+  -webkit-box-reflect:below 16px linear-gradient(transparent 62%,rgba(255,255,255,.2))}
+.ovc img.shot{width:100%;height:100%;object-fit:cover;object-position:top left;display:block}
+.ovc .ph{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(140deg,var(--c1),var(--c2))}
+.ovc .ph img{width:72px;height:72px;border-radius:18px;background:#fff;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.ovc .cx{position:absolute;top:10px;left:10px;width:28px;height:28px;border-radius:14px;display:grid;place-items:center;background:rgba(20,18,30,.7);color:#fff;
+  opacity:0;transform:scale(.8);transition:opacity .2s,transform .3s var(--bounce)}
+.ovc.cur:hover .cx{opacity:1;transform:none}
+.ovc.side{filter:brightness(.72)}
+.ovc.zoom{transform:translateZ(260px) scale(1.25)!important;opacity:0!important;transition:transform .45s var(--out),opacity .4s ease}
+#ovtitle{color:#fff;font:600 19px/1.3 var(--font-d);text-align:center;margin-top:34px;text-shadow:0 2px 12px rgba(0,0,0,.4);padding:0 40px;
+  max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#ovsub{color:rgba(255,255,255,.6);font-size:13px;text-align:center;margin-top:4px}
+.ovhint{color:rgba(255,255,255,.45);font-size:12px;margin-top:26px;text-align:center}
+.ovhint kbd{background:rgba(255,255,255,.12);color:#fff}
+#ov .empty-ov{color:#fff;opacity:.7;text-align:center;font-size:15px}
+
+/* ---- tab preview: a snapshot card that tilts with the pointer while hovering a tab ---- */
+#tprev{position:fixed;z-index:8;pointer-events:none;border-radius:12px;overflow:hidden;background:var(--surface);color:var(--ink);
+  box-shadow:0 18px 44px rgba(0,0,0,.28),0 0 0 1px var(--line);transform-origin:50% 0;
+  transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s var(--out);animation:flipin .45s var(--out)}
+@keyframes flipin{from{opacity:0;transform:perspective(700px) rotateX(-28deg) translateY(-6px) scale(.94)}}
+#tprev img{width:100%;aspect-ratio:16/10;object-fit:cover;object-position:top left;display:block;background:#fff}
+#tprev div{padding:8px 11px 9px;font-size:12px}
+#tprev b{display:block;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#tprev small{opacity:.5}
+#toast{position:fixed;left:18px;bottom:56px;max-width:calc(var(--sbw) - 36px);display:flex;align-items:center;gap:8px;background:var(--ink);color:var(--inv);padding:8px 12px;border-radius:10px;font-size:12px;
+  opacity:0;transform:translateY(10px) scale(.96);transition:opacity .2s,transform .3s var(--bounce);pointer-events:none;z-index:30}
+#toast.show{opacity:1;transform:none}
+#toast svg{width:14px;height:14px}
+#toast span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#toast.act{pointer-events:auto;padding-right:6px}
+.tact{margin-left:4px;padding:3px 10px;border-radius:7px;font-weight:700;font-size:12px;color:color-mix(in srgb,var(--accent) 55%,var(--inv));background:color-mix(in srgb,var(--inv) 12%,transparent);flex:none}
+.tact:hover{background:color-mix(in srgb,var(--inv) 22%,transparent)}
+/* with the sidebar hidden the page covers its corner, so messages show in the top bar instead */
+body.collapsed #toast{left:50%;bottom:auto;top:7px;max-width:min(440px,60vw);transform:translate(-50%,-8px) scale(.96)}
+body.collapsed #toast.show{transform:translate(-50%,0)}
+
+/* ---- Safari-style capsule toolbar (Settings > Layout > Toolbar) ---- */
+#tbar,#t-side{display:none}
+body.topbar #tbar{display:flex;align-items:center;gap:8px}
+body.topbar #t-side{display:flex}
+body.topbar #titlebar{height:46px;gap:6px}
+body.topbar #sidebar :is(#b-side,#b-back,#b-fwd,#b-reload,#urlbar){display:none}
+body.topbar #sidebar .top{display:none}
+body.mac.topbar #titlebar .lights{display:flex;padding:0 4px 0 12px}
+body.topbar #sidebar{padding-top:12px}
+.cap{height:30px;border-radius:15px;background:var(--cap);display:flex;align-items:center;color:var(--ink);--shade:.08;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,var(--caphi)),0 1px 2px rgba(0,0,0,.06);transition:background .2s,transform .3s var(--bounce)}
+.cap:hover{background:var(--cap2)}
+.cap:active{transform:scale(.96)}
+.round{width:30px;justify-content:center;flex:none}
+.round svg{width:15px;height:15px;opacity:.8}
+.round img{width:14px;height:14px;border-radius:4px}
+#t-site.empty img{display:none}
+#t-site.empty::after{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;opacity:.55}
+.seg{padding:0 1px;flex:none}
+.seg button{width:32px;height:30px;display:grid;place-items:center;border-radius:15px;opacity:.7;transition:opacity .15s}
+.seg button:hover{opacity:1}
+.seg svg{width:15px;height:15px}
+.seg i{width:1px;height:14px;background:currentColor;opacity:.14}
+.turl{position:relative;flex:none}
+#t-url{width:clamp(220px,36vw,560px);gap:8px;padding:0 4px 0 12px;font-size:13px;overflow:hidden;cursor:text;flex:none;transition:width .55s var(--out),background .3s ease,box-shadow .4s var(--out)}
+#t-url:active{transform:none}
+#t-url.open{width:clamp(320px,50vw,760px);background:var(--cap2);box-shadow:inset 0 .5px 0 rgba(255,255,255,var(--caphi)),0 0 0 2.5px color-mix(in srgb,var(--accent) 50%,transparent),0 6px 20px rgba(0,0,0,.08)}
+#t-q{flex:1;min-width:0;border:0;outline:0;background:none;color:inherit;font:inherit;text-align:center}
+#t-url.open #t-q{text-align:left}
+#t-q::placeholder{color:currentColor;opacity:.55}
+#t-drop{position:absolute;top:calc(100% + 8px);left:-24px;right:-24px;z-index:40;border-radius:14px;padding:6px;max-height:min(520px,70vh);overflow:auto;background:var(--surface);box-shadow:0 22px 60px rgba(0,0,0,.28),0 0 0 1px var(--line);opacity:0;transform:translateY(-8px);clip-path:inset(0 0 92% 0 round 16px);visibility:hidden;pointer-events:none;transition:opacity .16s ease,transform .28s var(--out),clip-path .28s var(--out),visibility 0s linear .28s}
+#t-drop.show{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 16px);visibility:visible;pointer-events:auto;transition:opacity .22s ease,transform .45s var(--out),clip-path .5s var(--out),visibility 0s}
+#t-drop::-webkit-scrollbar{width:0}
+#t-url>span:first-child svg{width:14px;height:14px;opacity:.55}
+#t-reload{width:24px;height:24px;border-radius:12px;display:grid;place-items:center;opacity:0;transition:opacity .15s}
+#t-reload svg{width:13px;height:13px}
+#t-url:hover #t-reload{opacity:.65}
+#t-url.open #t-reload{display:none}
+#t-url::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:40%;border-radius:2px;background:var(--accent);opacity:0;transform:translateX(-100%)}
+#t-url.loading::after{opacity:.6;animation:bar 1.1s var(--ease) infinite}
+
+/* ---- window background (Settings > Background): blurred photo, photo gradient, solid, or theme ---- */
+#winbg{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;display:none}
+#winbg::before{content:'';position:absolute;inset:-140px;background:var(--wall) center/cover;filter:blur(90px) saturate(1.5);display:none}
+#winbg::after{content:'';position:absolute;inset:0;background:var(--tintc)}
+body:is([data-winbg=blur],[data-winbg=gradient],[data-winbg=solid]) #winbg{display:block}
+body[data-winbg=blur] #winbg::before{display:block}
+body[data-winbg=gradient] #winbg{background:linear-gradient(150deg,var(--c1),var(--w2) 55%,var(--c2))}
+body[data-winbg=solid] #winbg{background:var(--c1)}
+body.glass.desk #winbg{display:none!important}
+
+/* ---- home options ---- */
+#wall{filter:blur(var(--hblur,0px))}
+#wallshade::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,var(--hdim,0))}
+#home.mid .hwrap{justify-content:center;padding-top:0;padding-bottom:8vh}
+
+/* ---- reduce motion ---- */
+body.calm *,body.calm *::before,body.calm *::after{transition-duration:0s!important;animation-duration:0s!important;animation-delay:0s!important}
+
+/* ---- density ---- */
+body.compact{--tab-h:30px;--fav-h:44px}
+body.compact #urlbar{height:32px}
+
+/* ---- film grain (Arc-style) ---- */
+body.grain::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.22;mix-blend-mode:soft-light;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ---- Apple: flat, quiet, blue accent ---- */
+body.apple .tab.on,body.apple .fav.on{box-shadow:none}
+body.apple main{box-shadow:0 0 0 1px rgba(0,0,0,.1),0 2px 12px rgba(0,0,0,.07)}
+body.apple.dark main{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 2px 12px rgba(0,0,0,.3)}
+body.apple #pnav{background:var(--surface2)}
+body.apple .hsearch{border-radius:calc(12px * var(--r))}
+
+/* ---- Liquid Glass ----
+   Refraction is real: each .lg element gets an SVG lens filter (see LG in the script) that bends
+   whatever is behind it. CSS adds the tint, rim highlights and a light that follows the pointer. */
+body.glass{background:linear-gradient(var(--gtint),var(--gtint)),linear-gradient(150deg,var(--c1),var(--w2) 55%,var(--c2));
+  --hl:rgba(255,255,255,.45)}
+body.glass.desk{background:linear-gradient(var(--gtint),var(--gtint))}
+body.glass.dark{--hl:rgba(255,255,255,.12)}
+.lg[data-lg=panel]{--tint:var(--ptint)}
+/* Frosted glass: strong blur with refraction at the rounded edges (SVG lens), a neutral tint,
+   a hairline rim that is brighter where light hits it, and a soft shadow. Nothing else. */
+.lg{position:relative}
+:is(body.glass,#home) .lg:not(.tab):not(#_),body.glass .tab.on:not(#_){
+  backdrop-filter:var(--lgf,blur(18px) saturate(1.5));
+  background:linear-gradient(rgba(255,255,255,var(--hov,0)),rgba(255,255,255,var(--hov,0))),var(--tint);
+  box-shadow:0 18px 44px rgba(0,0,0,var(--shade,.24))}
+:is(body.glass,#home) .lg:not(.tab)::before,body.glass .tab.on::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(155deg,rgba(255,255,255,var(--rimHi,.34)),rgba(255,255,255,var(--rimLo,.07)) 38%,rgba(255,255,255,var(--rimLo,.07)) 62%,rgba(255,255,255,calc(var(--rimHi,.34) * .6)));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+:is(body.glass,#home) .lg:hover{--hov:.05}
+#home,body.glass.dark{--tint:rgba(10,6,16,.36);--ptint:rgba(22,18,30,.5);--haze:rgba(255,255,255,.055)}
+#home #hdock,.lg[data-lg=haze]{--tint:var(--haze)} /* outer surfaces: a light haze; controls on them stay dark */
+#home.light,body.glass:not(.dark){--tint:rgba(255,255,255,.26);--ptint:rgba(255,255,255,.5);--rimHi:.7;--rimLo:.22;--shade:.12}
+body.glass .tab.on{border-radius:999px}
+body.glass .fav,body.glass #urlbar,body.glass #findbar{border-radius:calc(18px * var(--r))}
+body.glass main{box-shadow:0 0 0 1px rgba(255,255,255,.5),0 18px 50px rgba(0,0,0,.25)}
+body.glass.dark main{box-shadow:0 0 0 1px rgba(255,255,255,.14),0 18px 50px rgba(0,0,0,.45)}
+body.glass #pnav{background:rgba(255,255,255,.12)}
+body.glass.dark #pnav{background:rgba(255,255,255,.04)}
+body.glass .sheet,body.glass .box{border-radius:calc(24px * var(--r))}
+body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px) saturate(1.8)}
+</style>
+</head>
+<body class="boot">
+<div class="edge"></div>
+<div id="winbg"></div>
+<div id="spacer"></div>
+<aside id="sidebar" data-tauri-drag-region>
+  <div class="top">
+    <div class="lights">
+      <button data-win="close" title="Close"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M7 7l10 10"/></svg></button>
+      <button data-win="min" title="Minimize"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+      <button data-win="max" title="Maximize"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <button class="icon press" id="b-side" title="Toggle sidebar (Ctrl+S)" data-i="side"></button>
+    <div class="grow" data-tauri-drag-region></div>
+    <button class="icon press" id="b-back" title="Back (Alt+Left)" data-i="back"></button>
+    <button class="icon press" id="b-fwd" title="Forward (Alt+Right)" data-i="fwd"></button>
+    <button class="icon press" id="b-reload" title="Reload (Ctrl+R)" data-i="reload"></button>
+  </div>
+  <div id="urlbar" class="press lg" title="Edit URL (Ctrl+L)"><span id="url"></span><button class="icon press" id="b-copy" title="Copy URL (Ctrl+Shift+C)" data-i="copy"></button></div>
+  <div id="favorites" data-zone="fav"></div>
+  <div class="lists" id="lists">
+    <div class="space-head"><div id="space-name" contenteditable="plaintext-only" spellcheck="false" title="Click to rename"></div><button class="icon press" id="b-theme" title="Themes" data-i="palette"></button></div>
+    <div class="zone" id="pinned" data-zone="pinned"></div>
+    <div class="divider"><hr><button id="b-clear" title="Archive Today tabs"><span data-i="down"></span>Clear</button></div>
+    <div class="tab press" id="newtab"><span class="fi" data-i="plus"></span><span class="t">New Tab</span><kbd>Ctrl T</kbd></div>
+    <div class="zone" id="today" data-zone="today"></div>
+  </div>
+  <div class="bottom" data-tauri-drag-region>
+    <button class="icon press" id="b-settings" title="Settings (Ctrl+,)" data-i="gear"></button>
+    <div id="dots"></div>
+    <button class="icon press" id="b-add" title="New space (right-click a dot to delete)" data-i="plus"></button>
+  </div>
+</aside>
+<div id="resizer" title="Drag to resize, double-click to reset"></div>
+<div id="col">
+  <header id="titlebar" data-tauri-drag-region>
+    <div class="lights">
+      <button data-win="close" title="Close"><svg viewBox="0 0 24 24"><path d="M17 7 7 17M7 7l10 10"/></svg></button>
+      <button data-win="min" title="Minimize"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+      <button data-win="max" title="Maximize"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+    <button class="cap round lg" id="t-side" title="Toggle sidebar (Ctrl+S)" data-i="side"></button>
+    <button class="cap round lg" id="t-ov" title="Tab Overview (Ctrl+Shift+A)" data-i="stack"></button>
+    <div id="findbar" class="lg" hidden>
+      <span data-i="search"></span><input id="fq" placeholder="Find in page" spellcheck="false" autocomplete="off"><span id="fcount"></span>
+      <button id="f-prev" title="Previous (Shift+Enter)" data-i="up"></button><button id="f-next" title="Next (Enter)" data-i="chev"></button><button id="f-close" title="Close (Esc)" data-i="x"></button>
+    </div>
+    <div class="grow" data-tauri-drag-region></div>
+    <div id="tbar">
+      <div class="cap seg lg"><button id="t-back" title="Back (Alt+Left)" data-i="back"></button><i></i><button id="t-fwd" title="Forward (Alt+Right)" data-i="fwd"></button></div>
+      <button class="cap round lg empty" id="t-site" title="Copy link (Ctrl+Shift+C)"><img alt=""></button>
+      <div class="turl">
+        <div class="cap lg empty" id="t-url"><span data-i="search"></span><input id="t-q" placeholder="Search or enter website name" spellcheck="false" autocomplete="off"><button id="t-reload" title="Reload (Ctrl+R)" data-i="reload"></button></div>
+        <div class="slist lg" data-lg="panel" id="t-drop"></div>
+      </div>
+      <button class="cap round lg" id="t-new" title="New tab (Ctrl+T)" data-i="plus"></button>
+    </div>
+    <div class="grow" data-tauri-drag-region></div>
+    <button class="cap lg" id="b-addext" hidden title="Install this extension">Add to Gallium</button>
+    <button class="cap round lg" id="b-dl" title="Downloads (Ctrl+J)" data-i="dlc"></button>
+    <div id="xpins"></div>
+    <button class="cap round lg" id="b-ext" title="Extensions" data-i="blocks"></button>
+    <div class="caption lg">
+      <button data-win="min" title="Minimize">&#xE921;</button>
+      <button data-win="max" id="b-max" title="Maximize">&#xE922;</button>
+      <button data-win="close" title="Close">&#xE8BB;</button>
+    </div>
+  </header>
+  <main>
+    <img id="snap" hidden alt="">
+    <div id="home" hidden>
+      <div id="wall"></div><div id="wallshade"></div>
+      <div class="hwrap">
+        <div id="clock" class="hin"></div>
+        <div id="greet" class="hin" style="--d:.06s"></div>
+        <div class="hbox hin" style="--d:.12s">
+          <div class="hsearch lg"><span data-i="search"></span><input id="hq" placeholder="Search or enter website name" spellcheck="false" autocomplete="off"><button id="heng" title="Search engine"><img alt=""><span id="hengname"></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
+          <div class="slist" id="hsugg"></div>
+          <div id="hengs" hidden></div>
+        </div>
+        <div id="hdock" class="lg hin" style="--d:.2s"></div>
+        <div id="hrecent" class="hin" style="--d:.28s"></div>
+      </div>
+      <button id="hcustom" class="lg press"><span data-i="palette"></span>Customize</button>
+    </div>
+  </main>
+</div>
+<div id="dropline"></div>
+<div id="cmdk" class="overlay" hidden><div class="box lg" data-lg="panel"><div class="row"><span data-i="search"></span><input id="q" placeholder="Search or Enter URL…" spellcheck="false" autocomplete="off"></div><div class="slist" id="sugg"></div></div></div>
+<div id="panel" class="overlay" hidden>
+  <div class="sheet lg" data-lg="panel">
+    <nav id="pnav">
+      <div class="ptitle">Settings</div>
+      <button data-sec="appearance"><span data-i="palette"></span>Appearance</button>
+      <button data-sec="background"><span data-i="image"></span>Background</button>
+      <button data-sec="home"><span data-i="home"></span>Home</button>
+      <button data-sec="layout"><span data-i="layout"></span>Layout</button>
+      <button data-sec="general"><span data-i="gear"></span>General</button>
+      <button data-sec="extensions"><span data-i="blocks"></span>Extensions</button>
+      <button data-sec="downloads"><span data-i="dlc"></span>Downloads</button>
+      <button data-sec="shortcuts"><span data-i="key"></span>Shortcuts</button>
+      <button data-sec="about"><span data-i="info"></span>About</button>
+    </nav>
+    <section id="psec"></section>
+    <button class="icon press" id="pclose" title="Close (Esc)" data-i="x"></button>
+  </div>
+</div>
+<div id="ov" class="overlay" hidden>
+  <div class="ovstage"><div id="ovcards"></div></div>
+  <div><div id="ovtitle"></div><div id="ovsub"></div></div>
+  <div class="ovhint"><kbd>←</kbd> <kbd>→</kbd> browse · <kbd>Enter</kbd> open · <kbd>Del</kbd> close tab · <kbd>Esc</kbd> back</div>
+</div>
+<div id="tprev" hidden></div>
+<div id="toast"></div>
+<div id="ctx-root"></div>
+<div id="pop" class="pop"></div>
+<svg width="0" height="0" style="position:absolute"><defs id="lgdefs"><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6cff"/><stop offset="1" stop-color="#ff7ac3"/></linearGradient></defs></svg>
+
+<script>
+if (window.top !== window || window.__TAURI_INTERNALS__?.metadata?.currentWebview?.label !== 'ui') {
+  document.documentElement.innerHTML = ''
+  throw new Error('Gallium UI loaded outside its own webview')
+}
+const T = window.__TAURI__, invoke = T.core.invoke, appWin = T.window.getCurrentWindow()
+const $ = s => document.querySelector(s)
+const body = document.body
+
+const I = {
+  back: '<path d="m15 18-6-6 6-6"/>', fwd: '<path d="m9 18 6-6-6-6"/>', up: '<path d="m6 15 6-6 6 6"/>', chev: '<path d="m6 9 6 6 6-6"/>',
+  reload: '<path d="M21 12a9 9 0 1 1-2.6-6.4L21 8"/><path d="M21 3v5h-5"/>',
+  side: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>', x: '<path d="M17 7 7 17M7 7l10 10"/>', down: '<path d="M12 5v14M6 13l6 6 6-6"/>',
+  dl: '<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>', check: '<path d="M5 12.5 10 17 19 7"/>', alert: '<path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
+  copy: '<rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  blocks: '<path d="M15.4 4.4a1 1 0 0 0 1.7-.5 2.5 2.5 0 1 1 3 3 1 1 0 0 0-.5 1.7l1.7 1.7a2.4 2.4 0 0 1 0 3.4l-1.7 1.7a1 1 0 0 1-1.7-.5 2.5 2.5 0 1 0-3 3 1 1 0 0 1 .5 1.7l-1.7 1.7a2.4 2.4 0 0 1-3.4 0l-1.7-1.7a1 1 0 0 0-1.7.5 2.5 2.5 0 1 1-3-3 1 1 0 0 0 .5-1.7l-1.7-1.7a2.4 2.4 0 0 1 0-3.4l1.7-1.7a1 1 0 0 1 1.7.5 2.5 2.5 0 1 0 3-3 1 1 0 0 1-.5-1.7l1.7-1.7a2.4 2.4 0 0 1 3.4 0z"/>',
+  dlc: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5v8.5M8.5 12.8 12 16.3l3.5-3.5"/>',
+  xc: '<circle cx="12" cy="12" r="9"/><path d="m9.2 9.2 5.6 5.6M14.8 9.2l-5.6 5.6"/>',
+  mag: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.4-4.4"/>',
+  vol: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/>',
+  volx: '<path d="M11 5 6 9H3v6h3l5 4z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/>',
+  stack: '<rect x="3.5" y="7" width="13" height="13" rx="2.5"/><path d="M7.5 4h9a3.5 3.5 0 0 1 3.5 3.5v9"/>',
+  trash: '<path d="M4 7h16M10 11v6M14 11v6M5.5 7l1 12a2 2 0 0 0 2 1.8h7a2 2 0 0 0 2-1.8l1-12M9 7V4.8A.8.8 0 0 1 9.8 4h4.4a.8.8 0 0 1 .8.8V7"/>',
+  pin: '<path d="M12 17v5"/><path d="M9 10.8a2 2 0 0 1-1.1 1.8l-1.8.9A2 2 0 0 0 5 15.2V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.8a2 2 0 0 0-1.1-1.7l-1.8-.9A2 2 0 0 1 15 10.8V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/>',
+  key: '<rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  image: '<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>',
+  home: '<path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>',
+  layout: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/>',
+  file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  palette: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4-4-7.4-9-7.4z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="8" r="1"/>',
+}
+const svg = n => `<svg viewBox="0 0 24 24">${I[n]}</svg>`
+document.querySelectorAll('[data-i]').forEach(e => e.innerHTML = svg(e.dataset.i))
+const LOGO = '<img class="logo" src="logo.png" alt="">'
+const GLOBE = 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#7a7290" stroke-width="2">${I.globe}</svg>`)
+document.addEventListener('error', e => { if (e.target.tagName === 'IMG' && e.target.id !== 'snap' && e.target.src !== GLOBE) e.target.src = GLOBE }, true)
+
+// ---------------- themes ----------------
+// c = gradient colors. dark = light text. apple = flat macOS look. glass = see-through Liquid Glass.
+const THEMES = [
+  { id: 'lavender', name: 'Lavender', c: ['#d9c8ff', '#ffd1ea'] },
+  { id: 'ocean', name: 'Ocean', c: ['#b8d8ff', '#c4f1e4'] },
+  { id: 'peach', name: 'Peach', c: ['#ffd6b0', '#ffeca6'] },
+  { id: 'mint', name: 'Mint', c: ['#c6efc0', '#b5e3ff'] },
+  { id: 'rose', name: 'Rose', c: ['#ffc7c7', '#e2c6ff'] },
+  { id: 'cloud', name: 'Cloud', c: ['#e3e3ea', '#c9ccd8'] },
+  { id: 'sky', name: 'Sky', c: ['#a8c8ff', '#d4ecff'] },
+  { id: 'citrus', name: 'Citrus', c: ['#fff0a0', '#bdf0c9'] },
+  { id: 'bubblegum', name: 'Bubblegum', c: ['#ffb8dc', '#bcc8ff'] },
+  { id: 'sand', name: 'Sand', c: ['#f1e6d2', '#dcc6a6'] },
+  { id: 'lilac', name: 'Lilac', c: ['#e6d5ff', '#c9d6ff'] },
+  { id: 'midnight', name: 'Midnight', c: ['#1d1b3a', '#3a1f5d'], dark: true },
+  { id: 'forest', name: 'Forest', c: ['#0f2a24', '#1f4d3a'], dark: true },
+  { id: 'ember', name: 'Ember', c: ['#2a1414', '#5a2a1a'], dark: true },
+  { id: 'nord', name: 'Nord', c: ['#2e3440', '#3b4252'], dark: true },
+  { id: 'dracula', name: 'Dracula', c: ['#282a36', '#44475a'], dark: true, accent: '#bd93f9' },
+  { id: 'aurora', name: 'Aurora', c: ['#10213f', '#1b5e5a'], dark: true, accent: '#5eead4' },
+  { id: 'synthwave', name: 'Synthwave', c: ['#2b1055', '#7a1f6e'], dark: true, accent: '#ff7ad9' },
+  { id: 'graphite', name: 'Graphite', c: ['#232326', '#303034'], dark: true },
+  { id: 'apple', name: 'Apple', c: ['#ececf0', '#e4e4e9'], apple: true, accent: '#0a84ff' },
+  { id: 'apple-dark', name: 'Apple Dark', c: ['#2c2c2f', '#232325'], apple: true, dark: true, accent: '#0a84ff' },
+  { id: 'glass', name: 'Liquid Glass', c: ['#eef2ff', '#fde9ff'], glass: true, accent: '#0a84ff' },
+  { id: 'glass-clear', name: 'Liquid Glass Clear', c: ['#ffffff', '#ffffff'], glass: true, clear: true, accent: '#0a84ff' },
+  { id: 'glass-dark', name: 'Liquid Glass Dark', c: ['#151826', '#1d1430'], glass: true, dark: true, accent: '#64a8ff' },
+]
+const FONTS = {
+  system: ['"Segoe UI Variable Text","Segoe UI",system-ui,sans-serif', '"Segoe UI Variable Display","Segoe UI",sans-serif'],
+  apple: ['"SF Pro Text","SF Pro",-apple-system,"Segoe UI Variable Text","Segoe UI",sans-serif', '"SF Pro Display","SF Pro",-apple-system,"Segoe UI Variable Display",sans-serif'],
+  geometric: ['Bahnschrift,"Segoe UI",sans-serif', 'Bahnschrift,"Segoe UI",sans-serif'],
+  serif: ['Georgia,"Times New Roman",serif', 'Georgia,serif'],
+  mono: ['"Cascadia Code",Consolas,monospace', '"Cascadia Code",Consolas,monospace'],
+}
+const lum = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255 }
+function themeOf(s) {
+  if (s.theme === 'custom' && s.custom) return { id: 'custom', name: 'Custom', c: [s.custom.c1, s.custom.c2], dark: (lum(s.custom.c1) + lum(s.custom.c2)) / 2 < 0.5 }
+  return THEMES.find(t => t.id === s.theme) || THEMES[0]
+}
+let lastMaterial = ''
+function applyTheme() {
+  const th = themeOf(space()), st = S.settings, d = !!th.dark
+  const tok = d
+    ? { ink: '#eceaf4', inv: '#1f1b2e', soft: 'rgba(255,255,255,.07)', soft2: 'rgba(255,255,255,.12)', hard: 'rgba(255,255,255,.17)',
+        surface: 'rgba(32,30,40,.98)', surface2: 'rgba(255,255,255,.08)', line: 'rgba(255,255,255,.09)', frame: '#1c1b22', accent: '#a78bfa' }
+    : { ink: '#1f1b2e', inv: '#fff', soft: 'rgba(255,255,255,.34)', soft2: 'rgba(255,255,255,.55)', hard: 'rgba(255,255,255,.94)',
+        surface: 'rgba(255,255,255,.98)', surface2: '#f2eff8', line: 'rgba(0,0,0,.07)', frame: '#fff', accent: '#6b4dff' }
+  tok.sel = 'linear-gradient(90deg,var(--c1),var(--c2))'
+  tok['tab-r'] = '9px'; tok['frame-r'] = '10px'
+  if (th.apple) Object.assign(tok, d
+    ? { soft: 'rgba(255,255,255,.06)', soft2: 'rgba(255,255,255,.1)', hard: 'rgba(255,255,255,.13)', surface: 'rgba(40,40,43,.98)' }
+    : { soft: 'rgba(0,0,0,.045)', soft2: 'rgba(0,0,0,.07)', hard: 'rgba(0,0,0,.085)', surface2: '#ebebf0', line: 'rgba(0,0,0,.09)' },
+    { sel: 'color-mix(in srgb,var(--accent) 16%,transparent)', 'tab-r': '7px' })
+  if (th.glass) Object.assign(tok, d
+    ? { soft: 'rgba(255,255,255,.06)', soft2: 'rgba(255,255,255,.11)', hard: 'rgba(255,255,255,.16)', surface: 'rgba(28,28,40,.62)', surface2: 'rgba(255,255,255,.08)', sel: 'rgba(255,255,255,.1)' }
+    : { soft: 'rgba(255,255,255,.22)', soft2: 'rgba(255,255,255,.36)', hard: 'rgba(255,255,255,.58)', surface: 'rgba(255,255,255,.62)', surface2: 'rgba(255,255,255,.5)', sel: 'rgba(255,255,255,.6)' },
+    { 'tab-r': '18px', 'frame-r': '18px' })
+  if (th.accent) tok.accent = th.accent
+  const font = FONTS[st.font === 'auto' ? (th.apple || th.glass ? 'apple' : 'system') : st.font] || FONTS.system
+  const ga = (th.clear ? st.glass / 3 : st.glass) / 100
+  Object.assign(tok, { c1: th.c[0], c2: th.c[1], font: font[0], 'font-d': font[1], r: st.radius, gap: st.gap + 'px',
+    gtint: d ? `rgba(14,12,24,${ga})` : `rgba(255,255,255,${ga})` })
+  // window colors: from the photo (blur / gradient), one solid color, or the theme's own
+  const mode = st.winbg || 'blur', wp = mode !== 'theme' && wallMem.get(wallKey)?.pal
+  if (mode === 'solid') tok.c1 = tok.c2 = st.solid || (wp ? softColor(wp[1], d) : tok.c1)
+  else if (wp) { tok.c1 = softColor(wp[0], d); tok.c2 = softColor(wp[2], d) }
+  if (st.accent) tok.accent = st.accent
+  // the blurred photo is tinted at least enough to keep the theme's text readable (bright photo + dark theme = more tint)
+  const wl = wallMem.get(wallKey)?.lum ?? .5
+  const tintA = Math.max(st.tint / 100, mode === 'blur' ? (d ? wl : 1 - wl) * .85 : 0)
+  Object.assign(tok, {
+    tintc: d ? `rgba(12,10,18,${tintA})` : `rgba(255,255,255,${tintA})`, hdim: st.homeDim / 100, hblur: st.homeBlur + 'px',
+    cap: d ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.55)', cap2: d ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.78)', caphi: d ? .16 : .85,
+  })
+  body.dataset.winbg = mode
+  body.classList.toggle('topbar', st.toolbar !== 'sidebar')
+  body.classList.toggle('calm', !!st.calm)
+  for (const [k, v] of Object.entries(tok)) body.style.setProperty('--' + k, v)
+  for (const [c, on] of Object.entries({ dark: d, apple: !!th.apple, glass: !!th.glass, grain: st.grain && !th.glass && !th.apple, mac: st.buttons === 'mac', compact: st.density === 'compact' }))
+    body.classList.toggle(c, on)
+  body.classList.toggle('desk', !!th.glass && st.backdrop === 'desktop')
+  setWall(); paintPalette()
+  const mat = th.glass && st.backdrop === 'desktop' ? st.material : 'none'
+  if (mat + d !== lastMaterial) { lastMaterial = mat + d; invoke('set_material', { kind: mat, dark: d }).catch(() => {}) }
+}
+
+// ---------------- Liquid Glass engine ----------------
+// For every .lg element we draw a displacement map shaped like the element (rounded rect, convex rim):
+// pixels near the edge are pushed toward the middle, so whatever is behind bends like it does through a
+// thick glass edge. Red/green/blue are displaced by slightly different amounts for a hint of dispersion.
+// Chromium (WebView2) can run SVG filters inside backdrop-filter, which is what makes this possible.
+const LG = (() => {
+  const defs = document.getElementById('lgdefs'), made = new Map(), NS = 'http://www.w3.org/2000/svg'
+  const KINDS = { ctl: { bez: 16, blur: 16, sat: 1.5 }, panel: { bez: 26, blur: 30, sat: 1.5 } }
+  function lensMap(w, h, r, bez) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h
+    const ctx = c.getContext('2d'), img = ctx.createImageData(w, h), px = img.data, hw = w / 2, hh = h / 2
+    const sdf = (x, y) => {
+      const qx = Math.abs(x - hw) - (hw - r), qy = Math.abs(y - hh) - (hh - r)
+      return Math.hypot(Math.max(qx, 0), Math.max(qy, 0)) + Math.min(Math.max(qx, qy), 0) - r
+    }
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4, cx = x + .5, cy = y + .5
+      let dx = 0, dy = 0
+      // only the rim needs work; the flat middle is neutral
+      if (x < bez + r || x >= w - bez - r || y < bez + r || y >= h - bez - r) {
+        const inside = -sdf(cx, cy)
+        if (inside >= 0 && inside < bez) {
+          const gx = sdf(cx + .5, cy) - sdf(cx - .5, cy), gy = sdf(cx, cy + .5) - sdf(cx, cy - .5), gl = Math.hypot(gx, gy) || 1
+          const t = inside / bez, m = Math.pow(1 - t, 2.4) // convex rim: steep at the edge, flat inside
+          dx = -gx / gl * m; dy = -gy / gl * m
+        }
+      }
+      px[i] = 128 + dx * 127; px[i + 1] = 128 + dy * 127; px[i + 2] = 128; px[i + 3] = 255
+    }
+    ctx.putImageData(img, 0, 0)
+    return c.toDataURL()
+  }
+  function filterFor(w, h, r, kind) {
+    const k = KINDS[kind] || KINDS.ctl, bez = Math.max(4, Math.min(k.bez, h / 2, w / 2)), key = `${w}x${h}r${r}${kind}`
+    if (made.has(key)) return [made.get(key), k]
+    if (made.size > 150) { // ponytail: crude cache cap
+      defs.querySelectorAll('filter').forEach(f => f.remove()); made.clear()
+      queueMicrotask(() => document.querySelectorAll('.lg').forEach(apply)) // nothing keeps pointing at a removed filter
+    }
+    const id = 'lgf' + Math.random().toString(36).slice(2, 8), S = bez * 1.5
+    const f = document.createElementNS(NS, 'filter')
+    for (const [a, v] of Object.entries({ id, x: 0, y: 0, width: w, height: h, filterUnits: 'userSpaceOnUse', 'color-interpolation-filters': 'sRGB' })) f.setAttribute(a, v)
+    const ch = (src, keep, out) => `<feColorMatrix in="${src}" type="matrix" values="${[0, 1, 2].map(c => [0, 1, 2, 3, 4].map(j => +(j === c && c === keep)).join(' ')).join(' ')} 0 0 0 1 0" result="${out}"/>`
+    f.innerHTML = `<feImage href="${lensMap(w, h, r, bez)}" x="0" y="0" width="${w}" height="${h}" preserveAspectRatio="none" result="map"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${S}" xChannelSelector="R" yChannelSelector="G" result="d0"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${S * .93}" xChannelSelector="R" yChannelSelector="G" result="d1"/>
+      <feDisplacementMap in="SourceGraphic" in2="map" scale="${S * .86}" xChannelSelector="R" yChannelSelector="G" result="d2"/>
+      ${ch('d0', 0, 'cr')}${ch('d1', 1, 'cg')}${ch('d2', 2, 'cb')}
+      <feBlend in="cr" in2="cg" mode="screen" result="rg"/><feBlend in="rg" in2="cb" mode="screen"/>`
+    defs.append(f); made.set(key, id)
+    return [id, k]
+  }
+  function apply(el) {
+    const w = Math.round(el.offsetWidth), h = Math.round(el.offsetHeight)
+    if (w < 4 || h < 4) return
+    const r = Math.round(Math.min(parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0, w / 2, h / 2))
+    const [id, k] = filterFor(w, h, r, el.dataset.lg)
+    el.style.setProperty('--lgf', `blur(${k.blur}px) url(#${id}) saturate(${k.sat})`)
+  }
+  const ro = new ResizeObserver(es => es.forEach(e => apply(e.target)))
+  let queued = false
+  const scan = () => { queued = false; document.querySelectorAll('.lg').forEach(el => { if (!el._lg) { el._lg = 1; ro.observe(el) } }) }
+  new MutationObserver(() => { if (!queued) { queued = true; requestAnimationFrame(scan) } }).observe(document.body, { childList: true, subtree: true })
+  scan()
+  return { refresh: () => document.querySelectorAll('.lg').forEach(apply) }
+})()
+
+// ---------------- wallpapers: real photos bundled in src/wallpapers (Unsplash License) ----------------
+const WALLS = [['moraine', 'Moraine Lake'], ['clouds', 'Above the Clouds'], ['milkyway', 'Milky Way'], ['aurora', 'Aurora'],
+  ['braies', 'Lago di Braies'], ['shore', 'Shoreline'], ['summit', 'Summit'], ['forest', 'Forest'], ['surf', 'Surf'],
+  ['highlands', 'Highlands'], ['alpine', 'Alpine'], ['haze', 'Haze'],
+  ['flow', 'Flow', 'a'], ['indigo', 'Indigo', 'a'], ['prism', 'Prism', 'a'], ['pastel', 'Pastel', 'a'], ['violet', 'Violet', 'a'],
+  ['blush', 'Blush', 'a'], ['dawn', 'Dawn', 'a'], ['silk', 'Silk', 'a'], ['nebula', 'Nebula', 'a'], ['ribbon', 'Ribbon', 'a'],
+  ['grain', 'Grain', 'a'], ['marble', 'Marble', 'a'], ['liquid', 'Liquid', 'a'], ['ember', 'Ember', 'a']]
+const wallMem = new Map()
+const lumOf = src => { const c = document.createElement('canvas'); c.width = c.height = 8; const x = c.getContext('2d'); x.drawImage(src, 0, 0, 8, 8); const d = x.getImageData(0, 0, 8, 8).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]; return s / 64 / 255 }
+const customWall = () => { try { return localStorage.getItem('gallium-wall') || '' } catch { return '' } }
+const hasCustomWall = () => !!customWall()
+const wallThumb = id => id === 'custom' ? customWall() : `wallpapers/thumbs/${id}.jpg`
+async function buildWall(id) {
+  const url = (id === 'custom' && customWall()) || `wallpapers/${WALLS.some(w => w[0] === id) ? id : 'moraine'}.jpg`
+  const img = new Image(); img.src = url; await img.decode()
+  return { url, lum: lumOf(img), pal: paletteOf(img) }
+}
+// Three averaged colors from the photo (top-left, middle, bottom-right), used for the window gradient.
+function paletteOf(img) {
+  const c = document.createElement('canvas'); c.width = 48; c.height = 30
+  const x = c.getContext('2d'); x.drawImage(img, 0, 0, 48, 30)
+  const d = x.getImageData(0, 0, 48, 30).data
+  const avg = (x0, y0, x1, y1) => {
+    let r = 0, g = 0, b = 0, n = 0
+    for (let y = y0; y < y1; y++) for (let xx = x0; xx < x1; xx++) { const i = (y * 48 + xx) * 4; r += d[i]; g += d[i + 1]; b += d[i + 2]; n++ }
+    return [r / n, g / n, b / n]
+  }
+  return [avg(0, 0, 20, 12), avg(14, 9, 34, 21), avg(28, 18, 48, 30)]
+}
+// Soft version of a photo color: keep its hue, settle it toward the theme's base so text stays readable.
+const softColor = ([r, g, b], dark) => {
+  const m = (r + g + b) / 3; [r, g, b] = [r, g, b].map(v => Math.max(0, Math.min(255, m + (v - m) * 1.7))) // averages come out grayish; bring the color back
+  const base = dark ? [14, 12, 20] : [250, 249, 252], k = dark ? .5 : .52
+  return `rgb(${[r, g, b].map((v, i) => Math.round(base[i] + (v - base[i]) * k)).join(',')})`
+}
+let wallKey = ''
+function paintPalette() {
+  const w = wallMem.get(wallKey), d = !!themeOf(space()).dark
+  if (w) w.pal.forEach((c, i) => body.style.setProperty('--w' + (i + 1), softColor(c, d)))
+}
+async function setWall() {
+  const key = S.settings.wall || 'moraine'
+  if (key === wallKey) return
+  wallKey = key
+  let w = wallMem.get(key)
+  if (!w) { try { w = await buildWall(key) } catch { return } wallMem.set(key, w) }
+  if (wallKey !== key) return
+  body.style.setProperty('--wall', `url("${w.url}")`)
+  applyTheme()
+  $('#home').classList.toggle('light', w.lum > .6)
+}
+function pickWall() {
+  const inp = document.createElement('input')
+  inp.type = 'file'; inp.accept = 'image/*'
+  inp.onchange = async () => {
+    const f = inp.files[0]
+    if (!f) return
+    const img = await createImageBitmap(f), s = Math.min(1, 2400 / img.width), c = document.createElement('canvas')
+    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s)
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+    try { localStorage.setItem('gallium-wall', c.toDataURL('image/jpeg', .86)) } catch { return toast('That photo is too large to keep', 'alert') }
+    wallMem.delete('custom'); wallKey = ''
+    S.settings.wall = 'custom'; save(); applyTheme(); showSec(curSec)
+  }
+  inp.click()
+}
+
+// ---------------- state ----------------
+const ENGINES = {
+  google: ['Google', 'https://www.google.com/search?q=', 'google.com'], bing: ['Bing', 'https://www.bing.com/search?q=', 'bing.com'],
+  ddg: ['DuckDuckGo', 'https://duckduckgo.com/?q=', 'duckduckgo.com'], brave: ['Brave Search', 'https://search.brave.com/search?q=', 'search.brave.com'],
+  ecosia: ['Ecosia', 'https://www.ecosia.org/search?q=', 'ecosia.org'],
+}
+const uid = () => Math.random().toString(36).slice(2, 10)
+const host = u => { try { return new URL(u).hostname.replace(/^www\./, '') } catch { return u } }
+const ico = u => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host(u))}&sz=64`
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`)
+const mkTab = url => ({ id: uid(), url, title: host(url), seen: Date.now() })
+const mkSpace = (name, theme) => ({ id: uid(), name, theme, pinned: [], today: [], active: null })
+const label = t => t.name || t.title
+
+let S = null
+try { S = JSON.parse(localStorage.getItem('gallium')) } catch {}
+S ||= {
+  favorites: ['https://www.google.com', 'https://www.youtube.com', 'https://github.com', 'https://mail.google.com'].map(mkTab),
+  spaces: [mkSpace('Personal', 'lavender'), mkSpace('Work', 'ocean')], cur: 0, collapsed: false, sbw: 264,
+}
+S.settings = {
+  engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: 'windows',
+  grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'moraine', backdrop: 'wallpaper',
+  toolbar: 'top', winbg: S.settings?.windowColors === 'theme' ? 'theme' : 'blur', tint: 30, solid: '', accent: '',
+  homeDim: 8, homeBlur: 0, clock24: false, showDate: true, showDock: true, showRecent: true, homePos: 'top', calm: false,
+  ...S.settings,
+}
+S.downloads = (S.downloads || []).map(d => d.state === 'started' ? { ...d, state: 'failed' } : d) // interrupted by a restart
+if (S.neon === 1) { S.neon = 2; if (S.settings.wall === 'neon') S.settings.wall = 'theme'; for (const s of S.spaces) if (s.theme === 'neon') s.theme = 'glass-dark' } // undo an earlier default
+if (S.settings.wall !== 'custom' && !WALLS.some(w => w[0] === S.settings.wall)) S.settings.wall = 'moraine' // old drawn wallpapers
+for (const s of S.spaces) if (typeof s.theme === 'number') s.theme = THEMES[s.theme]?.id || 'lavender' // old saves
+const save = () => { try { localStorage.setItem('gallium', JSON.stringify(S)) } catch {} }
+const space = () => S.spaces[S.cur]
+const allLists = () => [S.favorites, ...S.spaces.flatMap(s => [s.pinned, s.today])]
+const find = id => {
+  for (const l of allLists()) {
+    const i = l.findIndex(t => t.id === id)
+    if (i > -1) return { t: l[i], l, i }
+  }
+  return {}
+}
+const isToday = l => S.spaces.some(s => s.today === l)
+allLists().flat().forEach(t => t.seen ||= Date.now())
+
+const live = new Set(), loading = new Set() // live = tabs that have a native view
+S.closed = (S.closed || []).filter(c => c && typeof c === 'object').slice(-30)
+const closed = S.closed // recently closed tabs: { url, title }
+const remember = t => { closed.push({ url: t.url, title: label(t) }); if (closed.length > 30) closed.splice(0, closed.length - 30) }
+let frozen = false, dragId = null, animate = false, newDl = false
+
+// ---------------- native tab views ----------------
+const rect = () => { const r = $('main').getBoundingClientRect(); return [r.left, r.top, r.width, r.height] }
+const frameR = () => parseFloat(getComputedStyle($('main')).borderTopLeftRadius) || 0
+const sync = (focus = false) => {
+  const a = space().active
+  return invoke('tab_show', { id: !frozen && live.has(a) ? a : null, r: rect(), radius: frameR(), focus })
+}
+async function ensure(t) {
+  if (live.has(t.id)) return
+  live.add(t.id)
+  const r = rect()
+  try { await invoke('tab_open', { id: t.id, url: t.url, r: frozen ? [-30000, -30000, r[2], r[3]] : r, muted: !!t.muted }) }
+  catch (e) { live.delete(t.id); toast(String(e), 'alert') }
+}
+// Native views always sit above this UI, so to draw anything over a page (overlays,
+// peeking sidebar, animations) we swap the live page for a picture of it, then swap back.
+let snapURL = null
+async function freeze() {
+  if (frozen) return
+  frozen = true
+  const a = space().active, img = $('#snap')
+  if (live.has(a)) {
+    try {
+      const w = $('main').clientWidth, buf = await invoke('tab_snap', { id: a })
+      if (snapURL) URL.revokeObjectURL(snapURL)
+      img.src = snapURL = URL.createObjectURL(new Blob([buf], { type: 'image/jpeg' }))
+      img.style.width = w + 'px'
+      await img.decode()
+      if (frozen) img.hidden = false
+    } catch {} // no picture: the overlay still opens, just over the frame
+  }
+  if (frozen) await sync()
+}
+function thaw(focus = false) {
+  if (!frozen) return
+  // something is still drawn over the page; whoever closes last brings the page back
+  if (overlayOpen() || popFor || menuState || body.classList.contains('peek') || document.activeElement === $('#t-q')) return
+  frozen = false
+  sync(focus).then(() => setTimeout(() => { if (!frozen) $('#snap').hidden = true }, 60))
+}
+
+async function activate(id) {
+  if (!find(id).t) id = null
+  if (body.classList.contains('peek')) { body.classList.remove('peek'); if (!overlayOpen() && !popFor && !menuState) frozen = false }
+  if (!$('#findbar').hidden) closeFind(false)
+  const s = space()
+  if (s.active && s.active !== id) s.prev = s.active // closing a tab returns here
+  s.active = id
+  if (id) find(id).t.seen = Date.now()
+  save(); render()
+  if (id) await ensure(find(id).t)
+  await sync(!!id)
+  if (!frozen) $('#snap').hidden = true
+}
+async function open(url, bg) {
+  const t = mkTab(url)
+  space().today.unshift(t)
+  if (!bg) return activate(t.id)
+  save(); render(); await ensure(t); await sync()
+}
+const unload = id => {
+  if (live.delete(id)) invoke('tab_close', { id })
+  loading.delete(id); audio.delete(id)
+  const sn = snaps.get(id)
+  if (sn) { URL.revokeObjectURL(sn.url); snaps.delete(id) }
+}
+async function goHome() {
+  await activate(null)
+  await invoke('ui_focus')
+  $('#hq').focus()
+}
+const newTab = () => S.settings.newtab === 'home' ? goHome() : S.settings.toolbar !== 'sidebar' ? topSearch(true) : cmd(true)
+const editURL = () => S.settings.toolbar !== 'sidebar' ? topSearch(false) : cmd(false)
+
+// Unload: free a tab's memory but keep it where it is. If it was on screen, go back to the previous tab
+// only if that one is still loaded; never wake another tab up just to have something to show.
+function unloadTab(id, quiet) {
+  const { t } = find(id)
+  if (!t) return
+  const s = space(), wasActive = s.active === id
+  unload(id)
+  if (wasActive) {
+    const prev = find(s.prev).t
+    activate(prev && prev.id !== id && live.has(prev.id) ? prev.id : null)
+  } else { save(); render() }
+  if (!quiet) toast(`Unloaded ${label(t)}`, 'check')
+}
+
+// Today and pinned tabs close (pinned ones with Undo); favorites only unload.
+function close(id) {
+  const { t, l, i } = find(id)
+  if (!t) return
+  if (l === S.favorites) return unloadTab(id, true)
+  unload(id)
+  let next = null
+  const pinned = l !== S.favorites && !isToday(l)
+  if (isToday(l) || pinned) { l.splice(i, 1); remember(t); next = l[i] || l[i - 1] }
+  if (pinned) toast(`Closed ${label(t)}`, 'x', { label: 'Undo', run: () => {
+    if (find(t.id).t) return
+    l.splice(Math.min(i, l.length), 0, t)
+    const c = closed.lastIndexOf(closed.findLast(c => c.url === t.url)); if (c > -1) closed.splice(c, 1)
+    save(); activate(t.id)
+  } })
+  const prev = find(space().prev).t
+  if (prev && prev.id !== id) next = prev
+  next ||= space().today.find(x => x.id !== id)
+  if (space().active === id) activate(next?.id); else { save(); render() }
+}
+function clear() {
+  const s = space(), had = s.today.some(t => t.id === s.active)
+  if (!s.today.length) return
+  for (const t of s.today) { unload(t.id); remember(t) }
+  s.today = []
+  had ? activate(null) : (save(), render())
+  toast('Today tabs archived', 'check')
+}
+// Settings > Archive Today tabs: close Today tabs not looked at for N hours.
+function autoArchive() {
+  const hours = +S.settings.archive
+  if (!hours) return
+  const cutoff = Date.now() - hours * 3600e3
+  let n = 0
+  for (const s of S.spaces) {
+    const old = s.today.filter(t => t.id !== s.active && t.seen < cutoff)
+    for (const t of old) { unload(t.id); remember(t) }
+    s.today = s.today.filter(t => !old.includes(t))
+    n += old.length
+  }
+  if (n) { save(); render(); toast(`Archived ${n} old tab${n > 1 ? 's' : ''}`, 'check') }
+}
+function pin() {
+  const s = space(), { t, l, i } = find(s.active)
+  if (!t || l === S.favorites) return
+  l.splice(i, 1)
+  if (l === s.today) { s.pinned.push(t); toast('Pinned tab', 'check') } else { s.today.unshift(t); toast('Unpinned tab', 'check') }
+  save(); render()
+}
+function cycle(d) {
+  const s = space(), all = [...S.favorites, ...s.pinned, ...s.today]
+  if (!all.length) return
+  const i = all.findIndex(t => t.id === s.active)
+  activate(all[(i + d + all.length) % all.length].id)
+}
+function reopen() { const c = closed.pop(); if (c) { save(); open(c.url) } }
+function copy() {
+  const { t } = find(space().active)
+  if (!t) return
+  // The UI can only write the clipboard while it has focus; otherwise the page does it.
+  if (document.hasFocus()) navigator.clipboard.writeText(t.url).catch(() => {})
+  else if (live.has(t.id)) invoke('tab_do', { id: t.id, action: 'copy' })
+  toast('Copied URL to clipboard', 'check')
+}
+
+// ---------------- spaces & sidebar ----------------
+function go(i) {
+  if (i < 0 || i >= S.spaces.length || i === S.cur) return
+  $('#space-name').blur() // finish a rename on the space being left
+  const el = $('#lists'), dir = i > S.cur ? 'sl' : 'sr'
+  S.cur = i
+  el.classList.remove('sl', 'sr'); void el.offsetWidth; el.classList.add(dir)
+  animate = false
+  activate(space().active)
+}
+function addSpace() {
+  const n = S.spaces.length
+  S.spaces.push(mkSpace(`Space ${n + 1}`, THEMES[n % 11].id))
+  go(n)
+  const nm = $('#space-name'); nm.focus(); getSelection().selectAllChildren(nm)
+}
+function setTheme(id) {
+  space().theme = id; save(); render(); sync()
+  if (!$('#panel').hidden) showSec(curSec)
+}
+async function toggleSidebar() {
+  S.collapsed = !S.collapsed; save()
+  await freeze() // animate a picture of the page, not the live (native) page
+  body.classList.remove('peek')
+  body.classList.toggle('collapsed', S.collapsed)
+  setTimeout(() => { if (!overlayOpen() && !body.classList.contains('peek')) thaw() }, 340)
+}
+
+// ---------------- render (keyed, so only what changed is touched) ----------------
+function syncList(box, list, make, update) {
+  const old = new Map()
+  for (const n of box.children) if (n.dataset.id) old.set(n.dataset.id, n)
+  let prev = null
+  for (const t of list) {
+    let n = old.get(t.id)
+    if (n) old.delete(t.id)
+    else {
+      n = make(t)
+      if (animate) { n.classList.add('enter'); n.addEventListener('animationend', () => n.classList.remove('enter'), { once: true }) }
+    }
+    update(n, t)
+    const want = prev ? prev.nextElementSibling : box.firstElementChild
+    if (n !== want) box.insertBefore(n, want)
+    prev = n
+  }
+  for (const n of old.values()) {
+    if (!animate) { n.remove(); continue }
+    delete n.dataset.id
+    n.classList.add('leave')
+    n.addEventListener('animationend', () => n.remove(), { once: true })
+  }
+}
+function setIcon(img, url) { const src = ico(url); if (img.dataset.src !== src) { img.dataset.src = src; img.src = src } }
+function flags(n, t) {
+  n.classList.toggle('on', t.id === space().active)
+  n.classList.toggle('loading', loading.has(t.id))
+  n.classList.toggle('live', live.has(t.id))
+}
+function makeTab(t) {
+  const n = document.createElement('div')
+  n.className = 'tab press lg'; n.draggable = true; n.dataset.id = t.id
+  n.innerHTML = `<span class="fi"><img alt=""></span><span class="t"></span><button class="snd"></button><button class="x" title="Close (Ctrl+W)">${svg('x')}</button>`
+  return n
+}
+// speaker icon: shown while a tab plays sound, or crossed out while it is muted; click to toggle
+const audio = new Map() // tab id -> { playing, muted }
+function updSnd(n, t) {
+  const b = n.querySelector('.snd'), a = audio.get(t.id), muted = a ? a.muted : !!t.muted, playing = !!a?.playing
+  b.classList.toggle('on', playing || muted)
+  b.classList.toggle('play', playing && !muted)
+  const ic = muted ? 'volx' : 'vol'
+  if (b.dataset.ic !== ic) { b.dataset.ic = ic; b.innerHTML = svg(ic) }
+  b.title = muted ? 'Unmute tab' : 'Mute tab'
+}
+function toggleMute(id) {
+  const { t } = find(id)
+  if (!t) return
+  t.muted = !(audio.get(id)?.muted ?? t.muted)
+  save()
+  if (live.has(id)) invoke('tab_mute', { id, muted: t.muted })
+  else { render() }
+  toast(t.muted ? `Muted ${label(t)}` : `Unmuted ${label(t)}`, t.muted ? 'volx' : 'vol')
+}
+function updTab(n, t) {
+  updSnd(n, t)
+  flags(n, t); setIcon(n.querySelector('img'), t.url)
+  const el = n.querySelector('.t')
+  if (!el.isContentEditable && el.textContent !== label(t)) el.textContent = label(t)
+  n.title = label(t)
+}
+function makeFav(t) {
+  const n = document.createElement('div')
+  n.className = 'fav press lg'; n.draggable = true; n.dataset.id = t.id
+  n.innerHTML = '<img alt=""><button class="snd"></button>'
+  return n
+}
+function updFav(n, t) { flags(n, t); updSnd(n, t); setIcon(n.querySelector('img'), t.url); n.title = label(t) }
+function makeHfav(t) {
+  const n = document.createElement('button')
+  n.className = 'hfav'; n.dataset.id = t.id
+  n.innerHTML = '<img alt=""><span></span>'
+  return n
+}
+function updHfav(n, t) { setIcon(n.querySelector('img'), t.url); n.lastChild.textContent = label(t).split(/ [-–|·] /)[0] }
+function makeChip(t) {
+  const n = document.createElement('button')
+  n.className = 'hchip lg'; n.dataset.id = t.id
+  n.innerHTML = '<img alt=""><span></span>'
+  return n
+}
+function updChip(n, t) { setIcon(n.querySelector('img'), t.url); n.lastChild.textContent = label(t) }
+const storeId = u => u?.match(/^https:\/\/(?:chromewebstore\.google\.com\/detail\/|chrome\.google\.com\/webstore\/detail\/)(?:[^/?#]+\/)?([a-p]{32})/)?.[1]
+
+function render() {
+  if (dragId) return
+  const s = space()
+  applyTheme()
+  syncList($('#favorites'), S.favorites, makeFav, updFav)
+  syncList($('#pinned'), s.pinned, makeTab, updTab)
+  syncList($('#today'), s.today, makeTab, updTab)
+  animate = true
+  const nm = $('#space-name')
+  if (document.activeElement !== nm && nm.textContent !== s.name) nm.textContent = s.name
+  const sig = S.spaces.map(x => x.name).join('\n') + '|' + S.cur
+  if ($('#dots').dataset.sig !== sig) {
+    $('#dots').dataset.sig = sig
+    $('#dots').innerHTML = S.spaces.map((x, i) => `<button class="dot press${i === S.cur ? ' on' : ''}" data-space="${i}" title="${esc(x.name)} (Ctrl+${i + 1})"><i></i></button>`).join('')
+  }
+  const a = find(s.active).t
+  $('#url').textContent = a ? host(a.url) : 'Search or Enter URL…'
+  if (document.activeElement !== $('#t-q')) $('#t-q').value = a ? host(a.url) : ''
+  $('#t-url').classList.toggle('empty', !a)
+  $('#t-url').classList.toggle('loading', !!a && loading.has(a.id))
+  $('#t-site').classList.toggle('empty', !a)
+  if (a) setIcon($('#t-site img'), a.url)
+  $('#urlbar').classList.toggle('loading', !!a && loading.has(a.id))
+  const homeWas = $('#home').hidden
+  $('#home').hidden = !!a
+  if (!a) {
+    renderHome()
+    if (homeWas) { const w = $('.hwrap'); w.classList.remove('anim'); void w.offsetWidth; w.classList.add('anim') } // entrance
+  }
+  $('#b-addext').hidden = !storeId(a?.url)
+  $('#b-dl').classList.toggle('busy', S.downloads.some(d => d.state === 'started'))
+  paintDlButton()
+  $('#b-dl').classList.toggle('new', newDl)
+  document.title = a ? `${label(a)} - Gallium` : 'Gallium'
+}
+function renderHome() {
+  const now = new Date(), h = now.getHours(), eng = engine()
+  const st = S.settings
+  $('#clock').hidden = !st.clock
+  $('#greet').hidden = !st.showDate
+  $('#hdock').hidden = !st.showDock
+  $('#hrecent').hidden = !st.showRecent
+  $('#home').classList.toggle('mid', st.homePos === 'center')
+  $('#clock').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: !st.clock24 }).replace(/\s?[AP]M$/i, '')
+  $('#greet').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }) + '  ·  ' +
+    (h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening')
+  $('#hengname').textContent = eng[0].replace(' Search', '')
+  setIcon($('#heng img'), 'https://' + eng[2])
+  syncList($('#hdock'), [...S.favorites, ...space().pinned], makeHfav, updHfav)
+  syncList($('#hrecent'), space().today.slice(0, 5), makeChip, updChip)
+}
+setInterval(() => { if (!$('#home').hidden) renderHome() }, 15e3)
+
+// ---------------- overlays ----------------
+const overlayOpen = () => !$('#cmdk').hidden || !$('#panel').hidden || !$('#ov').hidden
+async function showOverlay(el) {
+  closePop(true)
+  for (const o of document.querySelectorAll('.overlay')) if (o !== el) { o.classList.remove('in'); o.hidden = true }
+  el.hidden = false
+  await freeze()
+  await invoke('ui_focus')
+  el.classList.add('in')
+}
+function hideOverlay(el, focus = true) {
+  if (el.hidden) return
+  el.classList.remove('in'); el.hidden = true
+  body.classList.remove('peek')
+  if (!overlayOpen()) thaw(focus)
+}
+
+// ---------------- search suggestions (command bar + home) ----------------
+const engine = () => ENGINES[S.settings.engine] || ENGINES.google
+const isURL = q => /^(https?|chrome-extension):\/\//i.test(q) || /^(localhost|[\w-]+(\.[\w-]+)+)(:\d+)?(\/\S*)?$/i.test(q)
+const toURL = q => /^(https?|chrome-extension):\/\//i.test(q) ? q : isURL(q) ? 'https://' + q : engine()[1] + encodeURIComponent(q)
+function suggester(input, list, onPick, showRecent) {
+  const st = { items: [], sel: 0, remote: [], seq: 0, timer: 0 }
+  // instant: a freshly drawn list puts the highlight in place; arrow keys / mouse let it glide
+  const mark = instant => {
+    const rows = list.querySelectorAll('.s')
+    rows.forEach((n, i) => n.classList.toggle('sel', i === st.sel))
+    const hl = list.querySelector('.hl'), r = rows[st.sel]
+    if (!hl || !r) return
+    if (instant) hl.style.transition = 'none'
+    hl.style.transform = `translateY(${r.offsetTop}px)`; hl.style.height = r.offsetHeight + 'px'
+    if (instant) { void hl.offsetWidth; hl.style.transition = '' }
+  }
+  // Safari-style groups: Top Hit, <engine> Search, then matching tabs and favorites
+  const draw = keep => {
+    const q = input.value.trim(), ql = q.toLowerCase(), s = space(), eng = engine()
+    const tabRow = (t, group) => ({ tab: t, label: label(t), sub: host(t.url), icon: ico(t.url), group })
+    const items = []
+    if (q) {
+      const bare = ql.replace(/^https?:\/\/(www\.)?/, '')
+      const match = [...S.favorites, ...s.pinned, ...s.today].filter(t => (label(t) + ' ' + t.url).toLowerCase().includes(ql))
+      const top = match.find(t => host(t.url).startsWith(bare))
+      if (top) items.push(tabRow(top, 'Top Hit'))
+      else if (isURL(q)) items.push({ url: toURL(q), label: q.replace(/^https?:\/\//, ''), sub: 'Open website', icon: ico(toURL(q)), group: 'Top Hit' })
+      for (const r of [q, ...st.remote.filter(r => r.toLowerCase() !== ql)].slice(0, 6)) {
+        if (r !== q && isURL(r)) { if (!top) items.push({ url: toURL(r), label: r.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''), sub: 'Open website', icon: ico(toURL(r)), group: `${eng[0]} Search` }); continue }
+        items.push({ url: eng[1] + encodeURIComponent(r), label: r, group: `${eng[0]} Search` })
+      }
+      items.push(...match.filter(t => t !== top).slice(0, 4).map(t => tabRow(t, 'Tabs & Favorites')))
+    } else if (showRecent) {
+      items.push(...s.today.slice(0, 5).map(t => tabRow(t, 'Open Tabs')), ...S.favorites.slice(0, 6).map(t => tabRow(t, 'Favorites')),
+        ...closed.slice(-4).reverse().map(c => ({ url: c.url, label: c.title || host(c.url), sub: host(c.url), icon: ico(c.url), group: 'Recently Closed', reopen: c })))
+    }
+    st.items = items
+    if (!keep) st.sel = 0
+    st.sel = Math.min(st.sel, Math.max(items.length - 1, 0))
+    let html = '', group = ''
+    items.forEach((x, i) => {
+      if (x.group !== group) { group = x.group; html += `<div class="sh">${esc(group)}</div>` }
+      html += `<div class="s" data-n="${i}">${x.icon ? `<img src="${esc(x.icon)}" alt="">` : svg('search')}<span class="t">${esc(x.label)}</span>${x.sub ? `<small>${esc(x.sub)}</small>` : ''}</div>`
+    })
+    list.innerHTML = (items.length ? '<div class="hl"></div>' : '') + html
+    mark(true)
+  }
+  input.addEventListener('input', () => {
+    st.remote = []; draw()
+    clearTimeout(st.timer)
+    const q = input.value.trim(), id = ++st.seq
+    if (!q || isURL(q) || !S.settings.suggest) return
+    st.timer = setTimeout(async () => {
+      try {
+        const r = JSON.parse(await invoke('suggest', { q }))
+        if (id !== st.seq) return
+        st.remote = r[1].filter(x => x.toLowerCase() !== q.toLowerCase()).slice(0, 4)
+        draw(true)
+      } catch {}
+    }, 80)
+  })
+  input.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      if (st.items.length) { st.sel = (st.sel + (e.key === 'ArrowDown' ? 1 : -1) + st.items.length) % st.items.length; mark() }
+    } else if (e.key === 'Enter') { e.preventDefault(); onPick(st.items[st.sel]) }
+  })
+  list.addEventListener('mousemove', e => { const el = e.target.closest('[data-n]'); if (el && +el.dataset.n !== st.sel) { st.sel = +el.dataset.n; mark() } })
+  list.addEventListener('mousedown', e => { const el = e.target.closest('[data-n]'); if (el) { e.preventDefault(); onPick(st.items[+el.dataset.n]) } })
+  return { reset: () => { st.remote = []; st.seq++; draw() } }
+}
+
+// command bar
+let cmdNew = true
+async function cmd(isNew) {
+  const a = find(space().active).t, q = $('#q')
+  cmdNew = isNew || !a
+  q.value = cmdNew ? '' : a.url
+  cmdS.reset()
+  await showOverlay($('#cmdk'))
+  q.focus(); q.select()
+}
+const closeCmd = (focus = true) => hideOverlay($('#cmdk'), focus)
+const cmdS = suggester($('#q'), $('#sugg'), x => {
+  if (!x) return
+  if (x.tab) { closeCmd(false); return activate(x.tab.id) }
+  if (x.reopen) { closeCmd(false); closed.splice(closed.indexOf(x.reopen), 1); save(); return open(x.url) }
+  if (cmdNew) { closeCmd(false); return open(x.url) }
+  const { t } = find(space().active)
+  t.url = x.url; save()
+  closeCmd(false)
+  if (live.has(t.id)) { invoke('tab_nav', { id: t.id, url: x.url }); sync(true) } else activate(t.id)
+}, true)
+// top bar: the capsule itself is the search field (Safari). While it is open the page is shown as a
+// picture, so the suggestions can drop down over it.
+let topNew = false, topPicked = false, topEsc = false, topT
+async function topSearch(isNew) {
+  closeCmd(false); hideOverlay($('#panel'), false); closeOverview(false); closePop(true)
+  topNew = !!isNew
+  await invoke('ui_focus')
+  const q = $('#t-q')
+  if (document.activeElement === q) { q.value = isNew ? '' : find(space().active).t?.url || ''; q.select(); topS.reset() }
+  else q.focus()
+}
+$('#t-url').addEventListener('mousedown', e => {
+  if (e.target.closest('#t-reload') || e.target === $('#t-q')) return
+  e.preventDefault(); $('#t-q').focus()
+})
+$('#t-q').addEventListener('focus', () => {
+  const a = find(space().active).t, q = $('#t-q')
+  q.value = topNew || !a ? '' : a.url
+  clearTimeout(topT)
+  $('#t-url').classList.add('open'); $('#t-drop').classList.add('show')
+  topS.reset()
+  requestAnimationFrame(() => q.select())
+  freeze()
+})
+$('#t-q').addEventListener('blur', () => {
+  topNew = false
+  $('#t-url').classList.remove('open'); $('#t-drop').classList.remove('show')
+  render()
+  // let the list fade away over the page picture before the live page returns (a pick returns it right away)
+  clearTimeout(topT)
+  const back = focus => { if (document.activeElement !== $('#t-q')) thaw(focus) }
+  if (topPicked || topEsc) back(topEsc); else topT = setTimeout(back, 280)
+  topPicked = topEsc = false
+})
+$('#t-q').addEventListener('keydown', e => { if (e.key === 'Escape') { e.preventDefault(); topEsc = true; e.target.blur() } })
+const topS = suggester($('#t-q'), $('#t-drop'), x => {
+  if (!x) return
+  const isNew = topNew
+  topPicked = true
+  $('#t-q').blur()
+  if (x.tab) return activate(x.tab.id)
+  if (x.reopen) { closed.splice(closed.indexOf(x.reopen), 1); save(); return open(x.url) }
+  const { t } = find(space().active)
+  if (isNew || !t) return open(x.url)
+  t.url = x.url; save()
+  if (live.has(t.id)) { invoke('tab_nav', { id: t.id, url: x.url }); sync(true) } else activate(t.id)
+}, true)
+// home search
+const homeS = suggester($('#hq'), $('#hsugg'), x => {
+  if (!x) return
+  $('#hq').value = ''; homeS.reset(); $('#hq').blur()
+  x.tab ? activate(x.tab.id) : open(x.url)
+}, true)
+$('#hq').addEventListener('focus', () => { $('#hengs').hidden = true; homeS.reset() }) // open tabs + favorites right away
+$('#hq').addEventListener('keydown', e => { if (e.key === 'Escape') { $('#hq').value = ''; homeS.reset() } })
+$('#home').addEventListener('click', e => {
+  const b = e.target.closest('[data-id]'), eng = e.target.closest('[data-eng]')
+  if (b) return activate(b.dataset.id)
+  if (eng) { S.settings.engine = eng.dataset.eng; save(); $('#hengs').hidden = true; renderHome(); return $('#hq').focus() }
+  if (e.target.closest('#heng')) {
+    $('#hq').blur()
+    const list = $('#hengs')
+    list.innerHTML = Object.entries(ENGINES).map(([k, [n, , d]]) => `<button data-eng="${k}" class="${k === S.settings.engine ? 'on' : ''}"><img src="${esc(ico('https://' + d))}" alt="">${n}</button>`).join('')
+    return list.hidden = !list.hidden
+  }
+  if (!e.target.closest('#hengs')) $('#hengs').hidden = true
+  if (e.target.closest('#hcustom')) openPanel('background')
+})
+// on the home page, just start typing to search
+document.addEventListener('keydown', e => {
+  if ($('#home').hidden || overlayOpen() || e.ctrlKey || e.altKey || e.metaKey || e.key.length !== 1) return
+  if (e.target.closest?.('input,textarea,[contenteditable]')) return
+  $('#hq').focus()
+})
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('mousedown', e => { if (e.target === o) hideOverlay(o) }))
+
+// ---------------- find in page ----------------
+let findT
+function openFind() {
+  const a = space().active
+  if (!live.has(a)) return
+  $('#findbar').hidden = false
+  invoke('ui_focus')
+  $('#fq').focus(); $('#fq').select()
+  if ($('#fq').value) runFind()
+}
+function runFind(op = 'start') {
+  const a = space().active, term = $('#fq').value
+  if (!live.has(a)) return
+  if (!term) { $('#fcount').textContent = ''; return invoke('tab_find', { id: a, op: 'stop', term: '' }) }
+  invoke('tab_find', { id: a, op, term }).catch(() => { $('#fcount').textContent = 'Unavailable' })
+}
+function closeFind(focus = true) {
+  const a = space().active
+  $('#findbar').hidden = true; $('#fcount').textContent = ''
+  if (live.has(a)) invoke('tab_find', { id: a, op: 'stop', term: '' })
+  if (focus) sync(true)
+}
+$('#fq').addEventListener('input', () => { clearTimeout(findT); findT = setTimeout(runFind, 120) })
+$('#fq').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); runFind(e.shiftKey ? 'prev' : 'next') }
+  if (e.key === 'Escape') { e.preventDefault(); closeFind() }
+})
+$('#f-prev').onclick = () => runFind('prev')
+$('#f-next').onclick = () => runFind('next')
+$('#f-close').onclick = () => closeFind()
+T.event.listen('find', ({ payload: [id, i, n] }) => {
+  if (id === space().active && !$('#findbar').hidden && $('#fq').value) $('#fcount').textContent = n ? `${Math.max(i, 1)} of ${n}` : 'No matches'
+})
+
+// ---------------- settings panel ----------------
+let curSec = 'appearance'
+async function openPanel(sec = 'appearance') {
+  showSec(sec)
+  await showOverlay($('#panel'))
+  if (sec === 'downloads') { newDl = false; render() }
+}
+const field = (title, desc, control) => `<div class="field"><div><b>${title}</b>${desc ? `<p>${desc}</p>` : ''}</div>${control}</div>`
+const opt = (v, text, cur) => `<option value="${v}"${String(v) === String(cur) ? ' selected' : ''}>${text}</option>`
+const select = (key, pairs) => `<select data-set="${key}">${pairs.map(([v, n]) => opt(v, n, S.settings[key])).join('')}</select>`
+const toggle = key => `<label class="switch"><input type="checkbox" data-set="${key}"${S.settings[key] ? ' checked' : ''}><i></i></label>`
+const range = (key, min, max, step) => `<input type="range" data-set="${key}" min="${min}" max="${max}" step="${step}" value="${S.settings[key]}">`
+const NUMERIC = new Set(['archive', 'radius', 'gap', 'glass', 'tint', 'homeDim', 'homeBlur'])
+const SECTIONS = {
+  appearance: () => {
+    const cur = space().theme, sp = space(), st = S.settings
+    const card = th => `<button class="tcard${th.id === cur ? ' on' : ''}" data-act="theme" data-id="${th.id}"><span class="tprev${th.dark ? ' d' : ''}${th.glass ? ' g' : ''}${th.apple ? ' a' : ''}" style="--a:${th.c[0]};--b:${th.c[1]}"><i></i><i></i><i></i></span><span class="tname">${th.name}</span></button>`
+    const group = f => `<div class="themes">${THEMES.filter(f).map(card).join('')}</div>`
+    return `<h2>Appearance</h2>
+      <div class="themes-head"><h3>Theme for “${esc(sp.name)}”</h3><button class="btn sm" data-act="theme-all">Use for every space</button></div>
+      <h4>Apple &amp; Liquid Glass</h4>${group(t => t.apple || t.glass)}
+      <h4>Light</h4>${group(t => !t.dark && !t.apple && !t.glass)}
+      <h4>Dark</h4>${group(t => t.dark && !t.apple && !t.glass)}
+      ${field('Custom colors', 'Pick two colors for your own gradient. Text turns light or dark to match.',
+        `<div class="custom"><input type="color" data-custom="c1" value="${sp.custom?.c1 || '#c9b6ff'}"><input type="color" data-custom="c2" value="${sp.custom?.c2 || '#ffc4e1'}"><button class="btn sm" data-act="theme-custom">${cur === 'custom' ? 'In use' : 'Use'}</button></div>`)}
+      <h3>Details</h3>
+      ${field('Accent color', 'Used for switches, selection and focus.', `<div class="custom"><input type="color" data-set="accent" value="${st.accent || '#6b4dff'}"><button class="btn sm" data-act="accent-reset">${st.accent ? 'Theme default' : 'Default'}</button></div>`)}
+      ${field('Font', 'Auto uses the Apple font on Apple and Liquid Glass themes when it is installed.', select('font', [['auto', 'Auto'], ['system', 'Segoe UI'], ['apple', 'SF Pro (Apple)'], ['geometric', 'Bahnschrift'], ['serif', 'Georgia'], ['mono', 'Cascadia Code']]))}
+      ${field('Window buttons', 'Windows buttons on the right, or macOS traffic lights.', select('buttons', [['windows', 'Windows'], ['mac', 'macOS']]))}
+      <h3>Liquid Glass</h3>
+      ${field('Glass sits on', 'Background: the window background you chose. Desktop: the window turns see-through.', select('backdrop', [['wallpaper', 'Background'], ['desktop', 'Your desktop']]))}
+      ${field('Desktop blur style', 'Only for “Your desktop”. Acrylic shows the windows behind; Mica tints with your Windows wallpaper.', select('material', [['acrylic', 'Acrylic'], ['mica', 'Mica'], ['tabbed', 'Mica Alt']]))}`
+  },
+  background: () => {
+    const st = S.settings
+    const wcard = ([id, name]) => `<button class="wcard${st.wall === id ? ' on' : ''}" data-act="wall" data-id="${id}"><img src="${wallThumb(id)}" alt="" loading="lazy"><span>${name}</span></button>`
+    return `<h2>Background</h2>
+      <h3>Wallpaper</h3>
+      <p class="note" style="margin-top:0">The photo on the home page. The window around it can take its colors (below).</p>
+      <h4>Landscapes</h4><div class="walls">${WALLS.filter(w => !w[2]).map(wcard).join('')}</div>
+      <h4>Abstract</h4><div class="walls">${WALLS.filter(w => w[2] === 'a').map(wcard).join('')}</div>
+      <h4>Yours</h4><div class="walls"><button class="wcard${st.wall === 'custom' ? ' on' : ''}" data-act="wall-pick">${hasCustomWall() ? `<img src="${wallThumb('custom')}" alt="">` : `<span class="ph">${svg('plus')}</span>`}<span>${hasCustomWall() ? 'Your photo (change)' : 'Choose photo…'}</span></button></div>
+      <h3>Window</h3>
+      ${field('Window background', 'Behind the sidebar and toolbar. Blurred photo is like macOS tinting windows from your wallpaper.',
+        select('winbg', [['blur', 'Blurred photo'], ['gradient', 'Soft gradient from photo'], ['solid', 'Solid color'], ['theme', 'Theme colors']]))}
+      ${field('Tint', 'Softens the window background so text stays easy to read.', range('tint', 0, 80, 1))}
+      ${field('Solid color', 'For “Solid color”. Match photo picks a calm color from the wallpaper.', `<div class="custom"><input type="color" data-set="solid" value="${st.solid || '#6d5bb7'}"><button class="btn sm" data-act="solid-auto">${st.solid ? 'Match photo' : 'Matching photo'}</button></div>`)}
+      ${field('Glass tint', 'Extra tint under Liquid Glass themes.', range('glass', 0, 85, 1))}
+      <h3>Home photo</h3>
+      ${field('Dim', 'Darkens the photo behind the clock and search bar.', range('homeDim', 0, 70, 1))}
+      ${field('Blur', 'Softens the photo for a calmer, more minimal home.', range('homeBlur', 0, 40, 1))}`
+  },
+  home: () => `<h2>Home</h2>
+      ${field('New tab opens', 'What Ctrl+T and New Tab show.', select('newtab', [['cmd', 'Command bar'], ['home', 'Home page']]))}
+      ${field('Layout', 'Where the clock and search bar sit.', select('homePos', [['top', 'Near the top'], ['center', 'Centered']]))}
+      <h3>Show</h3>
+      ${field('Clock', '', toggle('clock'))}
+      ${field('24-hour clock', '', toggle('clock24'))}
+      ${field('Date and greeting', '', toggle('showDate'))}
+      ${field('Favorites dock', 'Your favorites and pinned tabs as icons.', toggle('showDock'))}
+      ${field('Jump back in', 'Chips for the tabs you have open.', toggle('showRecent'))}`,
+  layout: () => `<h2>Layout</h2>
+      ${field('Toolbar', 'Top bar puts back/forward, the address and new tab in floating capsules above the page, like Safari. Sidebar keeps them in the sidebar, like Arc.',
+        select('toolbar', [['top', 'Top bar (capsules)'], ['sidebar', 'In the sidebar']]))}
+      ${field('Corner roundness', '', range('radius', 0.3, 1.8, 0.05))}
+      ${field('Page frame', 'Space around the web page.', select('gap', [[0, 'Edge to edge'], [5, 'Slim'], [8, 'Normal'], [14, 'Roomy']]))}
+      ${field('Tab size', '', select('density', [['comfy', 'Comfortable'], ['compact', 'Compact']]))}
+      ${field('Film grain', 'A subtle texture over gradient themes, like Arc.', toggle('grain'))}
+      ${field('Reduce motion', 'Turns off animations for a calmer, snappier feel.', toggle('calm'))}`,
+  general: () => `<h2>General</h2>
+    ${field('Search engine', 'Used when you search from the command bar and home page.', select('engine', Object.entries(ENGINES).map(([k, [n]]) => [k, n])))}
+    ${field('Search suggestions', 'Show Google suggestions while you type.', toggle('suggest'))}
+    ${field('Archive Today tabs', "Close Today tabs you haven't opened in a while. Pinned tabs and favorites are kept.",
+      select('archive', [[0, 'Never'], [12, 'After 12 hours'], [24, 'After 24 hours'], [168, 'After 7 days'], [720, 'After 30 days']]))}
+    <h3>Privacy</h3>
+    ${field('Clear browsing data', "Deletes cookies, cache, history and site data for every space. You'll be signed out of websites.", '<button class="btn danger" data-act="clear-data">Clear data…</button>')}`,
+  extensions: () => {
+    invoke('ext_list').then(list => {
+      if (curSec !== 'extensions') return
+      list = list.filter(x => x.mine)
+      $('#extlist').innerHTML = list.length ? list.map(x => `<div class="item"><div class="ic">${svg('blocks')}</div><div class="grow"><div class="name">${esc(x.name)}</div><small>${x.enabled ? 'On' : 'Off'}</small></div>
+        ${x.page || x.launch ? `<button class="btn sm" data-act="ext-open" data-page="${esc(x.page || x.launch)}">Open</button>` : ''}
+        <label class="switch" title="${x.enabled ? 'Turn off' : 'Turn on'}"><input type="checkbox" data-act="ext-toggle" data-id="${esc(x.id)}"${x.enabled ? ' checked' : ''}><i></i></label>
+        <button class="btn sm danger" data-act="ext-remove" data-id="${esc(x.id)}" data-name="${esc(x.name)}">Remove</button></div>`).join('')
+        : '<div class="empty-list">No extensions yet.</div>'
+    }).catch(e => { $('#extlist').innerHTML = `<div class="empty-list">Couldn't load extensions: ${esc(e)}</div>` })
+    return `<h2>Extensions</h2>
+      <p class="lead">Gallium runs Chrome extensions. Open an extension's page in the Chrome Web Store, then click <b>Add to Gallium</b> in the top bar.</p>
+      <button class="btn" data-act="store">Open Chrome Web Store</button>
+      <h3>Installed</h3><div id="extlist"><div class="empty-list">Loading…</div></div>
+      <p class="note">Extensions run in every tab. There's no extension toolbar; use <b>Open</b> to reach an extension's popup or settings.</p>`
+  },
+  downloads: () => `<h2>Downloads</h2>
+    ${S.downloads.length ? S.downloads.map((d, i) => `<div class="item" data-dl="${i}"><div class="ic">${svg('file')}</div><div class="grow"><div class="name" title="${esc(d.path)}">${esc(d.name)}</div>
+      ${d.state === 'started' ? `<div class="dlbar${d.total ? '' : ' unknown'}"><i style="width:${d.total ? Math.min(100, d.got / d.total * 100) : 30}%"></i></div>` : ''}
+      <small>${d.state === 'started' ? (d.total ? `${fmtBytes(d.got)} of ${fmtBytes(d.total)}` : d.got ? fmtBytes(d.got) : 'Starting…') : d.state === 'done' ? new Date(d.at).toLocaleString() : d.canceled ? 'Canceled' : 'Failed or interrupted'}</small></div>
+      ${d.state === 'done' ? `<button class="btn sm" data-act="dl-open" data-n="${i}">Open</button><button class="btn sm" data-act="dl-show" data-n="${i}">Show in folder</button>` : ''}
+      ${d.state === 'started' ? `<button class="btn sm danger" data-act="dl-cancel" data-n="${i}">Cancel</button>` : ''}</div>`).join('')
+      + '<p class="note"><button class="btn sm" data-act="dl-clear">Clear list</button></p>'
+      : '<div class="empty-list">Files you download will show up here.</div>'}`,
+  shortcuts: () => `<h2>Shortcuts</h2>${[
+    ['Ctrl T', 'New tab'], ['Ctrl L', 'Edit URL'], ['Ctrl W', 'Close tab'], ['Ctrl Shift T', 'Reopen closed tab'], ['Ctrl Shift A', 'Tab Overview (3D)'], ['Ctrl D', 'Pin / unpin tab'],
+    ['Ctrl Tab', 'Next tab'], ['Ctrl S', 'Hide / show sidebar'], ['Ctrl 1–9', 'Switch space'], ['Ctrl F', 'Find in page'], ['Ctrl R', 'Reload'],
+    ['Alt ← / →', 'Back / forward'], ['Ctrl Shift C', 'Copy URL'], ['Ctrl J', 'Downloads'], ['Ctrl ,', 'Settings'], ['F12', 'Developer tools'],
+    ['Ctrl + / − / 0', 'Zoom in / out / reset'], ['Ctrl P', 'Print'],
+  ].map(([k, d]) => `<div class="field"><span>${d}</span><kbd>${k}</kbd></div>`).join('')}`,
+  about: () => {
+    const chrome = navigator.userAgent.match(/Chrome\/([\d.]+)/)?.[1] || '?'
+    return `<div class="about">${LOGO}<div><h2>Gallium</h2><p style="opacity:.55">Version 1.0.0</p></div></div>
+      ${field('Engine', 'Microsoft Edge WebView2, built on Chromium.', `<span>Chromium ${esc(chrome)}</span>`)}
+      ${field('Your data', 'Tabs, spaces and settings are stored on this computer only.', '')}
+      ${field('Wallpapers', 'Photos from Unsplash, used under the Unsplash License.', '')}`
+  },
+}
+function showSec(sec) {
+  curSec = sec
+  document.querySelectorAll('#pnav [data-sec]').forEach(b => b.classList.toggle('on', b.dataset.sec === sec))
+  const top = $('#psec').scrollTop
+  $('#psec').innerHTML = SECTIONS[sec]()
+  $('#psec').scrollTop = top
+}
+$('#pnav').addEventListener('click', e => { const b = e.target.closest('[data-sec]'); if (b) { showSec(b.dataset.sec); $('#psec').scrollTop = 0 } })
+$('#pclose').onclick = () => hideOverlay($('#panel'))
+function onSetting(e) {
+  const el = e.target, k = el.dataset.set
+  if (k) {
+    S.settings[k] = el.type === 'checkbox' ? el.checked : NUMERIC.has(k) ? +el.value : el.value
+    if (k === 'solid') S.settings.winbg = 'solid'
+    save(); applyTheme(); render(); sync()
+    if (k === 'archive') autoArchive()
+  }
+  if (el.dataset.custom) {
+    const sp = space()
+    sp.custom = { c1: '#c9b6ff', c2: '#ffc4e1', ...sp.custom, [el.dataset.custom]: el.value }
+    sp.theme = 'custom'; save(); applyTheme()
+  }
+}
+$('#psec').addEventListener('input', onSetting)
+$('#psec').addEventListener('change', e => {
+  if (e.target.type === 'range' || e.target.type === 'color') return showSec(curSec) // refresh selection marks
+  onSetting(e)
+  if (e.target.dataset.act === 'ext-toggle') invoke('ext_set', { id: e.target.dataset.id, action: e.target.checked ? 'enable' : 'disable' }).then(() => showSec('extensions'))
+})
+$('#psec').addEventListener('click', async e => {
+  const b = e.target.closest('button[data-act]')
+  if (!b) return
+  const d = S.downloads[+b.dataset.n]
+  const acts = {
+    theme: () => { if (S.settings.winbg !== 'theme') { S.settings.winbg = 'theme'; toast('Window now uses the theme colors', 'check') } setTheme(b.dataset.id) },
+    'accent-reset': () => { S.settings.accent = ''; save(); applyTheme(); showSec(curSec) },
+    'solid-auto': () => { S.settings.solid = ''; S.settings.winbg = 'solid'; save(); applyTheme(); showSec(curSec) },
+    'theme-custom': () => {
+      const [c1, c2] = [...document.querySelectorAll('[data-custom]')].map(i => i.value)
+      space().custom = { c1, c2 }; setTheme('custom')
+    },
+    'theme-all': () => { const { theme, custom } = space(); S.spaces.forEach(s => Object.assign(s, { theme, custom })); save(); toast('Theme applied to every space', 'check') },
+    'clear-data': async () => {
+      if (!confirm('Clear all cookies, cache, history and site data? You will be signed out of websites.')) return
+      try { await invoke('clear_data'); toast('Browsing data cleared', 'check') } catch (err) { toast(String(err), 'alert') }
+    },
+    store: () => { hideOverlay($('#panel'), false); open('https://chromewebstore.google.com/') },
+    'ext-open': () => { hideOverlay($('#panel'), false); open(b.dataset.page) },
+    'ext-remove': async () => {
+      if (!confirm(`Remove ${b.dataset.name}?`)) return
+      await invoke('ext_set', { id: b.dataset.id, action: 'remove' }).catch(() => {})
+      toast(`Removed ${b.dataset.name}`, 'check'); showSec('extensions')
+    },
+    'dl-open': () => invoke('reveal', { path: d.path, open: true }).catch(err => toast(String(err), 'alert')),
+    'dl-show': () => invoke('reveal', { path: d.path, open: false }).catch(err => toast(String(err), 'alert')),
+    wall: () => { S.settings.wall = b.dataset.id; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur'; save(); applyTheme(); showSec(curSec) },
+    'wall-pick': pickWall,
+    'dl-cancel': () => { d.canceled = true; invoke('download_cancel', { path: d.path }).catch(err => toast(String(err), 'alert')); showSec('downloads') },
+    'dl-clear': () => { S.downloads = S.downloads.filter(x => x.state === 'started'); save(); showSec('downloads') },
+  }
+  acts[b.dataset.act]?.()
+})
+async function installExt() {
+  const id = storeId(find(space().active).t?.url)
+  if (!id) return
+  const b = $('#b-addext')
+  b.disabled = true; b.textContent = 'Adding…'
+  try {
+    const x = await invoke('ext_install', { storeId: id })
+    toast(`Added ${x.name}`, 'check')
+  } catch (err) { toast(`Couldn't add extension: ${err}`, 'alert') }
+  b.disabled = false; b.textContent = 'Add to Gallium'
+}
+
+// ---------------- shortcuts (pressed here, or relayed from a page by the backend) ----------------
+const KEYS = new Set(['ctrl+t', 'ctrl+l', 'ctrl+w', 'ctrl+s', 'ctrl+d', 'ctrl+r', 'f5', 'ctrl+shift+c', 'ctrl+shift+t', 'ctrl+tab', 'ctrl+shift+tab',
+  'alt+arrowleft', 'alt+arrowright', 'ctrl+f', 'f12', 'ctrl+shift+i', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a'])
+const OPENERS = new Set(['ctrl+t', 'ctrl+l', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a'])
+const combo = e => [e.ctrlKey && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+')
+function shortcut(k) {
+  const a = space().active
+  const act = action => a && live.has(a) && invoke('tab_do', { id: a, action })
+  if (!OPENERS.has(k)) { closeCmd(false); hideOverlay($('#panel'), false); closeOverview(false) }
+  if (/^ctrl\+[1-9]$/.test(k)) return go(+k.slice(-1) - 1)
+  const map = {
+    'ctrl+t': newTab, 'ctrl+l': editURL, 'ctrl+w': () => a && close(a), 'ctrl+s': toggleSidebar,
+    'ctrl+d': pin, 'ctrl+r': () => act('reload'), f5: () => act('reload'), 'ctrl+shift+c': copy, 'ctrl+shift+t': reopen,
+    'ctrl+tab': () => cycle(1), 'ctrl+shift+tab': () => cycle(-1), 'alt+arrowleft': () => act('back'), 'alt+arrowright': () => act('forward'),
+    'ctrl+f': openFind, f12: () => act('devtools'), 'ctrl+shift+i': () => act('devtools'),
+    'ctrl+,': () => openPanel('appearance'), 'ctrl+j': () => openPop('dl'), 'ctrl+shift+a': () => openOverview(),
+  }
+  map[k]?.()
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && overlayOpen()) return hideOverlay(!$('#panel').hidden ? $('#panel') : $('#cmdk'))
+  if (e.target.isContentEditable && !e.ctrlKey) return
+  const k = combo(e)
+  if (KEYS.has(k) || /^ctrl\+[1-9]$/.test(k)) { e.preventDefault(); shortcut(k) }
+})
+T.event.listen('shortcut', e => shortcut(e.payload))
+T.event.listen('open-tab', e => open(e.payload))
+T.event.listen('tab-audio', ({ payload: [id, playing, muted] }) => {
+  audio.set(id, { playing, muted })
+  const { t } = find(id)
+  if (t && !!t.muted !== muted) { t.muted = muted; save() }
+  render()
+})
+T.event.listen('tab-crash', () => toast('A page crashed and was reloaded', 'alert'))
+T.event.listen('tab', ({ payload: p }) => {
+  const { t } = find(p.id)
+  if (!t) return
+  if (p.title) t.title = p.title
+  if (p.url && /^(https?|chrome-extension):/.test(p.url)) t.url = p.url
+  if (p.loading === true) loading.add(p.id)
+  if (p.loading === false) loading.delete(p.id)
+  save(); render()
+})
+T.event.listen('download', ({ payload: d }) => {
+  const i = S.downloads.findIndex(x => x.path === d.path), rec = { ...d, at: Date.now(), canceled: S.downloads[i]?.canceled }
+  i > -1 ? S.downloads[i] = rec : S.downloads.unshift(rec)
+  S.downloads = S.downloads.slice(0, 50)
+  if (d.state === 'started') toast(`Downloading ${d.name}`, 'dl')
+  else if (d.state === 'done') { toast(`Downloaded ${d.name}`, 'check'); newDl = true }
+  else toast(rec.canceled ? `Canceled ${d.name}` : `Download failed: ${d.name}`, rec.canceled ? 'check' : 'alert')
+  save(); render()
+  if (!$('#panel').hidden && curSec === 'downloads') showSec('downloads')
+  if (popFor === 'dl') renderPop()
+})
+
+const fmtBytes = n => n < 1024 ? n + ' B' : n < 1048576 ? (n / 1024).toFixed(0) + ' KB' : n < 1073741824 ? (n / 1048576).toFixed(1) + ' MB' : (n / 1073741824).toFixed(2) + ' GB'
+T.event.listen('download-progress', ({ payload: [path, got, total] }) => {
+  const d = S.downloads.find(x => x.path === path)
+  if (!d || d.state !== 'started') return
+  d.got = got; d.total = total > 0 ? total : 0
+  paintDlButton()
+  const i = S.downloads.indexOf(d), pct = d.total ? Math.min(100, d.got / d.total * 100) : 30
+  for (const row of document.querySelectorAll(`[data-dl="${i}"]`)) {
+    const bar = row.querySelector('.dlbar')
+    if (bar) { bar.classList.toggle('unknown', !d.total); bar.firstElementChild.style.width = pct + '%' }
+    const info = row.querySelector('small')
+    if (info) info.textContent = d.total ? `${fmtBytes(d.got)} of ${fmtBytes(d.total)}` : d.got ? fmtBytes(d.got) : 'Starting…'
+  }
+})
+// toolbar ring = combined progress of everything downloading
+function paintDlButton() {
+  const act = S.downloads.filter(x => x.state === 'started'), b = $('#b-dl')
+  const total = act.reduce((a, x) => a + (x.total || 0), 0), got = act.reduce((a, x) => a + (x.total ? x.got : 0), 0)
+  b.classList.toggle('unknown', !!act.length && !total)
+  b.style.setProperty('--dlp', total ? Math.max(4, got / total * 100).toFixed(1) : 12)
+}
+
+// ---------------- mini windows: Downloads and Extensions ----------------
+let popFor = null, popExts = []
+S.extPins ||= []
+// An extension's popup opens in its own small window under the button (sized to the extension).
+let popupOpen = false
+function extPopup(page, btn) {
+  const r = btn.getBoundingClientRect()
+  invoke('ext_popup', { url: page, right: r.right + 6, top: r.bottom + 8 }).then(() => popupOpen = true).catch(err => toast(`Couldn't open extension: ${err}`, 'alert'))
+}
+T.event.listen('ext-popup-closed', () => popupOpen = false)
+// clicking anywhere in Gallium's own interface closes an open extension popup
+document.addEventListener('mousedown', () => { if (popupOpen) { popupOpen = false; invoke('ext_popup_close') } }, true)
+// pinned extensions sit in the top bar, one click from their popup
+function renderPins() {
+  $('#xpins').innerHTML = S.extPins.map(p => `<button class="cap round lg xpin" data-ext="${esc(p.id)}" title="${esc(p.name)}">${p.icon ? `<img src="${esc(p.icon)}" alt="">` : `<span>${esc(p.name.slice(0, 1))}</span>`}</button>`).join('')
+}
+$('#xpins').addEventListener('click', e => {
+  const b = e.target.closest('.xpin'), p = b && S.extPins.find(x => x.id === b.dataset.ext)
+  if (!p) return
+  if (p.page) { closePop(false, true); extPopup(p.page, b) } else if (p.launch) { closePop(); open(p.launch) }
+})
+renderPins()
+const POPBTN = { dl: '#b-dl', ext: '#b-ext' }
+async function openPop(kind) {
+  if (popFor === kind) return closePop()
+  closePop(true)
+  popFor = kind
+  renderPop()
+  const r = $(POPBTN[kind]).getBoundingClientRect(), p = $('#pop')
+  p.style.left = Math.max(8, Math.min(r.right + 10 - 340, innerWidth - 348)) + 'px'
+  p.style.top = r.bottom + 8 + 'px'
+  await freeze() // the page becomes a picture so the window can sit over it
+  invoke('ui_focus')
+  if (popFor !== kind) return
+  p.classList.add('show')
+  if (kind === 'dl' && newDl) { newDl = false; render() }
+}
+// noFocus: don't hand keyboard focus back to the page (an extension popup is about to take it)
+function closePop(keepFrozen, noFocus) {
+  if (!popFor) return
+  popFor = null
+  $('#pop').classList.remove('show')
+  if (!keepFrozen) setTimeout(() => {
+    if (!popFor && !overlayOpen() && !menuState && !body.classList.contains('peek') && document.activeElement !== $('#t-q')) thaw(!noFocus)
+  }, 260)
+}
+const fileExt = n => (n.match(/\.([a-z0-9]{1,5})$/i)?.[1] || 'file').slice(0, 4)
+function renderPop() {
+  const p = $('#pop')
+  if (popFor === 'dl') {
+    const list = S.downloads.slice(0, 6)
+    p.innerHTML = '<h5>Downloads</h5>' + (list.length ? list.map((d, i) => {
+      const pct = d.total ? Math.min(100, d.got / d.total * 100) : 30
+      const info = d.state === 'started' ? (d.total ? `${fmtBytes(d.got)} of ${fmtBytes(d.total)}` : d.got ? fmtBytes(d.got) : 'Starting…')
+        : d.state === 'done' ? new Date(d.at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : d.canceled ? 'Canceled' : 'Failed'
+      return `<div class="prow" data-dl="${i}"${d.state === 'done' ? ` data-act="dl-open" data-n="${i}" title="Open"` : ''}><div class="fic"><span>${esc(fileExt(d.name))}</span></div>
+        <div class="grow"><div class="name">${esc(d.name)}</div>${d.state === 'started' ? `<div class="dlbar${d.total ? '' : ' unknown'}"><i style="width:${pct}%"></i></div>` : ''}<small>${info}</small></div>
+        ${d.state === 'started' ? `<button class="mini" data-act="dl-cancel" data-n="${i}" title="Cancel">${svg('xc')}</button>`
+          : d.state === 'done' ? `<button class="mini" data-act="dl-show" data-n="${i}" title="Show in folder">${svg('mag')}</button>` : ''}</div>`
+    }).join('') : '<div class="pempty">No downloads yet</div>')
+      + `<div class="pfoot"><button data-act="pop-all">Show All</button>${list.some(d => d.state !== 'started') ? '<button data-act="dl-clear">Clear</button>' : ''}</div>`
+  } else if (popFor === 'ext') {
+    if (!p.innerHTML.includes('Extensions')) p.innerHTML = '<h5>Extensions</h5><div class="pempty">Loading…</div>'
+    invoke('ext_list').then(list => {
+      if (popFor !== 'ext') return
+      list = popExts = list.filter(x => x.mine) // hide WebView2's own built-in components
+      p.innerHTML = '<h5>Extensions</h5>' + (list.length ? list.map(x => `<div class="prow"${x.enabled && (x.page || x.launch) ? ` data-act="${x.page ? 'ext-pop' : 'ext-launch'}" data-id="${esc(x.id)}" title="Open ${esc(x.name)}"` : ''}>
+        <div class="eic">${x.icon ? `<img src="${esc(x.icon)}" alt="">` : esc(x.name.slice(0, 1).toUpperCase())}</div>
+        <div class="grow"><div class="name">${esc(x.name)}</div><small>${x.enabled ? (x.page ? 'Click to open' : x.launch ? 'Click to open in a new tab' : 'On') : 'Off'}</small></div>
+        ${x.page || x.launch ? `<button class="mini pin${S.extPins.some(p => p.id === x.id) ? ' on' : ''}" data-act="ext-pin" data-id="${esc(x.id)}" title="${S.extPins.some(p => p.id === x.id) ? 'Unpin from toolbar' : 'Pin to toolbar'}">${svg('pin')}</button>` : ''}
+        <label class="switch" title="${x.enabled ? 'Turn off' : 'Turn on'}"><input type="checkbox" data-act="ext-toggle" data-id="${esc(x.id)}"${x.enabled ? ' checked' : ''}><i></i></label></div>`).join('')
+        : '<div class="pempty">No extensions yet</div>')
+        + '<div class="pfoot"><button data-act="pop-store">Get Extensions</button><button data-act="pop-ext">Manage</button></div>'
+    }).catch(() => { if (popFor === 'ext') p.innerHTML = '<h5>Extensions</h5><div class="pempty">Couldn\'t load extensions</div>' })
+  }
+}
+$('#pop').addEventListener('click', e => {
+  if (e.target.closest('.switch')) return
+  const b = e.target.closest('[data-act]')
+  if (!b) return
+  const d = S.downloads[+b.dataset.n], act = b.dataset.act
+  if (act === 'dl-open') invoke('reveal', { path: d.path, open: true }).catch(err => toast(String(err), 'alert'))
+  if (act === 'dl-show') invoke('reveal', { path: d.path, open: false }).catch(err => toast(String(err), 'alert'))
+  if (act === 'dl-cancel') { d.canceled = true; invoke('download_cancel', { path: d.path }).catch(err => toast(String(err), 'alert')); renderPop() }
+  if (act === 'dl-clear') { S.downloads = S.downloads.filter(x => x.state === 'started'); save(); renderPop() }
+  if (act === 'pop-all') { closePop(true); openPanel('downloads') }
+  if (act === 'pop-ext') { closePop(true); openPanel('extensions') }
+  if (act === 'pop-store') { closePop(); open('https://chromewebstore.google.com/') }
+  const x = popExts.find(e => e.id === b.dataset.id)
+  if (act === 'ext-pop' && x) { closePop(false, true); extPopup(x.page, $('#b-ext')) }
+  if (act === 'ext-launch' && x) { closePop(); open(x.launch) }
+  if (act === 'ext-pin' && x) {
+    const i = S.extPins.findIndex(p => p.id === x.id)
+    i > -1 ? S.extPins.splice(i, 1) : S.extPins.push({ id: x.id, name: x.name, page: x.page, launch: x.launch, icon: x.icon })
+    save(); renderPins(); renderPop()
+  }
+})
+$('#pop').addEventListener('change', e => {
+  const el = e.target
+  if (el.dataset.act === 'ext-toggle') invoke('ext_set', { id: el.dataset.id, action: el.checked ? 'enable' : 'disable' }).then(() => renderPop())
+})
+document.addEventListener('mousedown', e => { if (popFor && !e.target.closest('#pop, #b-dl, #b-ext, .ctx')) closePop() }, true)
+document.addEventListener('keydown', e => { if (popFor && e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); closePop() } }, true)
+
+// ---------------- Tab Overview: 3D Cover Flow ----------------
+const snaps = new Map() // tab id -> { url, at } picture cache shared with hover previews
+async function snapOf(id, maxAge = 15000) {
+  const c = snaps.get(id)
+  if (c && Date.now() - c.at < maxAge) return c.url
+  if (!live.has(id)) return c?.url
+  try {
+    const buf = await invoke('tab_snap', { id })
+    if (!buf?.byteLength) return c?.url
+    if (c) URL.revokeObjectURL(c.url)
+    const url = URL.createObjectURL(new Blob([buf], { type: 'image/jpeg' }))
+    snaps.set(id, { url, at: Date.now() })
+    return url
+  } catch { return c?.url }
+}
+let ov = null // { list, sel }
+async function openOverview() {
+  const s = space(), list = [...S.favorites.filter(t => live.has(t.id)), ...s.pinned, ...s.today]
+  if (!list.length) return toast('No tabs to show', 'stack')
+  const active = s.active && find(s.active).t
+  if (active && live.has(active.id)) await snapOf(active.id, 0) // fresh picture of the page you're on
+  ov = { list, sel: Math.max(0, list.findIndex(t => t.id === s.active)) }
+  $('#ovcards').innerHTML = list.map((t, i) => `<div class="ovc" data-i="${i}">${snaps.get(t.id) ? `<img class="shot" src="${esc(snaps.get(t.id).url)}" alt="">`
+    : `<div class="ph"><img src="${esc(ico(t.url))}" alt=""></div>`}<button class="cx" title="Close tab">${svg('x')}</button></div>`).join('')
+  layoutOverview(true)
+  await showOverlay($('#ov'))
+  // fill in pictures of the other loaded tabs one by one
+  for (const [i, t] of list.entries()) {
+    if (!ov || ov.list !== list) return
+    if (!live.has(t.id) || snaps.get(t.id)?.at > Date.now() - 15000) continue
+    const url = await snapOf(t.id)
+    const card = $(`#ovcards .ovc[data-i="${i}"]`)
+    if (url && card && ov?.list === list) { card.querySelector('.ph')?.remove(); if (!card.querySelector('.shot')) card.insertAdjacentHTML('afterbegin', `<img class="shot" src="${esc(url)}" alt="">`) }
+  }
+}
+function layoutOverview(instant) {
+  if (!ov) return
+  const cards = [...$('#ovcards').children], w = cards[0]?.offsetWidth || 600
+  cards.forEach((c, i) => {
+    const d = i - ov.sel, a = Math.abs(d), side = Math.sign(d)
+    if (instant) c.style.transition = 'none'
+    c.style.transform = d === 0 ? 'translateZ(40px)'
+      : `translateX(${side * (w * .58 + (a - 1) * w * .17)}px) translateZ(${-160 - a * 30}px) rotateY(${-side * 62}deg)`
+    c.style.opacity = a > 5 ? 0 : 1
+    c.style.zIndex = 100 - a
+    c.classList.toggle('cur', d === 0); c.classList.toggle('side', d !== 0)
+    if (instant) { void c.offsetWidth; c.style.transition = '' }
+  })
+  const t = ov.list[ov.sel]
+  $('#ovtitle').textContent = t ? label(t) : ''
+  $('#ovsub').textContent = t ? host(t.url) + (live.has(t.id) ? '' : '  ·  not loaded') : ''
+}
+function moveOverview(d) { if (!ov) return; ov.sel = Math.max(0, Math.min(ov.list.length - 1, ov.sel + d)); layoutOverview() }
+function closeOverview(focus = true) { if (!ov) return; ov = null; hideOverlay($('#ov'), focus) }
+function pickOverview() {
+  if (!ov) return
+  const t = ov.list[ov.sel], card = $(`#ovcards .ovc[data-i="${ov.sel}"]`)
+  card?.classList.add('zoom') // the card flies toward you, then the tab takes over
+  setTimeout(() => { closeOverview(false); if (t) activate(t.id) }, 320)
+}
+function closeFromOverview() {
+  const t = ov?.list[ov.sel]
+  if (!t) return
+  close(t.id)
+  ov.list.splice(ov.sel, 1)
+  $(`#ovcards .ovc[data-i="${ov.sel}"]`)?.remove()
+  ;[...$('#ovcards').children].forEach((c, i) => c.dataset.i = i)
+  if (!ov.list.length) return closeOverview()
+  ov.sel = Math.min(ov.sel, ov.list.length - 1)
+  layoutOverview()
+}
+$('#ovcards').addEventListener('click', e => {
+  const c = e.target.closest('.ovc')
+  if (!c || !ov) return
+  if (e.target.closest('.cx')) return closeFromOverview()
+  const i = +c.dataset.i
+  i === ov.sel ? pickOverview() : (ov.sel = i, layoutOverview())
+})
+$('#ov').addEventListener('mousedown', e => { if (e.target === $('#ov') || e.target.closest('.ovhint')) closeOverview() })
+let ovWheel = 0
+$('#ov').addEventListener('wheel', e => {
+  ovWheel += Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+  if (Math.abs(ovWheel) > 60) { moveOverview(Math.sign(ovWheel)); ovWheel = 0 }
+}, { passive: true })
+document.addEventListener('keydown', e => {
+  if (!ov || $('#ov').hidden) return
+  const keys = { ArrowLeft: () => moveOverview(-1), ArrowRight: () => moveOverview(1), Enter: pickOverview, ' ': pickOverview, Escape: () => closeOverview(), Delete: closeFromOverview, Home: () => moveOverview(-1e3), End: () => moveOverview(1e3) }
+  if (keys[e.key]) { e.preventDefault(); e.stopImmediatePropagation(); keys[e.key]() }
+}, true)
+addEventListener('resize', () => layoutOverview(true))
+
+// ---------------- hover previews (3D tilt) ----------------
+let prevT = 0, prevFor = null
+function hidePreview() { clearTimeout(prevT); prevFor = null; $('#tprev').hidden = true }
+$('#sidebar').addEventListener('mouseover', e => {
+  const n = e.target.closest('.tab[data-id], .fav[data-id]')
+  if (!n || n.dataset.id === prevFor) return
+  hidePreview()
+  const id = n.dataset.id
+  prevFor = id
+  if (dragId || !live.has(id) || id === space().active) return
+  prevT = setTimeout(async () => {
+    const url = await snapOf(id, 20000), { t } = find(id)
+    if (prevFor !== id || !url || !t || dragId) return
+    const r = n.getBoundingClientRect(), sb = $('#sidebar').getBoundingClientRect(), box = $('#tprev')
+    box.innerHTML = `<img src="${esc(url)}" alt=""><div><b>${esc(label(t))}</b><small>${esc(host(t.url))}</small></div>`
+    const w = Math.min(sb.width - 20, 300), x = sb.left + (sb.width - w) / 2
+    box.style.width = w + 'px'; box.style.left = x + 'px'
+    box.hidden = false
+    const h = box.offsetHeight, below = r.bottom + 8 + h < innerHeight - 8
+    box.style.top = (below ? r.bottom + 8 : Math.max(8, r.top - 8 - h)) + 'px'
+    box.style.transformOrigin = below ? '50% 0' : '50% 100%'
+  }, 650)
+})
+$('#sidebar').addEventListener('mousemove', e => {
+  if ($('#tprev').hidden) return
+  const n = e.target.closest('[data-id]')
+  if (!n) return
+  const r = n.getBoundingClientRect()
+  $('#tprev').style.setProperty('--ry', ((e.clientX - r.left) / r.width - .5) * 16 + 'deg')
+  $('#tprev').style.setProperty('--rx', (.5 - (e.clientY - r.top) / r.height) * 10 + 'deg')
+})
+$('#sidebar').addEventListener('mouseout', e => { if (!e.relatedTarget?.closest?.(`[data-id="${prevFor}"]`)) hidePreview() })
+for (const ev of ['mousedown', 'wheel', 'dragstart']) $('#sidebar').addEventListener(ev, hidePreview, { passive: true })
+
+// home icons and chips lean toward the pointer
+for (const box of [$('#hdock'), $('#hrecent')]) {
+  box.addEventListener('mousemove', e => {
+    const el = e.target.closest('.hfav, .hchip')
+    if (!el) return
+    const r = el.getBoundingClientRect(), k = el.classList.contains('hfav') ? 22 : 10
+    el.style.setProperty('--ty', ((e.clientX - r.left) / r.width - .5) * k + 'deg')
+    el.style.setProperty('--tx', (.5 - (e.clientY - r.top) / r.height) * k + 'deg')
+  })
+  box.addEventListener('mouseout', e => { const el = e.target.closest('.hfav, .hchip'); if (el && !el.contains(e.relatedTarget)) { el.style.removeProperty('--tx'); el.style.removeProperty('--ty') } })
+}
+
+// ---------------- sidebar & title bar interactions ----------------
+// Buttons never keep keyboard focus, so a stray Space/Enter can't re-trigger one (like Close).
+document.addEventListener('mousedown', e => { if (e.target.closest('button') && !e.target.closest('.overlay')) e.preventDefault() })
+const BTN = {
+  'b-side': toggleSidebar, 'b-back': () => shortcut('alt+arrowleft'), 'b-fwd': () => shortcut('alt+arrowright'),
+  'b-reload': () => shortcut('ctrl+r'), 'b-copy': copy, urlbar: () => cmd(false), newtab: newTab,
+  'b-clear': clear, 'b-add': addSpace, 'b-settings': () => openPanel('appearance'), 'b-theme': () => openPanel('appearance'),
+  'b-dl': () => openPop('dl'), 'b-ext': () => openPop('ext'), 'b-addext': installExt,
+  't-side': toggleSidebar, 't-ov': () => openOverview(), 't-back': () => shortcut('alt+arrowleft'), 't-fwd': () => shortcut('alt+arrowright'),
+  't-reload': () => shortcut('ctrl+r'), 't-site': copy, 't-new': newTab,
+}
+const WIN = { close: () => appWin.close(), min: () => appWin.minimize(), max: () => appWin.toggleMaximize() }
+document.addEventListener('click', e => { const w = e.target.closest('[data-win]'); if (w) WIN[w.dataset.win]() })
+$('#titlebar').addEventListener('click', e => { const b = e.target.closest('button, #t-url'); if (b) BTN[b.id]?.() })
+const updMax = async () => {
+  const max = await appWin.isMaximized()
+  $('#b-max').innerHTML = max ? '&#xE923;' : '&#xE922;'
+  $('#b-max').title = max ? 'Restore' : 'Maximize'
+}
+appWin.onResized(updMax); updMax()
+
+$('#sidebar').addEventListener('click', e => {
+  if (e.target.closest('[contenteditable],[data-win]')) return
+  const snd = e.target.closest('.snd')
+  if (snd) return toggleMute(snd.closest('[data-id]')?.dataset.id)
+  const x = e.target.closest('.x')
+  if (x) return close(x.closest('[data-id]')?.dataset.id)
+  const el = e.target.closest('button, [data-id], #urlbar, #newtab')
+  if (!el) return
+  if (el.dataset.space) return go(+el.dataset.space)
+  if (el.dataset.id) return activate(el.dataset.id)
+  BTN[el.id]?.()
+})
+// Middle-click: pinned tabs and favorites open a fresh copy in a background tab (like a bookmark);
+// Today tabs close. Middle mousedown is cancelled so Chromium's auto-scroll can't swallow the click.
+const isPinned = l => l === S.favorites || S.spaces.some(s => s.pinned === l)
+function middleClick(e) {
+  if (e.button !== 1) return
+  const el = e.target.closest('[data-id]')
+  if (!el) return
+  e.preventDefault()
+  const { t, l } = find(el.dataset.id)
+  if (!t) return
+  if (isPinned(l)) { open(t.url, true); toast(`Opened ${label(t)} in a new tab`, 'check') } else close(t.id)
+}
+for (const box of [$('#sidebar'), $('#home')]) {
+  box.addEventListener('mousedown', e => { if (e.button === 1 && e.target.closest('[data-id]')) e.preventDefault() })
+  box.addEventListener('auxclick', middleClick)
+}
+// ---------------- right-click menus ----------------
+// One menu for pages, tabs, favorites and spaces. An item is { label, run, kb, check, off, danger, sub } or '-'.
+let menuState = null
+const titleCase = s => s.replace(/&(?=\S)/g, '').replace(/[A-Za-z][A-Za-z']*/g, (w, i) => i && /^(in|to|a|an|of|for|the|and|or|on|with|at)$/i.test(w) ? w.toLowerCase() : w[0].toUpperCase() + w.slice(1))
+function buildMenu(items, x, y) {
+  items = items.filter(Boolean).filter((it, i, a) => it !== '-' || (i > 0 && i < a.length - 1 && a[i - 1] !== '-'))
+  const el = document.createElement('div')
+  el.className = 'ctx'
+  el.innerHTML = items.map((it, i) => it === '-' ? '<div class="cs"></div>' :
+    `<div class="ci${it.off ? ' off' : ''}${it.danger ? ' danger' : ''}" data-n="${i}"><span class="ck">${it.check ? '✓' : ''}</span><span class="lb">${esc(it.label)}</span>${it.sub ? `<span class="ar">${svg('fwd')}</span>` : it.kb ? `<span class="kb">${esc(it.kb)}</span>` : ''}</div>`).join('')
+  $('#ctx-root').append(el)
+  const r = el.getBoundingClientRect()
+  el.style.left = Math.max(6, Math.min(x, innerWidth - r.width - 6)) + 'px'
+  el.style.top = Math.max(6, Math.min(y, innerHeight - r.height - 6)) + 'px'
+  let child = null
+  el.addEventListener('mousemove', e => {
+    const row = e.target.closest('.ci')
+    if (!row) return
+    el.querySelectorAll('.ci.hot').forEach(n => n !== row && n.classList.remove('hot'))
+    const it = items[+row.dataset.n]
+    if (it.sub && !it.off) {
+      row.classList.add('hot')
+      if (child?.row === row) return
+      child?.el.remove()
+      const rr = row.getBoundingClientRect(), sub = buildMenu(it.sub, rr.right - 2, rr.top - 5)
+      if (sub.getBoundingClientRect().left < rr.right - 10) sub.style.left = Math.max(6, rr.left - sub.offsetWidth + 2) + 'px' // no room: open to the left
+      child = { row, el: sub }
+    } else if (child) { child.el.remove(); child = null }
+  })
+  el.addEventListener('click', e => {
+    const row = e.target.closest('.ci'), it = row && items[+row.dataset.n]
+    if (it && !it.off && !it.sub) closeMenu(it)
+  })
+  return el
+}
+function openMenu(items, x, y, onClose) {
+  closeMenu()
+  menuState = { onClose }
+  buildMenu(items, x, y)
+  freeze()
+}
+function closeMenu(picked) {
+  if (!menuState) return
+  const { onClose } = menuState
+  menuState = null
+  $('#ctx-root').innerHTML = ''
+  onClose?.(picked)
+  picked?.run?.()
+  thaw()
+}
+document.addEventListener('mousedown', e => { if (menuState && !e.target.closest('.ctx')) closeMenu() }, true)
+addEventListener('blur', () => closeMenu())
+document.addEventListener('keydown', e => {
+  if (!menuState) return
+  const menus = $('#ctx-root').children, m = menus[menus.length - 1], rows = [...m.querySelectorAll('.ci:not(.off)')]
+  const stop = () => { e.preventDefault(); e.stopImmediatePropagation() }
+  if (e.key === 'Escape') { stop(); return closeMenu() }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    stop()
+    const i = rows.findIndex(r => r.classList.contains('hot')), down = e.key === 'ArrowDown'
+    rows.forEach(r => r.classList.remove('hot'))
+    rows[i < 0 ? (down ? 0 : rows.length - 1) : (i + (down ? 1 : -1) + rows.length) % rows.length]?.classList.add('hot')
+  }
+  if (e.key === 'Enter') { const r = m.querySelector('.ci.hot'); if (r) { stop(); r.click() } }
+}, true)
+// the interface's own default menu only appears in text fields
+document.addEventListener('contextmenu', e => { if (!e.target.closest('input, textarea, [contenteditable]')) e.preventDefault() })
+
+let pageMenuSeq = 0
+// Web pages: Gallium's menu with WebView2's own items (it runs the picked one), plus a few extras.
+T.event.listen('context-menu', async ({ payload: m }) => {
+  if (m.tab !== space().active || overlayOpen()) return invoke('menu_pick', { req: m.req, cmd: -1 })
+  closeMenu() // an earlier menu (and its page request) finishes first
+  const seq = ++pageMenuSeq
+  await freeze() // the page becomes a picture so the menu can float over it
+  if (seq !== pageMenuSeq) return invoke('menu_pick', { req: m.req, cmd: -1 })
+  invoke('ui_focus')
+  const eng = engine(), sel = m.selection.trim()
+  const conv = list => list.filter(it => !/^(share|webCapture|openLinkInNewWindowInPrivate)$/i.test(it.name)).map(it => it.kind === 'separator' ? '-' : {
+    label: titleCase(it.label.replace(/&(?=\S)/g, '').replace(/\bnew window\b/i, 'new tab')), kb: it.shortcut, check: it.checked, off: !it.enabled,
+    cmd: it.kind === 'submenu' ? undefined : it.id, sub: it.kind === 'submenu' ? conv(it.children) : undefined,
+  })
+  const items = conv(m.items)
+  if (m.link) {
+    const at = m.items.findIndex(it => /openLinkInNewWindow/i.test(it.name))
+    items.splice(at + 1, 0, { label: 'Open Link in Background Tab', run: () => open(m.link, true) })
+  }
+  if (sel && !m.editable) items.unshift({ label: `Search ${eng[0].replace(' Search', '')} for “${sel.length > 30 ? sel.slice(0, 30) + '…' : sel}”`, run: () => open(eng[1] + encodeURIComponent(sel)) }, '-')
+  if (m.target === 'page' && !m.link && !m.editable && !sel) items.push('-', { label: 'Copy Page Link', run: copy }, { label: 'Find in Page…', kb: 'Ctrl+F', run: () => setTimeout(openFind, 50) })
+  const r = rect()
+  openMenu(items, r[0] + m.x, r[1] + m.y, picked => {
+    invoke('menu_pick', { req: m.req, cmd: picked?.cmd ?? -1 })
+    thaw(true)
+  })
+})
+
+// Tabs and favorites (sidebar, home dock and chips)
+function moveTab(id, to, front) {
+  const { t, l, i } = find(id)
+  if (!t || l === to) return
+  l.splice(i, 1)
+  front ? to.unshift(t) : to.push(t)
+  const s = space()
+  if (s.active === id && ![S.favorites, s.pinned, s.today].includes(to)) activate(s.today[0]?.id) // it left this space
+  else { save(); render() }
+}
+function removeItem(id) {
+  const { t, l, i } = find(id)
+  if (!t) return
+  unload(id); l.splice(i, 1)
+  if (space().active === id) activate(space().today[0]?.id); else { save(); render() }
+  toast(`Removed ${label(t)}`, 'check')
+}
+function tabMenu(id, x, y) {
+  const { t, l } = find(id)
+  if (!t) return
+  const s = space(), fav = l === S.favorites, today = isToday(l), pinned = !fav && !today
+  openMenu([
+    { label: 'Open', run: () => activate(id) },
+    { label: 'Open in New Tab', run: () => open(t.url, true) },
+    '-',
+    { label: (audio.get(id)?.muted ?? t.muted) ? 'Unmute Tab' : 'Mute Tab', run: () => toggleMute(id) },
+    { label: 'Copy Link', run: () => { navigator.clipboard.writeText(t.url).catch(() => {}); toast('Copied link', 'check') } },
+    !fav && { label: 'Rename…', run: () => setTimeout(() => $(`#sidebar .tab[data-id="${id}"] .t`)?.dispatchEvent(new MouseEvent('dblclick', { bubbles: true })), 50) },
+    '-',
+    today && { label: 'Pin Tab', kb: 'Ctrl+D', run: () => moveTab(id, s.pinned) },
+    pinned && { label: 'Unpin Tab', run: () => moveTab(id, s.today, true) },
+    fav ? { label: 'Move to Tabs', run: () => moveTab(id, s.today, true) } : { label: 'Add to Favorites', run: () => moveTab(id, S.favorites) },
+    !fav && S.spaces.length > 1 && { label: 'Move to Space', sub: S.spaces.map(sp => ({ label: sp.name, check: sp === s, off: sp === s, run: () => moveTab(id, pinned ? sp.pinned : sp.today, true) })) },
+    '-',
+    live.has(id) && { label: 'Unload', run: () => unloadTab(id) },
+    fav ? { label: 'Remove Favorite', danger: true, run: () => removeItem(id) } : { label: 'Close Tab', kb: 'Ctrl+W', danger: true, run: () => close(id) },
+  ], x, y)
+}
+// Deleting is instant (no dialog) and undoable for a few seconds; the space comes back with all its tabs.
+function deleteSpace(i) {
+  if (S.spaces.length < 2 || !S.spaces[i]) return
+  $('#space-name').blur() // finish any rename first
+  const sp = S.spaces[i], wasCur = i === S.cur
+  for (const t of [...sp.pinned, ...sp.today]) unload(t.id)
+  S.spaces.splice(i, 1)
+  if (S.cur > i || (wasCur && S.cur > 0)) S.cur-- // keep pointing at the same space, or step to its neighbour
+  if (wasCur) turnLists(i > S.cur ? 'sr' : 'sl')
+  animate = false
+  activate(space().active)
+  toast(`Deleted “${sp.name}”`, 'trash', { label: 'Undo', run: () => {
+    const at = Math.min(i, S.spaces.length)
+    S.spaces.splice(at, 0, sp)
+    if (wasCur) { turnLists(at > S.cur ? 'sl' : 'sr'); S.cur = at } else if (S.cur >= at) S.cur++
+    animate = false
+    activate(space().active)
+    toast(`Restored “${sp.name}”`, 'check')
+  } })
+}
+function turnLists(dir) { const el = $('#lists'); el.classList.remove('sl', 'sr'); void el.offsetWidth; el.classList.add(dir) }
+$('#sidebar').addEventListener('contextmenu', e => {
+  if (e.target.closest('[contenteditable], #dots')) return
+  e.preventDefault()
+  const el = e.target.closest('[data-id]')
+  if (el) return tabMenu(el.dataset.id, e.clientX, e.clientY)
+  openMenu([
+    { label: 'New Tab', kb: 'Ctrl+T', run: newTab },
+    { label: 'New Space', run: addSpace },
+    { label: 'Reopen Closed Tab', kb: 'Ctrl+Shift+T', off: !closed.length, run: reopen },
+    { label: 'Tab Overview', kb: 'Ctrl+Shift+A', run: () => openOverview() },
+    '-',
+    { label: `Delete “${space().name}”`, danger: true, off: S.spaces.length < 2, run: () => deleteSpace(S.cur) },
+    '-',
+    { label: S.collapsed ? 'Show Sidebar' : 'Hide Sidebar', kb: 'Ctrl+S', run: toggleSidebar },
+    { label: 'Settings…', kb: 'Ctrl+,', run: () => openPanel('appearance') },
+  ], e.clientX, e.clientY)
+})
+$('#home').addEventListener('contextmenu', e => {
+  const el = e.target.closest('[data-id]')
+  if (el) { e.preventDefault(); tabMenu(el.dataset.id, e.clientX, e.clientY) }
+})
+$('#dots').addEventListener('contextmenu', e => {
+  const d = e.target.closest('[data-space]')
+  if (!d) return
+  e.preventDefault()
+  const i = +d.dataset.space
+  openMenu([
+    { label: 'Switch to Space', kb: `Ctrl+${i + 1}`, off: i === S.cur, run: () => go(i) },
+    { label: 'Rename…', run: () => { go(i); setTimeout(() => { const nm = $('#space-name'); nm.focus(); getSelection().selectAllChildren(nm) }, 60) } },
+    { label: 'Theme…', run: () => { go(i); openPanel('appearance') } },
+    '-',
+    { label: 'Delete Space', danger: true, off: S.spaces.length < 2, run: () => deleteSpace(i) },
+  ], e.clientX, e.clientY)
+})
+// rename: space title, and tabs on double-click
+const nm = $('#space-name')
+nm.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === 'Escape') { e.preventDefault(); nm.blur() } })
+nm.addEventListener('blur', () => { space().name = nm.textContent.trim() || space().name; save(); render() })
+$('#sidebar').addEventListener('dblclick', e => {
+  const n = e.target.closest('.tab[data-id]'), el = n?.querySelector('.t')
+  if (!el) return
+  const { t } = find(n.dataset.id)
+  el.contentEditable = 'plaintext-only'; n.draggable = false
+  el.focus(); getSelection().selectAllChildren(el)
+  const done = keepIt => {
+    el.removeAttribute('contenteditable'); n.draggable = true
+    if (keepIt) t.name = el.textContent.trim() || undefined
+    el.textContent = label(t); save(); render()
+  }
+  el.onkeydown = ev => { if (ev.key === 'Enter' || ev.key === 'Escape') { ev.preventDefault(); el.onblur = null; done(ev.key === 'Enter') } }
+  el.onblur = () => done(true)
+})
+
+// two-finger horizontal swipe switches spaces
+let swipe = 0, swipeLock = 0
+$('#sidebar').addEventListener('wheel', e => {
+  if (Math.abs(e.deltaX) <= Math.abs(e.deltaY) || Date.now() < swipeLock) return
+  swipe += e.deltaX
+  if (Math.abs(swipe) > 110) { go(S.cur + Math.sign(swipe)); swipe = 0; swipeLock = Date.now() + 450 }
+}, { passive: true })
+
+// drag tabs between Favorites / Pinned / Today, with a drop indicator
+function dropAt(z, e) {
+  const kids = [...z.children].filter(n => n.dataset.id && n.dataset.id !== dragId), grid = z.dataset.zone === 'fav'
+  let j = kids.findIndex(n => {
+    const r = n.getBoundingClientRect()
+    return grid ? e.clientY < r.top || (e.clientY < r.bottom && e.clientX < r.left + r.width / 2) : e.clientY < r.top + r.height / 2
+  })
+  if (j < 0) j = kids.length
+  const line = $('#dropline').style, ref = kids[j] || kids[j - 1], zr = z.getBoundingClientRect()
+  if (!ref) Object.assign(line, { left: zr.left + 6 + 'px', top: zr.top + zr.height / 2 - 1 + 'px', width: zr.width - 12 + 'px', height: '2px' })
+  else {
+    const r = ref.getBoundingClientRect(), after = !kids[j]
+    if (grid) Object.assign(line, { left: (after ? r.right + 3 : r.left - 5) + 'px', top: r.top + 8 + 'px', width: '2px', height: r.height - 16 + 'px' })
+    else Object.assign(line, { left: r.left + 6 + 'px', top: (after ? r.bottom : r.top) - 1 + 'px', width: r.width - 12 + 'px', height: '2px' })
+  }
+  return j
+}
+document.addEventListener('dragstart', e => {
+  const el = e.target.closest?.('#sidebar [data-id]')
+  if (!el) return
+  dragId = el.dataset.id
+  e.dataTransfer.effectAllowed = 'move'
+  requestAnimationFrame(() => body.classList.add('dragging'))
+})
+document.addEventListener('dragend', () => { dragId = null; body.classList.remove('dragging'); animate = false; render() })
+document.querySelectorAll('[data-zone]').forEach(z => {
+  z.addEventListener('dragover', e => { if (!dragId) return; e.preventDefault(); dropAt(z, e) })
+  z.addEventListener('drop', e => {
+    e.preventDefault()
+    const { t, l, i } = find(dragId)
+    if (!t) return
+    const j = dropAt(z, e), target = { fav: S.favorites, pinned: space().pinned, today: space().today }[z.dataset.zone]
+    l.splice(i, 1)
+    target.splice(j, 0, t)
+    save()
+  })
+})
+
+// hidden sidebar: hover the left edge to slide it out over (a picture of) the page
+let peekT
+const unpeek = () => {
+  if (!body.classList.contains('peek')) return
+  body.classList.remove('peek')
+  clearTimeout(peekT)
+  peekT = setTimeout(() => { if (!overlayOpen() && !body.classList.contains('peek')) thaw() }, 300)
+}
+$('.edge').addEventListener('mouseenter', async () => {
+  if (!S.collapsed) return
+  clearTimeout(peekT)
+  await freeze()
+  if (S.collapsed && frozen) body.classList.add('peek')
+})
+$('#sidebar').addEventListener('mouseenter', () => { if (S.collapsed && frozen && !overlayOpen()) { clearTimeout(peekT); body.classList.add('peek') } })
+$('#sidebar').addEventListener('mouseleave', e => { if (!dragId && !e.relatedTarget?.closest?.('#sidebar, .ctx')) unpeek() })
+$('#col').addEventListener('mouseenter', unpeek)
+
+// resize the sidebar by dragging its edge
+$('#resizer').addEventListener('mousedown', e => {
+  e.preventDefault()
+  body.classList.add('resizing')
+  const move = ev => { S.sbw = Math.max(210, Math.min(440, ev.clientX + 4)); body.style.setProperty('--sbw', S.sbw + 'px') }
+  const up = () => { body.classList.remove('resizing'); removeEventListener('mousemove', move); removeEventListener('mouseup', up); save() }
+  addEventListener('mousemove', move); addEventListener('mouseup', up)
+})
+$('#resizer').addEventListener('dblclick', () => { S.sbw = 264; body.style.setProperty('--sbw', '264px'); save() })
+
+new ResizeObserver(() => sync()).observe($('main'))
+
+let toastT
+// action: { label, run } adds a button (like Undo) and keeps the message up a little longer
+function toast(m, icon, action) {
+  const el = $('#toast')
+  el.innerHTML = (icon ? svg(icon) : '') + `<span>${esc(m)}</span>` + (action ? `<button class="tact">${esc(action.label)}</button>` : '')
+  el.classList.toggle('act', !!action)
+  if (action) el.querySelector('.tact').onclick = () => { el.classList.remove('show', 'act'); clearTimeout(toastT); action.run() }
+  el.classList.add('show')
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show', 'act'), action ? 6000 : 2200)
+}
+
+// boot: drop tab views left over from a reloaded UI, paint once without animations, then show the window
+body.style.setProperty('--sbw', (S.sbw || 264) + 'px')
+body.classList.toggle('collapsed', !!S.collapsed)
+invoke('tab_close_all').finally(() => {
+  activate(space().active)
+  autoArchive(); setInterval(autoArchive, 10 * 60e3)
+  requestAnimationFrame(() => requestAnimationFrame(() => { body.classList.remove('boot'); appWin.show() }))
+})
+</script>
+</body>
+</html>

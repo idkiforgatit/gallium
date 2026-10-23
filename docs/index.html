@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gallium</title>
+<meta name="description" content="Gallium — a calm, Arc-style browser for Windows with Liquid Glass, Spaces and real photo wallpapers.">
+<link rel="icon" href="favicon.png">
+<meta property="og:image" content="icon.png">
+<style>
+:root{
+  --ink:#f6f2ff; --dim:rgba(246,242,255,.66); --faint:rgba(246,242,255,.4);
+  --violet:#6a33d9; --pink:#ff6fa8; --night:#140c33;
+  --glass:rgba(255,255,255,.07); --rim:rgba(255,255,255,.16);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; color:var(--ink); background:var(--night);
+  font:16px/1.55 "Segoe UI Variable Text","Segoe UI",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow-x:hidden;
+}
+/* soft glowing backdrop taken from the icon */
+.sky{position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(60vmax 50vmax at 15% -10%, #2a1d6e 0%, transparent 60%),
+  radial-gradient(55vmax 45vmax at 95% 20%, rgba(106,51,217,.55) 0%, transparent 60%),
+  radial-gradient(60vmax 50vmax at 70% 110%, rgba(255,111,168,.45) 0%, transparent 60%),
+  var(--night)}
+.sky::after{content:"";position:absolute;inset:0;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+nav .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em;color:var(--ink);text-decoration:none}
+nav .brand img{width:28px;height:28px}
+nav a.gh{color:var(--dim);text-decoration:none;font-size:14px;transition:color .2s}
+nav a.gh:hover{color:var(--ink)}
+
+/* hero */
+.hero{text-align:center;padding:56px 0 40px}
+.drop{width:min(200px,46vw);height:auto;display:block;margin:0 auto 28px;
+  filter:drop-shadow(0 30px 50px rgba(106,51,217,.55)) drop-shadow(0 8px 18px rgba(0,0,0,.35));
+  animation:float 6s ease-in-out infinite;transition:transform .5s var(--ease)}
+@keyframes float{50%{translate:0 -10px}}
+h1{font-size:clamp(48px,9vw,88px);line-height:1;margin:0;letter-spacing:-.045em;font-weight:700;
+  background:linear-gradient(180deg,#fff 30%,#d7cdfa 62%,#ff9fcb);-webkit-background-clip:text;background-clip:text;color:transparent}
+.tag{font-size:clamp(18px,2.6vw,22px);color:var(--dim);margin:18px auto 34px;max-width:560px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:13px 22px;border-radius:999px;
+  font-weight:600;font-size:15px;text-decoration:none;color:var(--ink);transition:transform .3s var(--ease),box-shadow .3s,background .3s}
+.btn svg{width:18px;height:18px}
+.btn.primary{background:linear-gradient(135deg,#7b45f0,#ff6fa8);
+  box-shadow:0 10px 30px -8px rgba(255,111,168,.6),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px -8px rgba(255,111,168,.75),inset 0 1px 0 rgba(255,255,255,.35)}
+.btn.glass{background:var(--glass);border:1px solid var(--rim);backdrop-filter:blur(20px) saturate(1.4)}
+.btn.glass:hover{background:rgba(255,255,255,.12);transform:translateY(-2px)}
+.meta{margin-top:16px;font-size:13px;color:var(--faint)}
+
+/* browser mockup */
+.stage{perspective:1600px;margin:56px auto 0;max-width:980px}
+.win{position:relative;aspect-ratio:16/10;border-radius:16px;overflow:hidden;display:flex;
+  background:linear-gradient(160deg,#2b1f63,#4b2a9a 55%,#8a3f8f);
+  border:1px solid var(--rim);
+  box-shadow:0 60px 120px -30px rgba(0,0,0,.7),0 0 0 1px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.18);
+  transform:rotateX(14deg) scale(.96);transform-origin:50% 100%;transition:transform 1.2s var(--ease)}
+.stage.in .win{transform:none}
+.side{width:22%;min-width:120px;padding:12px 10px;display:flex;flex-direction:column;gap:6px}
+.dots{display:flex;gap:6px;margin:2px 4px 10px}
+.dots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.25)}
+.favs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.favs b{aspect-ratio:1.3;border-radius:9px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08)}
+.side .t{height:22px;border-radius:7px;display:flex;align-items:center;gap:7px;padding:0 7px;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden}
+.side .t::before{content:"";flex:none;width:11px;height:11px;border-radius:3px;background:rgba(255,255,255,.35)}
+.side .t.on{background:rgba(255,255,255,.16);color:var(--ink)}
+.side hr{border:0;height:1px;background:rgba(255,255,255,.12);margin:6px 4px}
+.side .sp{margin-top:auto;display:flex;gap:6px;justify-content:center}
+.side .sp i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}
+.side .sp i:first-child{background:#fff}
+.page{flex:1;margin:8px 8px 8px 0;border-radius:11px;overflow:hidden;position:relative;
+  background:url(aurora.jpg) center/cover;box-shadow:0 0 0 1px rgba(0,0,0,.25)}
+.page .bar{position:absolute;top:10px;left:50%;translate:-50% 0;width:56%;height:26px;border-radius:999px;
+  background:rgba(20,12,51,.38);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(14px);
+  font-size:11px;color:var(--dim);display:flex;align-items:center;justify-content:center}
+.page .clock{position:absolute;top:30%;width:100%;text-align:center;font-size:clamp(28px,6vw,64px);font-weight:300;letter-spacing:-.03em;text-shadow:0 4px 30px rgba(0,0,0,.4)}
+.page .search{position:absolute;top:52%;left:50%;translate:-50% 0;width:58%;height:clamp(30px,5vw,46px);border-radius:999px;
+  background:rgba(20,12,51,.35);border:1px solid rgba(255,255,255,.22);
+  backdrop-filter:blur(22px) saturate(1.5);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 20px 40px -10px rgba(0,0,0,.5);
+  display:flex;align-items:center;padding:0 16px;gap:10px;color:var(--dim);font-size:clamp(11px,1.5vw,15px)}
+.page .search svg{width:16px;height:16px;flex:none}
+.caret{width:1.5px;height:1.1em;background:#fff;animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* features */
+section{padding:96px 0 24px}
+h2{font-size:clamp(28px,4.5vw,40px);letter-spacing:-.03em;margin:0 0 10px;text-align:center}
+.sub{color:var(--dim);text-align:center;margin:0 auto 44px;max-width:520px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card{padding:22px;border-radius:20px;background:var(--glass);border:1px solid var(--rim);
+  backdrop-filter:blur(24px) saturate(1.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);
+  transition:transform .5s var(--ease),background .3s;opacity:0;translate:0 24px}
+.card.in{opacity:1;translate:0 0;transition:opacity .8s var(--ease),translate .8s var(--ease),transform .5s var(--ease),background .3s}
+.card:hover{background:rgba(255,255,255,.1);transform:translateY(-4px)}
+.card .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;margin-bottom:14px;
+  background:linear-gradient(135deg,rgba(123,69,240,.9),rgba(255,111,168,.9));box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.card .ic svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card h3{margin:0 0 6px;font-size:17px;letter-spacing:-.01em}
+.card p{margin:0;color:var(--dim);font-size:14.5px}
+
+.end{text-align:center;padding:110px 0 60px}
+.end img{width:84px;margin-bottom:18px}
+footer{text-align:center;color:var(--faint);font-size:13px;padding:30px 0 40px}
+footer a{color:var(--dim)}
+
+@media (max-width:640px){
+  .side{display:none}.page{margin:6px}
+  .page .bar{width:70%}.page .search{width:80%}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .win{transform:none}.card{opacity:1;translate:0 0}
+}
+</style>
+</head>
+<body>
+<div class="sky"></div>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#"><img src="favicon.png" alt="">Gallium</a>
+    <a class="gh" href="https://github.com/idkiforgatit/gallium">GitHub ↗</a>
+  </nav>
+
+  <header class="hero">
+    <img class="drop" id="drop" src="icon.png" alt="Gallium icon">
+    <h1>Gallium</h1>
+    <p class="tag">A calm, Arc-style browser for Windows. Liquid Glass, Spaces and real photo wallpapers, built on Chromium.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>
+        Download for Windows</a>
+      <a class="btn glass" href="https://github.com/idkiforgatit/gallium">View source</a>
+    </div>
+    <div class="meta">Windows 10 &amp; 11 · 17 MB · Free and open source</div>
+
+    <div class="stage" id="stage">
+      <div class="win">
+        <aside class="side">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="favs"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+          <div class="t">Design system</div>
+          <div class="t">Inbox</div>
+          <hr>
+          <div class="t on">New Tab</div>
+          <div class="t">Northern lights — Wikipedia</div>
+          <div class="t">Trip ideas</div>
+          <div class="t">Pull requests</div>
+          <div class="sp"><i></i><i></i><i></i></div>
+        </aside>
+        <div class="page">
+          <div class="bar">Search or enter address</div>
+          <div class="clock" id="clock">9:41</div>
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <span id="typed"></span><i class="caret"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Everything in its place</h2>
+    <p class="sub">The parts of Arc you love, rebuilt for Windows with Apple-style polish.</p>
+    <div class="grid">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="2"/><path d="M14 6h7M14 12h7M14 18h7"/></svg></div><h3>Spaces &amp; pinned tabs</h3><p>A vertical sidebar with favourites, pinned tabs and Today tabs, grouped into Spaces you switch between with a 3D cube turn.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3c-2 3-6 7-6 11a6 6 0 0 0 12 0c0-4-4-8-6-11z"/></svg></div><h3>Liquid Glass</h3><p>Frosted glass with real edge refraction, plus light, dark and Apple themes. Mica and Acrylic window materials.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg></div><h3>Photo wallpapers</h3><p>Real landscapes and abstracts on the home screen, with the window tinted by a soft gradient taken from the photo.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div><h3>Safari-style search</h3><p>Search right from the toolbar or the home screen, with grouped suggestions, history and recently closed tabs.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="6" height="10" rx="1" transform="skewY(8)"/><rect x="9" y="5" width="6" height="14" rx="1"/><rect x="16" y="7" width="6" height="10" rx="1" transform="skewY(-8)"/></svg></div><h3>Tab Overview</h3><p>See every tab at once in a Cover Flow carousel with live snapshots. Hover a tab for a preview.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 3h6v4a2 2 0 1 0 0 4v4h-4a2 2 0 1 1-4 0H3V9h4a2 2 0 1 0 0-4z"/></svg></div><h3>Chrome extensions</h3><p>Install extensions from the Chrome Web Store and open their popups right from the toolbar.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></div><h3>Real Chromium tools</h3><p>Downloads you can cancel, find in page, DevTools, mute tab, and a custom right-click menu.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></div><h3>Undo everything</h3><p>Closed a tab or deleted a Space by mistake? One click on Undo brings it right back.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div><h3>Small and fast</h3><p>Built with Tauri and Microsoft WebView2. A 17 MB download, with unused tabs unloaded to save memory.</p></div>
+    </div>
+  </section>
+
+  <div class="end">
+    <img src="icon.png" alt="">
+    <h2>Browse like liquid.</h2>
+    <p class="sub">Free for Windows 10 and 11.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download Gallium</a>
+    </div>
+  </div>
+
+  <footer>Gallium is an independent project, not affiliated with The Browser Company. · <a href="https://github.com/idkiforgatit/gallium">GitHub</a></footer>
+</div>
+
+<script>
+// Tilt the browser mockup flat as it scrolls into view, and fade in the cards.
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }), { threshold: .2 })
+document.querySelectorAll('.card, #stage').forEach(el => io.observe(el))
+
+// Live clock on the mock home screen
+const clock = document.getElementById('clock')
+const tick = () => clock.textContent = new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }).replace(/\s?[AP]M/i, '')
+tick(); setInterval(tick, 10000)
+
+// Typing search box
+const words = ['northern lights tonight', 'best hikes in Iceland', 'github.com', 'weather tomorrow']
+const typed = document.getElementById('typed')
+let w = 0, i = 0, back = false
+;(function type() {
+  const s = words[w]
+  typed.textContent = s.slice(0, i)
+  if (!back && i++ === s.length) { back = true; return setTimeout(type, 1600) }
+  if (back && i-- === 0) { back = false; i = 0; w = (w + 1) % words.length }
+  setTimeout(type, back ? 35 : 80)
+})()
+
+// The drop leans toward the cursor
+const drop = document.getElementById('drop')
+addEventListener('pointermove', e => {
+  const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5
+  drop.style.transform = `perspective(600px) rotateY(${x * 18}deg) rotateX(${-y * 18}deg)`
+})
+</script>
+</body>
+</html>
