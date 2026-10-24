@@ -1,0 +1,64 @@
+name: Try the Mac and Linux builds
+# Installs the released Mac and Linux builds on clean machines, opens Gallium, and takes screenshots
+# so we can see it really starts. Run it by hand from the Actions tab after a release.
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        default: v1.0.0
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install the .deb and a virtual screen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*_amd64.deb'
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ./Gallium_*_amd64.deb xvfb imagemagick dbus-x11
+          dpkg -L gallium | grep '/bin/'
+      - name: Open Gallium and take screenshots
+        run: |
+          xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
+            dbus-launch gallium > app.log 2>&1 & pid=$!
+            sleep 12; import -window root shot-1.png
+            sleep 15; import -window root shot-2.png
+            if kill -0 $pid; then echo "STILL RUNNING"; else echo "EXITED"; fi
+            kill $pid || true'
+          cat app.log | tail -30
+          find ~ -name gallium.log -exec cat {} \; || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: |
+            shot-*.png
+            app.log
+  mac:
+    runs-on: macos-latest
+    steps:
+      - name: Install the .dmg
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*_universal.dmg'
+          hdiutil attach Gallium_*_universal.dmg -mountpoint /Volumes/Gallium -nobrowse
+          cp -R /Volumes/Gallium/Gallium.app /Applications/
+          hdiutil detach /Volumes/Gallium
+          codesign -dv /Applications/Gallium.app 2>&1 | head -5
+          lipo -archs /Applications/Gallium.app/Contents/MacOS/*
+      - name: Open Gallium and take screenshots
+        run: |
+          /Applications/Gallium.app/Contents/MacOS/gallium > app.log 2>&1 & pid=$!
+          sleep 12; screencapture -x shot-1.png
+          sleep 15; screencapture -x shot-2.png
+          if kill -0 $pid; then echo "STILL RUNNING"; else echo "EXITED"; fi
+          kill $pid || true
+          tail -30 app.log
+          find ~/Library -name gallium.log -exec cat {} \; || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: |
+            shot-*.png
+            app.log
