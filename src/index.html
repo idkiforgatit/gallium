@@ -561,6 +561,7 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 #onb-gl{position:absolute;inset:0;width:100%;height:100%;transition:opacity .9s var(--out),transform 1.1s var(--out)}
 #onb.steps #onb-gl{opacity:0}
 #onb.falling #onb-bg{background:transparent;transition:none}
+#onb.nogl #onb-bg{background:rgba(0,0,0,.3);backdrop-filter:blur(30px) saturate(1.3)} /* no 3D: the home screen, blurred */
 #onb.falling .ointro{opacity:0;transform:translateY(24px) scale(.97);pointer-events:none;transition:opacity .3s,transform .5s var(--out)}
 .ointro{position:absolute;left:0;right:0;bottom:12vh;text-align:center;transition:opacity .6s,transform .9s var(--out)}
 #onb.steps .ointro{opacity:0;transform:translateY(30px) scale(.96);pointer-events:none}
@@ -3264,13 +3265,13 @@ void main(){
       texFor = id
     } catch {}
   }
-  // Slow graphics (no GPU, old machines): halve the resolution after slow frames; if even that is too slow, skip the 3D
-  let res = 0, slow = 0, lastT = 0
+  // Slow graphics (no GPU, old machines): halve the resolution after very slow frames, and if it can't
+  // draw 10 frames in the first 3 seconds, skip the 3D and show the blurred home screen instead
+  let res = 0, slow = 0, lastT = 0, frames = 0
+  const noGL = () => { cv.hidden = true; el.classList.add('nogl'); cancelAnimationFrame(raf); raf = 0 }
   function frame(now) {
-    if (lastT && now - lastT > 120 && ++slow >= 2) {
-      res = (res || Math.min(devicePixelRatio, 2)) / 2; slow = 0
-      if (res < .3) { cv.hidden = true; raf = 0; return }
-    }
+    if (lastT && now - lastT > 250 && ++slow >= 2) { res = Math.max((res || Math.min(devicePixelRatio, 2)) / 2, .25); slow = 0 }
+    if (++frames < 10 && now - start > 3000 && !S.settings.calm) return noGL()
     lastT = now
     const s = res || Math.min(devicePixelRatio, 2), w = Math.round(innerWidth * s), h = Math.round(innerHeight * s)
     if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h) }
@@ -3340,8 +3341,8 @@ void main(){
     invoke('ui_focus').catch(() => {})
     if (gl || setupGL()) {
       await Promise.race([loadEnv(), new Promise(r => setTimeout(r, 1200))])
-      start = performance.now(); lastT = 0; slow = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame)
-    } else cv.hidden = true
+      start = performance.now(); lastT = 0; slow = 0; frames = 0; el.classList.remove('nogl'); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame)
+    } else noGL()
     SND.ambient()
     ARRIVE.forEach((s, i) => later(s * 1000, () => SND.merge(i)))
     later(2450, SND.settle)
