@@ -546,7 +546,9 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 #onb-bg{position:absolute;inset:0;background:#000;transition:background 1.1s var(--out),backdrop-filter 1.1s var(--out)}
 #onb.steps #onb-bg{background:rgba(0,0,0,.28);backdrop-filter:blur(18px) saturate(1.2)}
 #onb-gl{position:absolute;inset:0;width:100%;height:100%;transition:opacity .9s var(--out),transform 1.1s var(--out)}
-#onb.steps #onb-gl{opacity:0;transform:scale(1.35) translateZ(0)}
+#onb.steps #onb-gl{opacity:0}
+#onb.falling #onb-bg{background:transparent;transition:none}
+#onb.falling .ointro{opacity:0;transform:translateY(24px) scale(.97);pointer-events:none;transition:opacity .3s,transform .5s var(--out)}
 .ointro{position:absolute;left:0;right:0;bottom:12vh;text-align:center;transition:opacity .6s,transform .9s var(--out)}
 #onb.steps .ointro{opacity:0;transform:translateY(30px) scale(.96);pointer-events:none}
 .ointro h1{margin:0;font-size:clamp(44px,7vw,84px);font-weight:600;letter-spacing:-.045em;line-height:1;
@@ -715,7 +717,7 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 </div>
 <div id="onb" hidden>
   <div id="onb-bg"></div><canvas id="onb-gl"></canvas><div class="odrag" data-tauri-drag-region></div>
-  <div class="ointro"><h1>Gallium</h1><p>A calmer way to browse.</p><button class="obtn" id="onb-go">Get started</button></div>
+  <div class="ointro"><h1>Gallium</h1><p>Browsing, beautifully calm.</p><button class="obtn" id="onb-go">Get started</button></div>
   <div class="ostage"></div>
   <div class="otop"><button id="onb-snd" title="Sound"></button><button id="onb-skip">Skip</button></div>
 </div>
@@ -2430,111 +2432,191 @@ function toast(m, icon, action) {
   clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show', 'act'), action ? 6000 : 2200)
 }
 
-// ---------------- sounds: synthesized with Web Audio, nothing to download ----------------
+// ---------------- sounds: synthesized with Web Audio (no files), through a generated reverb ----------------
 const SND = (() => {
-  let ctx, out
+  let ctx, out, verb
   const on = () => S.settings.sounds !== false
   function ac() {
-    if (!ctx) { ctx = new AudioContext(); out = ctx.createGain(); out.gain.value = .6; out.connect(ctx.destination) }
+    if (!ctx) {
+      ctx = new AudioContext()
+      const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 3
+      out = ctx.createGain(); out.gain.value = .8; out.connect(comp).connect(ctx.destination)
+      // a 3.5 s hall: stereo noise that dies away, used as the reverb's impulse response
+      const n = ctx.sampleRate * 3.5, ir = ctx.createBuffer(2, n, ctx.sampleRate)
+      for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / n) ** 2.8 }
+      verb = ctx.createConvolver(); verb.buffer = ir
+      const wet = ctx.createGain(); wet.gain.value = .6; verb.connect(wet).connect(out)
+    }
     if (ctx.state === 'suspended') ctx.resume().catch(() => {})
     return ctx
   }
-  function tone(f, at, dur, { type = 'sine', gain = .2, f2, attack = .005 } = {}) {
-    const c = ac(), o = c.createOscillator(), g = c.createGain(), t0 = c.currentTime + at
+  const send = (node, wet) => { node.connect(out); const g = ctx.createGain(); g.gain.value = wet; node.connect(g).connect(verb) }
+  function voice(f, at, dur, { type = 'sine', gain = .2, attack = .004, f2, glide = .08, wet = .5, pan = 0, cut } = {}) {
+    const c = ac(), t0 = c.currentTime + at, o = c.createOscillator(), g = c.createGain(), p = c.createStereoPanner()
     o.type = type; o.frequency.setValueAtTime(f, t0)
-    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + Math.min(.12, dur * .4))
-    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(gain, t0 + attack); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur)
-    o.connect(g).connect(out); o.start(t0); o.stop(t0 + dur + .05)
+    if (f2) o.frequency.exponentialRampToValueAtTime(f2, t0 + glide)
+    g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(gain, t0 + attack); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur)
+    p.pan.value = pan
+    let last = o
+    if (cut) { const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.setValueAtTime(cut[0], t0); lp.frequency.exponentialRampToValueAtTime(cut[1], t0 + dur * .6); o.connect(lp); last = lp }
+    last.connect(g).connect(p); send(p, wet); o.start(t0); o.stop(t0 + dur + .1)
   }
-  function noise(at, dur, f1, f2, gain) {
+  function noise(at, dur, { f1 = 800, f2 = 800, q = 1, gain = .1, type = 'bandpass', wet = .4, attack = .45 } = {}) {
     const c = ac(), n = Math.floor(c.sampleRate * dur), b = c.createBuffer(1, n, c.sampleRate), d = b.getChannelData(0)
     for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1
-    const s = c.createBufferSource(), bp = c.createBiquadFilter(), g = c.createGain(), t0 = c.currentTime + at
-    s.buffer = b; bp.type = 'bandpass'; bp.Q.value = 1.4
-    bp.frequency.setValueAtTime(f1, t0); bp.frequency.exponentialRampToValueAtTime(f2, t0 + dur)
-    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(gain, t0 + dur * .45); g.gain.linearRampToValueAtTime(0, t0 + dur)
-    s.connect(bp).connect(g).connect(out); s.start(t0)
+    const s = c.createBufferSource(), fl = c.createBiquadFilter(), g = c.createGain(), t0 = c.currentTime + at
+    s.buffer = b; fl.type = type; fl.Q.value = q
+    fl.frequency.setValueAtTime(f1, t0); fl.frequency.exponentialRampToValueAtTime(f2, t0 + dur)
+    const a = attack < 1 ? dur * attack : attack
+    g.gain.setValueAtTime(.0001, t0); g.gain.exponentialRampToValueAtTime(gain, t0 + Math.max(a, .005)); g.gain.exponentialRampToValueAtTime(.0001, t0 + dur)
+    s.connect(fl).connect(g); send(g, wet); s.start(t0)
   }
-  const play = f => () => { if (on()) try { f() } catch {} }
+  // metal: a struck tone with the inharmonic partials of a small bell
+  const bell = (f, at, gain, pan = 0) => {
+    voice(f, at, 2.6, { gain, wet: .65, pan })
+    voice(f * 2.76, at, 1.2, { gain: gain * .3, wet: .65, pan })
+    voice(f * 5.4, at, .5, { gain: gain * .12, wet: .65, pan })
+  }
+  // a liquid drop: a quick upward "bloop" that rings like metal
+  const blip = (f, at, gain, pan = 0) => { voice(f * .5, at, .16, { f2: f * 1.1, glide: .06, gain, wet: .35, pan }); bell(f, at + .03, gain * .45, pan) }
+  const play = fn => (...a) => { if (on()) try { fn(...a) } catch {} }
+  const NOTES = [659.3, 830.6, 987.8, 1108.7, 1318.5] // E major pentatonic, one per drop
   return {
-    swell: play(() => { noise(0, 2.8, 160, 1200, .07); tone(98, 0, 3.4, { gain: .07, attack: 1.4 }); tone(147, .2, 3.2, { gain: .05, attack: 1.4 }); tone(196, .4, 3, { gain: .03, attack: 1.4 }) }),
-    drop: play(() => { tone(380, 0, .32, { f2: 1500, gain: .22 }); tone(1500, .1, .9, { gain: .04 }) }),
-    tick: play(() => tone(2100, 0, .06, { gain: .05 })),
-    whoosh: play(() => noise(0, .5, 400, 3200, .14)),
-    chime: play(() => [1046.5, 1318.5, 1568, 2093].forEach((f, i) => tone(f, i * .085, 1.6, { gain: .07 }))),
+    // warm pad that opens up while the drops gather
+    ambient: play(() => {
+      ;[[110, -.4], [164.8, .4], [220, -.2], [277.2, .2]].forEach(([f, pan], i) => {
+        voice(f, i * .15, 7, { type: 'triangle', gain: .045, attack: 2.2, wet: .7, pan, cut: [300, 2200] })
+        voice(f * 1.004, i * .15, 7, { type: 'triangle', gain: .03, attack: 2.4, wet: .7, pan: -pan, cut: [300, 2200] })
+      })
+      noise(0, 5, { f1: 300, f2: 3000, q: .6, gain: .02, wet: .8, attack: .6 })
+    }),
+    merge: play(i => blip(NOTES[i % 5], 0, .14, [-.6, .5, -.3, .3, 0][i % 5])),
+    settle: play(() => [1318.5, 1661.2, 1975.5, 2637].forEach((f, i) => bell(f, i * .07, .04, (i - 1.5) * .35))),
+    fall: play(() => noise(0, .75, { f1: 3000, f2: 260, q: 2.5, gain: .06, wet: .3, attack: .7 })),
+    splash: play(() => {
+      voice(95, 0, .6, { f2: 38, glide: .35, gain: .55, wet: .3 })                      // the thud
+      noise(0, 1.1, { type: 'lowpass', f1: 4000, f2: 300, q: .7, gain: .22, wet: .6, attack: .01 }) // the splash
+      blip(1318.5, .06, .12); blip(987.8, .2, .08, .45); blip(1661.2, .33, .06, -.45); blip(1975.5, .5, .04, .2) // droplets landing
+    }),
+    tick: play(() => voice(2400, 0, .06, { gain: .035, wet: .2 })),
+    whoosh: play(() => noise(0, .45, { f1: 500, f2: 2600, q: 1.2, gain: .05, wet: .35 })),
+    chime: play(() => [783.99, 987.77, 1174.66, 1567.98].forEach((f, i) => bell(f, i * .08, .06, (i - 1.5) * .3))),
   }
 })()
 
 // ---------------- welcome: 3D liquid-metal intro + setup steps ----------------
-// The intro is a raymarched shader: five drops of liquid metal fall together and settle into one droplet.
+// The intro is one raymarched shader. Five drops of liquid metal fly in and merge (one note each), settle into a droplet
+// that mirrors your wallpaper, then on "Get started" it falls, splashes, and a ripple opens up onto the browser.
 const ONB = (() => {
   const el = $('#onb'), cv = $('#onb-gl'), stage = $('.ostage')
-  let gl, prog, uT, uR, raf = 0, start = 0, step = -1, timers = []
+  let gl, U = {}, raf = 0, start = 0, fallAt = 0, step = -1, timers = [], texFor = ''
+  const ARRIVE = [.75, 1.05, 1.35, 1.65, 1.95] // seconds when each drop joins (keep in sync with the shader)
   const FRAG = `precision highp float;
-uniform vec2 R; uniform float t;
+uniform vec2 R; uniform float t, f; uniform sampler2D env;
+#define PI 3.14159265
 float smin(float a,float b,float k){float h=clamp(.5+.5*(b-a)/k,0.,1.);return mix(b,a,h)-k*h*(1.-h);}
 float ease(float x){x=clamp(x,0.,1.);return 1.-pow(1.-x,3.);}
 float roundCone(vec3 p,float r1,float r2,float h){
   float b=(r1-r2)/h,a=sqrt(1.-b*b);vec2 q=vec2(length(p.xz),p.y);float k=dot(q,vec2(-b,a));
   if(k<0.)return length(q)-r1; if(k>a*h)return length(q-vec2(0.,h))-r2; return dot(q,vec2(a,b))-r1;}
+float fallY(){return f>0.?-4.6*f*f:0.;}
 float map(vec3 p){
-  float c=ease(t/2.5), m=smoothstep(2.3,3.8,t);
-  vec3 q=p; q.y+=.42-.04*sin(t*1.3);
-  float d=roundCone(q,.58*mix(.55,1.,c),mix(.58*mix(.55,1.,c),.035,m),.001+1.08*m);
+  p.y-=fallY()+.04*sin(t*1.3);
+  float st=f>0.?min(f*1.2,.45):0.; p.y/=1.+st; p.xz*=1.+st*.4;          // stretch as it falls
+  float m=smoothstep(2.1,3.1,t), cr=.24+.34*ease((t-.4)/1.8);
+  vec3 q=p; q.y+=.42;
+  float d=roundCone(q,cr,mix(cr,.035,m),.001+1.08*m);
   for(int i=0;i<5;i++){
-    float fi=float(i), a=fi*1.2566+t*.9, r=mix(2.1,0.,c);
-    vec3 o=vec3(cos(a)*r, sin(a*1.7+fi)*.55*r, sin(a)*r);
-    d=smin(d,length(p-o)-mix(.24,.12,c),.42);
+    float fi=float(i), tc=.75+.3*fi, k=pow(clamp(t/tc,0.,1.),2.2), a=fi*1.2566+t*.9, r=mix(2.4,0.,k);
+    vec3 o=vec3(cos(a)*r,sin(a*1.3+fi)*.7*r-.42,sin(a)*r);
+    d=smin(d,length(p-o)-.21*(1.-smoothstep(tc,tc+.45,t)),.38);
   }
-  float w=.03*exp(-max(t-2.4,0.)*1.1)+.004;
-  d+=w*sin(7.*p.x+t*5.)*sin(7.*p.y-t*4.)*sin(7.*p.z+t*3.);
-  return d*.8;}
-vec3 nrm(vec3 p){vec2 e=vec2(.0015,-.0015);return normalize(e.xyy*map(p+e.xyy)+e.yyx*map(p+e.yyx)+e.yxy*map(p+e.yxy)+e.xxx*map(p+e.xxx));}
-vec3 env(vec3 d){
-  vec3 c=mix(vec3(.01),vec3(.12,.13,.15),smoothstep(-.6,-.02,d.y));
-  c=mix(c,vec3(.035,.04,.05),smoothstep(-.02,.0,d.y)*smoothstep(.08,.0,d.y));
-  c=mix(c,vec3(.9,.92,.97),smoothstep(.0,.5,d.y));
-  c+=vec3(1.6)*smoothstep(.93,.99,dot(d,normalize(vec3(-.6,.75,.45))));
-  c+=vec3(.9)*smoothstep(.97,1.,dot(d,normalize(vec3(.8,.35,-.3))));
-  c+=vec3(.07)*smoothstep(-.4,-1.,d.y);
-  return c;}
+  float w=.03*exp(-max(t-2.,0.))+.005;
+  for(int i=0;i<5;i++){float tc=.75+.3*float(i); w+=.03*exp(-max(t-tc,0.)*5.)*step(tc,t);} // jiggle on each merge
+  d+=w*sin(6.*p.x+t*4.)*sin(6.*p.y-t*3.3)*sin(6.*p.z+t*2.7);
+  return d*.72;}
+vec3 nrm(vec3 p){vec2 e=vec2(.001,-.001);return normalize(e.xyy*map(p+e.xyy)+e.yyx*map(p+e.yyx)+e.yxy*map(p+e.yxy)+e.xxx*map(p+e.xxx));}
+// the wallpaper wrapped around the scene like a dome, mirrored so it has no seam
+vec3 envc(vec3 d,float b){
+  float u=atan(d.x,-d.z)/PI; u=1.-abs(u);
+  float v=.5-asin(clamp(d.y,-1.,1.))/PI*1.25;
+  b+=3.5*smoothstep(.8,1.,abs(d.y))+2.5*(1.-smoothstep(0.,.08,min(u,1.-u))); // soften the wrap seam and the poles
+  vec3 c=texture2D(env,vec2(u,clamp(v,0.,1.)),b).rgb; return c*c;}
+vec3 tone(vec3 c){c=1.-exp(-c*1.9);return sqrt(c);}
 void main(){
-  vec2 uv=(gl_FragCoord.xy-.5*R)/R.y;
-  float a=.35+t*.22; vec3 ro=vec3(sin(a)*5.5,.6,cos(a)*5.5), ta=vec3(0.,-.5,0.);
-  vec3 f=normalize(ta-ro), r=normalize(cross(vec3(0,1,0),f)), u=cross(f,r), rd=normalize(f*1.5+uv.x*r+uv.y*u);
-  vec3 col=vec3(.012,.013,.016)*max(1.-length(uv)*1.2,0.);
+  vec2 uv=(gl_FragCoord.xy-.5*R)/R.y, sv=gl_FragCoord.xy/R;
+  float a=.4+t*.18; vec3 ro=vec3(sin(a)*5.5,.6,cos(a)*5.5), ta=vec3(0.,-.5,0.);
+  vec3 fw=normalize(ta-ro), r=normalize(cross(vec3(0,1,0),fw)), up=cross(fw,r), rd=normalize(fw*1.5+uv.x*r+uv.y*up);
+  // backdrop: the same photo, deeply blurred and dimmed, glowing in from black
+  vec2 bu=vec2(.5+(sv.x-.5)*R.x/R.y*.56,1.-sv.y);
+  vec3 col=texture2D(env,clamp(bu,0.,1.),7.).rgb; col=col*col*(.16+.1*smoothstep(1.6,3.,t));
+  col*=smoothstep(0.,1.6,t)*(1.-.55*length(uv));
   float d=0.,h; bool hit=false;
-  for(int i=0;i<90;i++){vec3 p=ro+rd*d;h=map(p);if(h<.001){hit=true;break;}d+=h;if(d>12.)break;}
+  for(int i=0;i<96;i++){vec3 p=ro+rd*d;h=map(p);if(h<.0008){hit=true;break;}d+=h;if(d>14.)break;}
   if(hit){
     vec3 p=ro+rd*d,n=nrm(p),rf=reflect(rd,n);
-    float fr=pow(1.-max(dot(n,-rd),0.),4.);
-    col=env(rf)*vec3(.93,.95,1.)*mix(.62,1.,fr)+vec3(.02);
+    float fr=pow(1.-max(dot(n,-rd),0.),5.);
+    vec3 m=envc(rf,1.2)*mix(vec3(.78,.8,.85),vec3(1.),fr)*1.35;                 // a silver mirror
+    m+=vec3(1.)*pow(max(dot(rf,normalize(vec3(-.4,.85,.5))),0.),90.)*3.;             // key light
+    m+=vec3(.9,.95,1.)*pow(max(dot(rf,normalize(vec3(.8,.3,-.4))),0.),40.)*.6;       // rim light
+    m*=.75+.25*smoothstep(-.6,.4,n.y);                                               // a little occlusion underneath
+    col=m*smoothstep(0.,.5,t);
   }
-  col*=smoothstep(0.,1.,t);
-  col=pow(col,vec3(.4545));
-  gl_FragColor=vec4(col,1.);}`
+  float al=1.;
+  // after the splash: a liquid ring opens from the bottom and the browser shows through it
+  if(f>.62){
+    float T=f-.62, rr=2.2*T+1.6*T*T; vec2 c=vec2(0.,-.66), dv=uv-c; float s=length(dv)-rr, w=.05+.05*T;
+    float crest=exp(-s*s/(w*w)), e=.003, s2=s+e, crest2=exp(-s2*s2/(w*w));
+    vec2 dir=normalize(dv); vec3 nn=normalize(vec3(-dir*(crest2-crest)/e*.025,1.));
+    vec3 rim=envc(reflect(vec3(0.,0.,-1.),nn)*vec3(1.,1.,-1.),.6)*1.4+pow(crest,6.)*.4;
+    float ripple=s<0.?.5+.5*sin(s*70.-T*20.):0.;
+    float ring=clamp(crest*1.3,0.,1.), inner=s<0.?ripple*exp(s*9.)*.35:0.;
+    al=max(smoothstep(-.01,.015,s),max(ring,inner));
+    col=mix(col,rim,max(ring,inner/.35*.5));
+  }
+  col=tone(col);
+  gl_FragColor=vec4(col*al,al);}`
   function setupGL() {
-    gl = cv.getContext('webgl', { antialias: false, premultipliedAlpha: false })
+    gl = cv.getContext('webgl', { antialias: false, alpha: true, premultipliedAlpha: true })
     if (!gl) return false
     const sh = (type, src) => { const s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s }
-    prog = gl.createProgram()
+    const prog = gl.createProgram()
     gl.attachShader(prog, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'))
     gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG))
     gl.linkProgram(prog)
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) return false
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.warn(gl.getProgramInfoLog(prog)); gl = null; return false }
     gl.useProgram(prog)
     gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer())
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW)
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0)
-    uT = gl.getUniformLocation(prog, 't'); uR = gl.getUniformLocation(prog, 'R')
+    for (const k of ['t', 'f', 'R', 'env']) U[k] = gl.getUniformLocation(prog, k)
+    gl.bindTexture(gl.TEXTURE_2D, gl.createTexture())
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([90, 90, 100, 255]))
     return true
   }
+  // the current wallpaper becomes the environment the metal reflects (power-of-two copy so it can be mipmapped/blurred)
+  async function loadEnv() {
+    const id = S.settings.wall
+    if (texFor === id) return
+    try {
+      const img = new Image(); img.src = (id === 'custom' && customWall()) || `wallpapers/${WALLS.some(w => w[0] === id) ? id : 'moraine'}.jpg`
+      await img.decode()
+      const c = document.createElement('canvas'); c.width = 1024; c.height = 512
+      c.getContext('2d').drawImage(img, 0, 0, 1024, 512)
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c)
+      gl.generateMipmap(gl.TEXTURE_2D)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      texFor = id
+    } catch {}
+  }
   function frame(now) {
-    const s = Math.min(devicePixelRatio, 1.5) * .8, w = Math.round(innerWidth * s), h = Math.round(innerHeight * s)
+    const s = Math.min(devicePixelRatio, 2), w = Math.round(innerWidth * s), h = Math.round(innerHeight * s)
     if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h) }
     const t = S.settings.calm ? 6 : (now - start) / 1000
-    gl.uniform1f(uT, t); gl.uniform2f(uR, w, h); gl.drawArrays(gl.TRIANGLES, 0, 3)
-    raf = S.settings.calm ? 0 : requestAnimationFrame(frame)
+    gl.uniform1f(U.t, t); gl.uniform1f(U.f, fallAt ? (now - fallAt) / 1000 : 0); gl.uniform2f(U.R, w, h); gl.uniform1i(U.env, 0)
+    gl.drawArrays(gl.TRIANGLES, 0, 3)
+    raf = S.settings.calm && !fallAt ? 0 : requestAnimationFrame(frame)
   }
   const later = (ms, f) => timers.push(setTimeout(f, S.settings.calm ? Math.min(ms, 200) : ms))
 
@@ -2591,22 +2673,34 @@ void main(){
   async function begin() {
     if (!el.hidden) return
     timers.forEach(clearTimeout); timers = []
-    el.hidden = false; el.className = ''; stage.innerHTML = ''; step = -1
+    el.hidden = false; el.className = ''; stage.innerHTML = ''; step = -1; fallAt = 0; cv.hidden = false
     $('#onb-snd').innerHTML = svg(S.settings.sounds === false ? 'volx' : 'vol')
     await freeze()
     invoke('ui_focus').catch(() => {})
-    if (gl || setupGL()) { start = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame) }
-    else cv.hidden = true
-    SND.swell()
-    later(2350, SND.drop)
-    later(3300, () => el.classList.add('named'))
-    later(3700, () => $('#onb-go').focus())
+    if (gl || setupGL()) {
+      await Promise.race([loadEnv(), new Promise(r => setTimeout(r, 1200))])
+      start = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame)
+    } else cv.hidden = true
+    SND.ambient()
+    ARRIVE.forEach((s, i) => later(s * 1000, () => SND.merge(i)))
+    later(2450, SND.settle)
+    later(2700, () => el.classList.add('named'))
+    later(3100, () => $('#onb-go').focus())
   }
+  // "Get started": the drop falls, splashes, and the ripple opens onto the browser; then the first step slides in
   function toSteps() {
-    if (el.classList.contains('steps')) return
+    if (el.classList.contains('falling') || el.classList.contains('steps')) return
     timers.forEach(clearTimeout); timers = []
-    el.classList.add('named', 'steps'); SND.whoosh()
-    setTimeout(() => { cancelAnimationFrame(raf); raf = 0 }, 1000) // stop the shader once it has faded out
+    el.classList.add('named', 'falling')
+    if (!gl || cv.hidden || S.settings.calm) return reveal()
+    fallAt = performance.now(); if (!raf) raf = requestAnimationFrame(frame)
+    SND.fall()
+    later(620, SND.splash)
+    later(1450, reveal)
+  }
+  function reveal() {
+    el.classList.remove('falling'); el.classList.add('steps')
+    setTimeout(() => { cancelAnimationFrame(raf); raf = 0 }, 450)
     show(0)
   }
   function finish() {
