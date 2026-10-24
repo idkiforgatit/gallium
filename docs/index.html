@@ -7,7 +7,8 @@
 <meta name="description" content="Gallium is a calm, Arc-style browser for Windows with Liquid Glass, Spaces, rendered wallpapers and a 3D Tab Overview.">
 <meta property="og:title" content="Gallium">
 <meta property="og:description" content="Browsing, beautifully calm. A free, Arc-style browser for Windows.">
-<meta property="og:image" content="img/wp/halo.jpg">
+<meta property="og:image" content="img/hero/poster.jpg">
+<link rel="preload" as="image" href="img/hero/poster.jpg">
 <link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -24,8 +25,9 @@
   </div>
 </nav>
 
-<!-- live Liquid Glass: a refracting glass ring drawn in WebGL, turning as you scroll and leaning toward the mouse -->
+<!-- a glass ring rendered offline in 96 frames: it turns slowly on its own, and further as you scroll -->
 <header class="hero3 dark" id="top" data-scroll="hero">
+ <div class="hero3-pin">
   <canvas id="glass" aria-hidden="true"></canvas>
   <div class="hero3-in">
     <p class="eyebrow3 rv">Gallium for Windows</p>
@@ -39,6 +41,7 @@
     <p class="note rv d3">Free and open source · Windows 10 and 11 · 17 MB</p>
   </div>
   <div class="cue" aria-hidden="true"><span></span></div>
+ </div>
 </header>
 
 <!-- the browser grows from a tilted card to full width as you scroll -->
