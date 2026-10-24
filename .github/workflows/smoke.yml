@@ -16,7 +16,7 @@ jobs:
         run: |
           gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*_amd64.deb'
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ./Gallium_*_amd64.deb xvfb imagemagick dbus-x11
+          sudo apt-get install -y -qq ./Gallium_*_amd64.deb xvfb imagemagick dbus-x11 xdotool
           dpkg -L gallium | grep '/bin/'
       - name: Open Gallium and take screenshots
         run: |
@@ -24,6 +24,8 @@ jobs:
             dbus-launch gallium > app.log 2>&1 & pid=$!
             sleep 12; import -window root shot-1.png
             sleep 15; import -window root shot-2.png
+            xdotool search --pid $pid --onlyvisible windowactivate --sync key Return || xdotool key Return
+            sleep 8; import -window root shot-3.png
             if kill -0 $pid; then echo "STILL RUNNING"; else echo "EXITED"; fi
             kill $pid || true'
           cat app.log | tail -30
@@ -52,6 +54,12 @@ jobs:
           /Applications/Gallium.app/Contents/MacOS/gallium > app.log 2>&1 & pid=$!
           sleep 12; screencapture -x shot-1.png
           sleep 15; screencapture -x shot-2.png
+          # press Return on "Get started", then Return again on the first step's Continue
+          osascript -e 'tell application "System Events" to set frontmost of (first process whose unix id is '$pid') to true' || true
+          osascript -e 'tell application "System Events" to key code 36' || true
+          sleep 8; screencapture -x shot-3.png
+          osascript -e 'tell application "System Events" to keystroke "s" using command down' || true
+          sleep 4; screencapture -x shot-4.png
           if kill -0 $pid; then echo "STILL RUNNING"; else echo "EXITED"; fi
           kill $pid || true
           tail -30 app.log
