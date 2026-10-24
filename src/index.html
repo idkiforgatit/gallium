@@ -616,12 +616,12 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 .ofoot .dots i.on{width:20px;opacity:.8}
 .ofoot .obtn.ghost:disabled{visibility:hidden}
 /* ---- home: Customize is a small glass button that opens a quick panel ---- */
-#hcustom{position:absolute;right:18px;bottom:18px;z-index:3;width:42px;height:42px;--tint:rgba(255,255,255,.16);--lgf:blur(20px) saturate(1.8);color:#fff;border-radius:50%;display:grid;place-items:center;color:inherit}
+#hcustom{position:absolute;right:18px;top:18px;z-index:3;width:42px;height:42px;--tint:rgba(255,255,255,.16);--lgf:blur(20px) saturate(1.8);color:#fff;border-radius:50%;display:grid;place-items:center;color:inherit}
 #hcustom span{display:grid;place-items:center}
 #hcustom svg{display:block;width:19px;height:19px}
 #hcustom.on{background:color-mix(in srgb,var(--accent) 80%,transparent);color:#fff}
-#cust{position:absolute;right:16px;bottom:66px;z-index:3;width:min(392px,calc(100% - 32px));padding:16px 16px 14px;border-radius:22px;color:var(--ink);background:var(--surface);
-  box-shadow:0 24px 60px rgba(10,5,30,.3),0 0 0 1px var(--line);transform-origin:100% 100%;opacity:0;transform:translateY(10px) scale(.95);pointer-events:none;
+#cust{position:absolute;right:16px;top:70px;z-index:3;width:min(392px,calc(100% - 32px));padding:16px 16px 14px;border-radius:22px;color:var(--ink);background:var(--surface);
+  box-shadow:0 24px 60px rgba(10,5,30,.3),0 0 0 1px var(--line);transform-origin:100% 0;opacity:0;transform:translateY(-10px) scale(.95);pointer-events:none;
   transition:opacity .2s,transform .4s var(--out)}
 #cust.on{opacity:1;transform:none;pointer-events:auto}
 #cust h5{margin:0 0 8px;font-size:11px;font-weight:600;opacity:.55;text-transform:uppercase;letter-spacing:.05em}
@@ -737,6 +737,64 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 .dropzone{margin-top:16px;padding:16px;border-radius:12px;border:1.5px dashed color-mix(in srgb,var(--ink) 18%,transparent);text-align:center;font-size:12.5px;opacity:.65}
 body.filedrag::after{content:'Drop to install a theme or mod';position:fixed;inset:12px;z-index:95;border-radius:20px;border:2px dashed var(--accent);
   background:color-mix(in srgb,var(--accent) 14%,transparent);display:grid;place-items:center;font:600 20px var(--font-d);color:var(--ink);pointer-events:none;backdrop-filter:blur(4px)}
+
+/* ---- home widgets: Liquid Glass cards along the bottom (weather, calendar, recently closed, quick links) ---- */
+#hwid{position:absolute;left:50%;bottom:24px;z-index:2;transform:translateX(-50%);width:min(1020px,calc(100% - 48px));display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+#hwid[hidden]{display:none}
+#home:has(.hbox:focus-within) #hwid{opacity:.22;filter:blur(3px)}
+#hwid{transition:opacity .35s var(--ease),filter .35s var(--ease)}
+.wid{height:158px;border-radius:26px;padding:15px 18px 16px;color:#fff;overflow:hidden;display:flex;flex-direction:column;text-align:left;
+  --tint:linear-gradient(rgba(255,255,255,.17),rgba(255,255,255,.07));--lgf:blur(26px) saturate(1.9);--rimHi:.55;--rimLo:.12;--shade:.18;
+  transition:transform .5s var(--out),box-shadow .4s;animation:widin .9s var(--out) backwards;animation-delay:calc(.25s + var(--i) * .07s)}
+@keyframes widin{from{opacity:0;transform:translateY(24px) scale(.96)}}
+.wid:hover{transform:translateY(-4px)}
+body #home.light .wid{color:#1d1b26;--tint:rgba(255,255,255,.55);--rimHi:.9;--rimLo:.35}
+.wid h6{margin:0 0 auto;font:600 11.5px/1 var(--font);letter-spacing:.06em;text-transform:uppercase;opacity:.72;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}
+.wid h6 svg{width:12px;height:12px;flex:none}
+/* weather */
+.w-main{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.w-temp{font:300 54px/.9 var(--font-d);letter-spacing:-.04em}
+.w-ico{width:44px;height:44px;flex:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.18))}
+body #home.light .w-ico{filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45)) drop-shadow(0 4px 10px rgba(0,0,0,.2))}
+.w-temp{color:inherit;text-align:left;padding:0;cursor:pointer}
+.w-cond{margin-top:8px;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.w-hl{font-size:12px;opacity:.75;margin-top:1px}
+.w-set{display:flex;gap:6px;margin-top:10px}
+.w-set input{flex:1;min-width:0;height:32px;border:0;outline:0;border-radius:10px;padding:0 10px;background:rgba(255,255,255,.18);color:inherit;font-size:13px}
+.w-set input::placeholder{color:currentColor;opacity:.6}
+.w-set button,.w-edit{height:32px;padding:0 11px;border-radius:10px;background:rgba(255,255,255,.22);font-size:12px;font-weight:600}
+.w-edit{position:absolute;top:12px;right:12px;height:24px;padding:0 8px;font-size:11px;opacity:0;transition:opacity .2s}
+.wid:hover .w-edit{opacity:.85}
+.w-msg{font-size:13px;line-height:1.4;opacity:.85;margin-top:6px}
+body #home.light .w-set input,body #home.light .w-set button,body #home.light .w-edit{background:rgba(0,0,0,.07)}
+/* calendar */
+.c-wrap{display:flex;gap:14px;align-items:flex-end;margin-top:auto}
+.c-big{flex:none}
+.c-dow{font:700 12px var(--font);color:#ff453a;text-transform:uppercase;letter-spacing:.04em}
+#home.light .c-dow{color:#e5352b}
+.c-num{font:300 58px/.9 var(--font-d);letter-spacing:-.04em}
+.c-grid{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:2px 0;font:600 9.5px/16px var(--font);text-align:center;opacity:.92}
+.c-grid b{font-weight:700;opacity:.55}
+.c-grid i{font-style:normal;opacity:.85}
+.c-grid i.t{background:#ff453a;color:#fff;border-radius:50%;opacity:1}
+.c-grid i.o{opacity:.25}
+/* recently closed */
+.r-list{display:grid;gap:4px;margin-top:8px}
+.r-list button{height:28px;min-width:0;width:calc(100% + 16px);display:flex;align-items:center;gap:9px;padding:0 8px;margin:0 -8px;border-radius:9px;font-size:13px;font-weight:500;text-align:left;transition:background .15s}
+.r-list button:hover{background:rgba(255,255,255,.14)}
+body #home.light .r-list button:hover{background:rgba(0,0,0,.06)}
+.r-list img{width:16px;height:16px;border-radius:4px;flex:none}
+.r-list span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.r-empty{font-size:13px;opacity:.7;margin-top:8px;line-height:1.4}
+/* quick links */
+.q-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-top:10px}
+.q-grid button{aspect-ratio:1;max-height:46px;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.92);box-shadow:0 3px 10px rgba(0,0,0,.14);
+  transition:transform .35s var(--bounce)}
+.q-grid button:hover{transform:translateY(-3px) scale(1.08)}
+.q-grid img{width:22px;height:22px;border-radius:5px}
+@media (max-width:1100px){ #hwid{grid-template-columns:repeat(3,1fr)} #hwid .wid:nth-child(4){display:none} }
+@media (max-width:820px){ #hwid{grid-template-columns:repeat(2,1fr)} #hwid .wid:nth-child(3){display:none} }
+@media (max-height:640px){ #hwid{display:none} }
 </style>
 </head>
 <body class="boot">
@@ -821,6 +879,7 @@ body.filedrag::after{content:'Drop to install a theme or mod';position:fixed;ins
         <div id="hdock" class="lg hin" style="--d:.2s"></div>
         <div id="hrecent" class="hin" style="--d:.28s"></div>
       </div>
+      <div id="hwid"></div>
       <button id="hcustom" class="lg press" title="Customize"><span data-i="sliders"></span></button>
       <div id="cust" class="lg" data-lg="panel"></div>
     </div>
@@ -1165,7 +1224,7 @@ S.settings = {
   engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: 'windows',
   grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'halo', backdrop: 'wallpaper',
   toolbar: 'top', winbg: S.settings?.windowColors === 'theme' ? 'theme' : 'blur', tint: 30, solid: '', accent: '',
-  homeDim: 8, homeBlur: 0, clock24: false, showDate: true, showDock: true, showRecent: true, homePos: 'top', calm: false,
+  homeDim: 8, homeBlur: 0, clock24: false, widgets: true, weather: null, showDate: true, showDock: true, showRecent: true, homePos: 'top', calm: false,
   ...S.settings,
 }
 S.downloads = (S.downloads || []).map(d => d.state === 'started' ? { ...d, state: 'failed' } : d) // interrupted by a restart
@@ -1497,6 +1556,90 @@ function render() {
   $('#b-dl').classList.toggle('new', newDl)
   document.title = a ? `${label(a)} - Gallium` : 'Gallium'
 }
+
+// ---------------- home widgets ----------------
+const WX_ICONS = {
+  sun: '<circle cx="24" cy="24" r="9" fill="#ffd60a"/><g stroke="#ffd60a" stroke-width="3" stroke-linecap="round"><path d="M24 5v5M24 38v5M5 24h5M38 24h5M10.6 10.6l3.5 3.5M33.9 33.9l3.5 3.5M10.6 37.4l3.5-3.5M33.9 14.1l3.5-3.5"/></g>',
+  moon: '<path d="M30 8a16 16 0 1 0 10 25A13 13 0 0 1 30 8z" fill="#fff6c2"/>',
+  partly: '<circle cx="18" cy="17" r="8" fill="#ffd60a"/><path d="M15 38h20a8 8 0 0 0 0-16 11 11 0 0 0-21 3 6.5 6.5 0 0 0 1 13z" fill="#fff"/>',
+  cloud: '<path d="M13 37h22a9 9 0 0 0 0-18 12 12 0 0 0-23 3.5A7.3 7.3 0 0 0 13 37z" fill="#fff"/>',
+  rain: '<path d="M13 30h22a9 9 0 0 0 0-18 12 12 0 0 0-23 3.5A7.3 7.3 0 0 0 13 30z" fill="#fff"/><g stroke="#64d2ff" stroke-width="3" stroke-linecap="round"><path d="M17 35l-2 5M25 35l-2 5M33 35l-2 5"/></g>',
+  snow: '<path d="M13 30h22a9 9 0 0 0 0-18 12 12 0 0 0-23 3.5A7.3 7.3 0 0 0 13 30z" fill="#fff"/><g fill="#fff"><circle cx="16" cy="38" r="2"/><circle cx="24" cy="41" r="2"/><circle cx="32" cy="38" r="2"/></g>',
+  storm: '<path d="M13 28h22a9 9 0 0 0 0-18 12 12 0 0 0-23 3.5A7.3 7.3 0 0 0 13 28z" fill="#fff"/><path d="M25 29l-6 9h5l-3 7 8-10h-5l3-6z" fill="#ffd60a"/>',
+  fog: '<g stroke="#fff" stroke-width="3.5" stroke-linecap="round"><path d="M9 18h30M13 25h26M9 32h30M15 39h20"/></g>',
+}
+// WMO weather codes, as Open-Meteo reports them
+const wxKind = (c, day) => c === 0 ? [day ? 'sun' : 'moon', 'Clear'] : c <= 2 ? [day ? 'partly' : 'cloud', 'Partly cloudy'] : c === 3 ? ['cloud', 'Cloudy']
+  : c <= 48 ? ['fog', 'Fog'] : c <= 57 ? ['rain', 'Drizzle'] : c <= 67 ? ['rain', 'Rain'] : c <= 77 ? ['snow', 'Snow'] : c <= 82 ? ['rain', 'Showers']
+  : c <= 86 ? ['snow', 'Snow showers'] : ['storm', 'Thunderstorm']
+const fahrenheit = () => S.settings.tempUnit ? S.settings.tempUnit === 'f' : /^en-(US|LR|MM)$/.test(navigator.language)
+let wx = null, wxAt = 0, wxBusy = false, wxEditing = false, widSig = ''
+async function loadWeather() {
+  const c = S.settings.weather
+  if (!c || wxBusy || Date.now() - wxAt < 20 * 60e3) return
+  wxBusy = true
+  try {
+    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&forecast_days=1&timezone=auto${fahrenheit() ? '&temperature_unit=fahrenheit' : ''}`)
+    const j = await r.json()
+    wx = { t: Math.round(j.current.temperature_2m), code: j.current.weather_code, day: !!j.current.is_day, hi: Math.round(j.daily.temperature_2m_max[0]), lo: Math.round(j.daily.temperature_2m_min[0]) }
+    wxAt = Date.now()
+  } catch { wx = wx || { err: true } }
+  wxBusy = false; widSig = ''; renderWidgets()
+}
+async function setCity(name) {
+  name = name.trim()
+  if (!name) return
+  try {
+    const j = await (await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name=' + encodeURIComponent(name))).json()
+    const g = j.results?.[0]
+    if (!g) return toast(`Couldn't find “${name}”`, 'alert')
+    S.settings.weather = { name: g.name, lat: +g.latitude.toFixed(3), lon: +g.longitude.toFixed(3) }
+    save(); wx = null; wxAt = 0; wxEditing = false; widSig = ''; loadWeather(); renderWidgets()
+  } catch { toast('No connection, try again', 'alert') }
+}
+const POPULAR = ['https://www.google.com', 'https://www.youtube.com', 'https://mail.google.com', 'https://github.com', 'https://www.wikipedia.org', 'https://www.reddit.com', 'https://x.com', 'https://www.netflix.com']
+function renderWidgets() {
+  const box = $('#hwid'), now = new Date(), c = S.settings.weather
+  loadWeather()
+  // weather
+  let w
+  if (!c || wxEditing) w = `<h6>${svg('globe')}Weather</h6><div class="w-msg">${c ? 'Change your city' : 'Add your city to see the weather here.'}</div>
+    <form class="w-set"><input name="city" placeholder="City" value="${esc(wxEditing ? c?.name || '' : '')}" autocomplete="off" spellcheck="false"><button>${c ? 'Save' : 'Add'}</button></form>`
+  else if (!wx) w = `<h6>${esc(c.name)}</h6><div class="w-msg">Loading weather…</div>`
+  else if (wx.err) w = `<h6>${esc(c.name)}</h6><div class="w-msg">Weather is unavailable right now.</div><button class="w-edit" data-w="edit">Change</button>`
+  else { const [k, cond] = wxKind(wx.code, wx.day); w = `<h6>${esc(c.name)}</h6><div class="w-main"><button class="w-temp" data-w="unit" title="Switch to ${fahrenheit() ? '°C' : '°F'}">${wx.t}°</button><svg class="w-ico" viewBox="0 0 48 48">${WX_ICONS[k]}</svg></div>
+    <div class="w-cond">${cond}</div><div class="w-hl">H:${wx.hi}°  L:${wx.lo}°</div><button class="w-edit" data-w="edit">Change</button>` }
+  // calendar: today, plus this month
+  const y = now.getFullYear(), m = now.getMonth(), first = (new Date(y, m, 1).getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate()
+  let cells = ['M', 'T', 'W', 'T', 'F', 'S', 'S'].map(d => `<b>${d}</b>`).join('')
+  for (let k = 0; k < first; k++) cells += '<i class="o"></i>'
+  for (let d = 1; d <= days; d++) cells += `<i${d === now.getDate() ? ' class="t"' : ''}>${d}</i>`
+  const cal = `<h6>${now.toLocaleDateString([], { month: 'long' })}</h6><div class="c-wrap"><div class="c-big"><div class="c-dow">${now.toLocaleDateString([], { weekday: 'long' })}</div><div class="c-num">${now.getDate()}</div></div><div class="c-grid">${cells}</div></div>`
+  // recently closed (newest first), or the tabs you have open
+  const recent = [...closed].reverse().filter((x, i, a) => a.findIndex(y => y.url === x.url) === i).slice(0, 3)
+  const rec = `<h6>${svg('reload')}Pick up where you left off</h6>` + (recent.length
+    ? `<div class="r-list">${recent.map(x => `<button data-url="${esc(x.url)}" title="${esc(x.title)}"><img src="${ico(x.url)}" alt=""><span>${esc(x.title || host(x.url))}</span></button>`).join('')}</div>`
+    : `<div class="r-empty">Tabs you close show up here, so you can open them again in one click.</div>`)
+  // quick links: favorites and pinned tabs, or popular sites
+  const mine = [...S.favorites, ...space().pinned].slice(0, 8)
+  const links = mine.length ? mine.map(t => ({ url: t.url, id: t.id, title: label(t) })) : POPULAR.map(url => ({ url, title: host(url) }))
+  const ql = `<h6>${svg('pin')}${mine.length ? 'Favorites' : 'Quick links'}</h6><div class="q-grid">${links.map(l => `<button ${l.id ? `data-id="${l.id}"` : `data-url="${esc(l.url)}"`} title="${esc(l.title)}"><img src="${ico(l.url)}" alt=""></button>`).join('')}</div>`
+  const html = [w, cal, rec, ql].map((x, i) => `<div class="wid lg" style="--i:${i}">${x}</div>`).join('')
+  if (html === widSig) return // nothing changed: leave the cards (and any hover or typing) alone
+  if (box.contains(document.activeElement) && document.activeElement.tagName === 'INPUT') return
+  widSig = html; box.innerHTML = html
+}
+$('#hwid').addEventListener('click', e => {
+  const b = e.target.closest('button')
+  if (!b) return
+  if (b.dataset.w === 'unit') { S.settings.tempUnit = fahrenheit() ? 'c' : 'f'; save(); wxAt = 0; wx = null; widSig = ''; return renderWidgets() }
+  if (b.dataset.w === 'edit') { wxEditing = true; widSig = ''; renderWidgets(); return $('#hwid input')?.focus() }
+  if (b.dataset.id) return activate(b.dataset.id)
+  if (b.dataset.url) open(b.dataset.url)
+})
+$('#hwid').addEventListener('submit', e => { e.preventDefault(); setCity(new FormData(e.target).get('city') || '') })
+$('#hwid').addEventListener('keydown', e => { if (e.key === 'Escape' && wxEditing) { wxEditing = false; widSig = ''; renderWidgets() } })
+
 // the clock is one span per character, so only the digits that change roll in
 let clockWas = ''
 function setClock(t) {
@@ -1517,8 +1660,11 @@ function renderHome() {
   const st = S.settings
   $('#clock').hidden = !st.clock
   $('#greet').hidden = !st.showDate
-  $('#hdock').hidden = !st.showDock
-  $('#hrecent').hidden = !st.showRecent
+  const wOn = st.widgets !== false
+  $('#hdock').hidden = !st.showDock || wOn
+  $('#hrecent').hidden = !st.showRecent || wOn
+  $('#hwid').hidden = !wOn
+  if (wOn) renderWidgets()
   $('#home').classList.toggle('mid', st.homePos === 'center')
   setClock(now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: !st.clock24 }).replace(/\s?[AP]M$/i, ''))
   $('#greet').textContent = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })
@@ -1810,7 +1956,9 @@ const SECTIONS = {
       ${field('24-hour clock', '', toggle('clock24'))}
       ${field('Date and greeting', '', toggle('showDate'))}
       ${field('Favorites dock', 'Your favorites and pinned tabs as icons.', toggle('showDock'))}
-      ${field('Jump back in', 'Chips for the tabs you have open.', toggle('showRecent'))}`,
+      ${field('Jump back in', 'Chips for the tabs you have open.', toggle('showRecent'))}
+      ${field('Widgets', 'Weather, calendar, recently closed tabs and quick links along the bottom. They replace the dock and chips while on.', toggle('widgets'))}
+      ${field('Weather city', S.settings.weather ? `Showing ${esc(S.settings.weather.name)}. Weather comes from Open-Meteo, which only receives the city's coordinates.` : 'Set it in the weather widget on the home screen. Weather comes from Open-Meteo.', S.settings.weather ? '<button class="btn sm" data-act="weather-clear">Forget city</button>' : '')}`,
   layout: () => `<h2>Layout</h2>
       ${field('Toolbar', 'Top bar puts back/forward, the address and new tab in floating capsules above the page, like Safari. Sidebar keeps them in the sidebar, like Arc.',
         select('toolbar', [['top', 'Top bar (capsules)'], ['sidebar', 'In the sidebar']]))}
@@ -1941,6 +2089,7 @@ $('#psec').addEventListener('click', async e => {
     'dl-show': () => invoke('reveal', { path: d.path, open: false }).catch(err => toast(String(err), 'alert')),
     wall: () => { S.settings.wall = b.dataset.id; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur'; save(); applyTheme(); showSec(curSec) },
     'wall-pick': pickWall,
+    'weather-clear': () => { S.settings.weather = null; wx = null; save(); renderHome(); showSec(curSec) },
     studio: () => { hideOverlay($('#panel'), false); studioOpen() },
     'pkg-import': pickPkg,
     'pkg-browse': () => { hideOverlay($('#panel'), false); open('https://idkiforgatit.github.io/gallium/themes.html') },
