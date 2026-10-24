@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gallium</title>
-<meta name="description" content="Gallium is a calm, Arc-style browser for Windows with Liquid Glass, Spaces, rendered wallpapers and a 3D Tab Overview.">
+<meta name="description" content="Gallium is a calm, Arc-style browser for Windows, Mac and Linux with Liquid Glass, Spaces, rendered wallpapers and a 3D Tab Overview.">
 <meta property="og:title" content="Gallium">
-<meta property="og:description" content="Browsing, beautifully calm. A free, Arc-style browser for Windows.">
+<meta property="og:description" content="Browsing, beautifully calm. A free, Arc-style browser for Windows, Mac and Linux.">
 <meta property="og:image" content="img/home-glass.jpg">
 <link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,22 +20,23 @@
   <div class="wrap">
     <a class="brand" href="#top"><img src="favicon.png" alt="">Gallium</a>
     <div class="links"><a href="#story">Overview</a><a href="#welcome">Welcome</a><a href="#walls">Wallpapers</a><a href="#features">Features</a><a href="themes.html">Themes &amp; Mods</a><a href="#specs">Specs</a></div>
-    <a class="pill sm" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download</a>
+    <a class="pill sm" data-dl href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download</a>
   </div>
 </nav>
 
 <!-- the hero: Gallium on a 3D laptop (built in mac3d.js); the buttons turn it and change the screen -->
 <header class="hero4" id="top">
   <div class="wrap">
-    <p class="eyebrow rv">Gallium for Windows</p>
+    <p class="eyebrow rv">Gallium for Windows, Mac and Linux</p>
     <h1 class="split">Browsing, beautifully calm.</h1>
-    <p class="lead rv d2">Liquid Glass, Spaces and wallpapers you'll actually want to look at. An Arc-style browser built for Windows, on Chromium.</p>
+    <p class="lead rv d2">Liquid Glass, Spaces and wallpapers you'll actually want to look at. An Arc-style browser for Windows, Mac and Linux.</p>
     <div class="ctas rv d3">
-      <a class="pill lg" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>Download for Windows</a>
+      <a class="pill lg" data-dl href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>Download for <span class="dl-name">Windows</span></a>
       <a class="more" href="#story">See how it works</a>
     </div>
-    <p class="note rv d3">Free and open source · Windows 10 and 11 · 17 MB</p>
+    <p class="note rv d3">Free and open source · No account</p>
+    <p class="also rv d3">Also for <a href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_universal.dmg">Mac</a> · Linux: <a href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_amd64.AppImage">AppImage</a>, <a href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_amd64.deb">.deb</a>, <a href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium-1.0.0-1.x86_64.rpm">.rpm</a> · <a href="https://github.com/idkiforgatit/gallium/releases/latest">Windows .msi</a></p>
   </div>
   <div class="mac" id="mac">
     <canvas id="mac-canvas" aria-label="Gallium on a laptop, in 3D" role="img"></canvas>
@@ -199,7 +200,7 @@
 
 <section class="stats">
   <div class="wrap stats-grid">
-    <div class="rv"><b data-count="17">17</b><span>MB to download</span></div>
+    <div class="rv"><b data-count="8">8</b><span>MB to download on Windows</span></div>
     <div class="rv d1"><b data-count="15">15</b><span>wallpapers built in</span></div>
     <div class="rv d2"><b data-count="0" data-from="60">0</b><span>accounts or trackers</span></div>
     <div class="rv d3"><b data-count="100" data-suffix="%">100%</b><span>free and open source</span></div>
@@ -225,11 +226,11 @@
   <div class="wrap">
     <h2 class="rv">Tech specs.</h2>
     <dl class="specs">
-      <div class="spec rv"><dt>Engine</dt><dd>Chromium, through Microsoft Edge WebView2</dd></div>
+      <div class="spec rv"><dt>Engine</dt><dd>Chromium (WebView2) on Windows, WebKit on Mac and Linux</dd></div>
       <div class="spec rv"><dt>Built with</dt><dd>Tauri 2 and Rust, with a single-file web interface</dd></div>
-      <div class="spec rv"><dt>Download</dt><dd>17 MB installer (.exe) or Windows Installer (.msi)</dd></div>
-      <div class="spec rv"><dt>Runs on</dt><dd>Windows 10 and Windows 11, 64-bit</dd></div>
-      <div class="spec rv"><dt>Extensions</dt><dd>Chrome Web Store extensions, with popups in the toolbar</dd></div>
+      <div class="spec rv"><dt>Download</dt><dd>Windows: .exe or .msi · Mac: .dmg (Apple silicon and Intel) · Linux: AppImage, .deb or .rpm</dd></div>
+      <div class="spec rv"><dt>Runs on</dt><dd>Windows 10 and 11 · macOS 11 or later · 64-bit Linux</dd></div>
+      <div class="spec rv"><dt>Extensions</dt><dd>Chrome Web Store extensions, with popups in the toolbar (Windows for now)</dd></div>
       <div class="spec rv"><dt>Privacy</dt><dd>Tabs, Spaces and settings stay on your computer. No account, no tracking.</dd></div>
       <div class="spec rv"><dt>Price</dt><dd>Free and open source</dd></div>
     </dl>
@@ -240,9 +241,9 @@
   <div class="wrap">
     <div class="drop rv"><img src="img/drop.jpg" width="1300" height="950" alt="" loading="lazy"></div>
     <h2 class="rv d1">Get Gallium.</h2>
-    <p class="lead rv d2">Free for Windows 10 and 11.</p>
+    <p class="lead rv d2">Free for Windows, Mac and Linux.</p>
     <div class="ctas rv d3">
-      <a class="pill lg" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download for Windows</a>
+      <a class="pill lg" data-dl href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download for <span class="dl-name">Windows</span></a>
       <a class="more" href="https://github.com/idkiforgatit/gallium">View the source</a>
     </div>
   </div>
@@ -250,15 +251,16 @@
 
 <footer>
   <div class="wrap">
-    <p>Windows may show a SmartScreen warning the first time, because the installer isn't code-signed yet. Choose More info, then Run anyway.</p>
+    <p>Gallium isn't code-signed yet, so the first launch may warn you. On Windows choose More info, then Run anyway. On a Mac, if it won't open, go to System Settings › Privacy &amp; Security and click Open Anyway. On Linux, make the AppImage executable, or install the .deb or .rpm. Chrome extensions, tab muting and live Tab Overview pictures are Windows-only for now.</p>
     <div class="row">
       <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos from Unsplash.</span>
-      <a href="https://github.com/idkiforgatit/gallium">GitHub</a>
+      <span><a href="press.html">Press kit</a> · <a href="https://github.com/idkiforgatit/gallium">GitHub</a></span>
     </div>
   </div>
 </footer>
 
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script src="dl.js"></script>
 <script src="motion.js"></script>
 <script type="module" src="mac3d.js"></script>
 <script type="module">

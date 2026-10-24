@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Press Kit · Gallium</title>
+<meta name="description" content="Clips, screenshots, logos and facts for covering Gallium, the calm Arc-style browser for Windows, Mac and Linux.">
+<link rel="icon" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+.hero{padding-bottom:30px}
+.hero .ctas{margin-top:8px}
+.kit{padding:90px 0 20px}
+.kit h2{font-size:clamp(34px,4.4vw,52px);margin-bottom:10px}
+.kit .lead{margin:0 0 34px;max-width:680px}
+.kit .head{max-width:1180px;margin:0 auto;padding:0 22px}
+.wide2{max-width:1180px;margin:0 auto;padding:0 22px}
+/* facts */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.facts div{background:var(--soft);border-radius:20px;padding:20px 22px}
+.facts dt{font-size:13px;color:var(--mute);margin-bottom:4px}
+.facts dd{margin:0;font:600 17px/1.35 var(--display);letter-spacing:-.015em}
+/* copy blocks */
+.copy{position:relative;background:#fff;border-radius:22px;padding:22px 24px;box-shadow:0 0 0 1px rgba(0,0,0,.07);margin-bottom:14px}
+.copy small{display:block;font-size:12.5px;color:var(--mute);margin-bottom:6px;letter-spacing:.01em}
+.copy p{margin:0;font-size:16.5px;line-height:1.55;padding-right:70px}
+.copy button{position:absolute;top:18px;right:18px;border:0;background:var(--soft);color:var(--ink);font:500 13px var(--font);padding:7px 14px;border-radius:999px;cursor:pointer}
+.copy button.done{background:#e8f8ee;color:#16743e}
+/* clips */
+.clips{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.clip{margin:0}
+.clip video{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:18px;background:#111;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 30px 60px -36px rgba(0,0,0,.5)}
+.clip figcaption,.shot figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:12px;font-size:14px;color:var(--mute)}
+.clip b,.shot b{color:var(--ink);font-weight:600}
+/* screenshots */
+.shots{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.shot{margin:0}
+.shot img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:14px;display:block;box-shadow:0 0 0 1px rgba(0,0,0,.06),0 20px 40px -28px rgba(0,0,0,.45)}
+/* logo */
+.logos{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.logo{border-radius:22px;padding:44px;display:flex;align-items:center;justify-content:center;gap:16px;font:700 34px var(--display);letter-spacing:-.04em}
+.logo img{width:72px;height:72px}
+.logo.l{background:var(--soft);color:var(--ink)}
+.logo.d{background:#000;color:#f5f5f7}
+.dlrow{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:14px;font-size:14px}
+/* angles */
+.angles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.angles div{background:var(--soft);border-radius:20px;padding:22px 24px}
+.angles b{display:block;font:600 19px var(--display);letter-spacing:-.02em;margin-bottom:6px}
+.angles p{margin:0;color:var(--mute);font-size:15px}
+.contact{text-align:center;padding:110px 22px 120px}
+@media (max-width:900px){ .facts,.shots{grid-template-columns:1fr 1fr} .clips,.logos,.angles{grid-template-columns:1fr} }
+@media (max-width:560px){ .facts,.shots{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html"><img src="favicon.png" alt="">Gallium</a>
+    <div class="links"><a href="index.html#story">Overview</a><a href="index.html#features">Features</a><a href="themes.html">Themes &amp; Mods</a><a href="press.html" class="on">Press</a></div>
+    <a class="pill sm" data-dl href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow rv">Press Kit</p>
+    <h1 class="rv d1">Cover Gallium.</h1>
+    <p class="lead rv d2">Clips, screenshots, logos and the facts, ready to drop into a video or an article. Use anything here freely when you write about Gallium.</p>
+    <div class="ctas rv d3"><a class="pill lg" href="press/gallium-press-kit.zip" download>Download everything (.zip)</a><a class="more" href="#clips">Clips</a><a class="more" href="#shots">Screenshots</a></div>
+  </div>
+</header>
+
+<section class="kit" id="facts">
+  <div class="head">
+    <h2 class="rv">The facts.</h2>
+    <dl class="facts">
+      <div class="rv"><dt>What it is</dt><dd>A calm, Arc-style web browser</dd></div>
+      <div class="rv d1"><dt>Runs on</dt><dd>Windows 10 and 11, macOS 11+, Linux</dd></div>
+      <div class="rv d2"><dt>Price</dt><dd>Free. No account, no tracking</dd></div>
+      <div class="rv"><dt>Engine</dt><dd>Chromium (WebView2) on Windows, WebKit on Mac and Linux</dd></div>
+      <div class="rv d1"><dt>Built with</dt><dd>Tauri 2 and Rust</dd></div>
+      <div class="rv d2"><dt>Download size</dt><dd>About 8 MB on Windows</dd></div>
+      <div class="rv"><dt>Signature features</dt><dd>Liquid Glass, Spaces, a 3D Tab Overview, a liquid-metal intro</dd></div>
+      <div class="rv d1"><dt>Make it yours</dt><dd>Theme Studio, plus themes and mods that are virus-scanned</dd></div>
+      <div class="rv d2"><dt>Source</dt><dd><a href="https://github.com/idkiforgatit/gallium">github.com/idkiforgatit/gallium</a></dd></div>
+    </dl>
+  </div>
+</section>
+
+<section class="kit" id="words">
+  <div class="head">
+    <h2 class="rv">In a few words.</h2>
+    <p class="lead rv d1">Copy whichever length fits.</p>
+    <div class="copy rv"><small>One line</small><p>Gallium is a free, Arc-style browser for Windows, Mac and Linux, built to be calm and beautiful.</p><button>Copy</button></div>
+    <div class="copy rv"><small>Short</small><p>Gallium is a free browser that keeps your tabs in a tidy sidebar, splits your life into Spaces, and wraps it all in Liquid Glass. It opens with a liquid-metal intro drawn live in 3D, and you can restyle everything with the built-in Theme Studio or with themes and mods from a gallery where every file is virus-scanned.</p><button>Copy</button></div>
+    <div class="copy rv"><small>Long</small><p>Gallium is a free, open-source browser for Windows, Mac and Linux, inspired by Arc. Tabs live in a sidebar instead of a crowded strip, grouped into Spaces for work, home or anything else. The interface is made of Liquid Glass that bends the wallpaper behind it, the home screen has a lock-screen style clock, weather and quick links, and a 3D Tab Overview shows every open tab at once. The first launch plays a short liquid-metal intro, rendered live with sound made on the fly. Everything can be restyled: the Theme Studio builds a theme in minutes, and the online gallery shares themes and mods that are format-checked and virus-scanned before anyone can download them. There's no account and no tracking: tabs, Spaces and settings stay on your computer.</p><button>Copy</button></div>
+  </div>
+</section>
+
+<section class="kit" id="clips">
+  <div class="wide2">
+    <h2 class="rv">Clips.</h2>
+    <p class="lead rv d1">Silent screen recordings of the real app, 1080p. Drop them straight into your edit.</p>
+    <div class="clips">
+      <figure class="clip rv"><video src="press/intro.mp4" poster="press/intro.jpg" muted loop playsinline preload="none"></video><figcaption><span><b>The intro.</b> Liquid metal gathers into a drop that mirrors the wallpaper.</span><a href="press/intro.mp4" download>Download</a></figcaption></figure>
+      <figure class="clip rv d1"><video src="press/themes.mp4" poster="press/themes.jpg" muted loop playsinline preload="none"></video><figcaption><span><b>Changing the look.</b> Liquid Glass, light and dark, and the wallpapers.</span><a href="press/themes.mp4" download>Download</a></figcaption></figure>
+      <figure class="clip rv"><video src="press/overview.mp4" poster="press/overview.jpg" muted loop playsinline preload="none"></video><figcaption><span><b>Tab Overview.</b> Every open tab at once, in 3D.</span><a href="press/overview.mp4" download>Download</a></figcaption></figure>
+      <figure class="clip rv d1"><video src="press/search.mp4" poster="press/search.jpg" muted loop playsinline preload="none"></video><figcaption><span><b>Search.</b> One box for the web, tabs and commands.</span><a href="press/search.mp4" download>Download</a></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="kit" id="shots">
+  <div class="wide2">
+    <h2 class="rv">Screenshots.</h2>
+    <p class="lead rv d1">Full-size, straight from the app. Click to open the original.</p>
+    <div class="shots">
+      <figure class="shot rv"><a href="img/home-glass.jpg" target="_blank"><img src="img/home-glass.jpg" alt="Home screen in Liquid Glass" loading="lazy"></a><figcaption><span><b>Home</b>, Liquid Glass</span><a href="img/home-glass.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv d1"><a href="img/home-dark.jpg" target="_blank"><img src="img/home-dark.jpg" alt="Home screen in Liquid Glass Dark" loading="lazy"></a><figcaption><span><b>Home</b>, Liquid Glass Dark</span><a href="img/home-dark.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv d2"><a href="img/page-glass.jpg" target="_blank"><img src="img/page-glass.jpg" alt="A web page with the sidebar" loading="lazy"></a><figcaption><span><b>A page</b> with the sidebar</span><a href="img/page-glass.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv"><a href="img/overview.jpg" target="_blank"><img src="img/overview.jpg" alt="3D Tab Overview" loading="lazy"></a><figcaption><span><b>Tab Overview</b></span><a href="img/overview.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv d1"><a href="img/search-dark.jpg" target="_blank"><img src="img/search-dark.jpg" alt="Search with suggestions" loading="lazy"></a><figcaption><span><b>Search</b></span><a href="img/search-dark.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv d2"><a href="img/settings.jpg" target="_blank"><img src="img/settings.jpg" alt="Settings" loading="lazy"></a><figcaption><span><b>Settings</b></span><a href="img/settings.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv"><a href="img/studio.jpg" target="_blank"><img src="img/studio.jpg" alt="Theme Studio" loading="lazy"></a><figcaption><span><b>Theme Studio</b></span><a href="img/studio.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv d1"><a href="img/welcome.jpg" target="_blank"><img src="img/welcome.jpg" alt="Choosing a look on first launch" loading="lazy"></a><figcaption><span><b>First launch</b></span><a href="img/welcome.jpg" download>Download</a></figcaption></figure>
+      <figure class="shot rv d2"><a href="img/intro-3.jpg" target="_blank"><img src="img/intro-3.jpg" alt="The liquid-metal intro" loading="lazy"></a><figcaption><span><b>The intro</b></span><a href="img/intro-3.jpg" download>Download</a></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<section class="kit" id="logo">
+  <div class="wide2">
+    <h2 class="rv">Logo.</h2>
+    <div class="logos">
+      <div class="logo l rv"><img src="press/gallium-icon.png" alt="">Gallium</div>
+      <div class="logo d rv d1"><img src="press/gallium-icon.png" alt="">Gallium</div>
+    </div>
+    <div class="dlrow rv"><a href="press/gallium-icon.png" download>App icon, PNG 512 px</a><a href="press/gallium-icon.svg" download>App icon, SVG</a><span style="color:var(--mute)">Please don't recolour or stretch the icon.</span></div>
+  </div>
+</section>
+
+<section class="kit" id="angles">
+  <div class="head">
+    <h2 class="rv">Story ideas.</h2>
+    <p class="lead rv d1">A few angles people have liked.</p>
+    <div class="angles">
+      <div class="rv"><b>An Arc-style browser that keeps going</b><p>Sidebar tabs, Spaces and a calm home screen, for people who loved Arc and want somewhere to land.</p></div>
+      <div class="rv d1"><b>The prettiest browser on Windows?</b><p>Liquid Glass, rendered wallpapers and a 3D intro. Put it next to Chrome and Edge and let viewers decide.</p></div>
+      <div class="rv"><b>Make your browser look like macOS</b><p>Liquid Glass, traffic-light buttons and the Theme Studio, for desktop-customisation videos.</p></div>
+      <div class="rv d1"><b>A safer place for themes and mods</b><p>Every upload is format-checked and virus-scanned before it's listed, and again inside the app before it installs.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="contact center">
+  <div class="wrap">
+    <h2 class="rv">Questions, or want a custom theme for your video?</h2>
+    <p class="lead rv d1">Get in touch on GitHub. We'll happily make a Gallium theme in your channel's colours.</p>
+    <div class="ctas rv d2"><a class="pill lg" href="https://github.com/idkiforgatit/gallium/issues/new?title=Press%3A%20">Contact us</a><a class="more" href="index.html">Back to Gallium</a></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="row"><span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos in the wallpapers are from Unsplash.</span><a href="https://github.com/idkiforgatit/gallium">GitHub</a></div>
+  </div>
+</footer>
+
+<script src="dl.js"></script>
+<script>
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }), { threshold: .1 })
+document.querySelectorAll('.rv').forEach(el => io.observe(el))
+const nav = document.getElementById('nav')
+addEventListener('scroll', () => nav.classList.toggle('lined', scrollY > 10), { passive: true })
+// clips play while they're on screen
+const vio = new IntersectionObserver(es => es.forEach(e => e.isIntersecting ? e.target.play().catch(() => {}) : e.target.pause()), { threshold: .4 })
+document.querySelectorAll('video').forEach(v => vio.observe(v))
+document.querySelectorAll('.copy button').forEach(b => b.onclick = () => navigator.clipboard.writeText(b.previousElementSibling.textContent).then(() => {
+  b.textContent = 'Copied'; b.classList.add('done'); setTimeout(() => { b.textContent = 'Copy'; b.classList.remove('done') }, 1600)
+}))
+</script>
+</body>
+</html>
