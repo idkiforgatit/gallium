@@ -104,7 +104,7 @@ function build() {
   let fadeT = 1, next = null, raf = 0, opened = false
   function resize() {
     const w = canvas.clientWidth, h = canvas.clientHeight
-    if (canvas.width !== Math.round(w * renderer.getPixelRatio())) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix() }
+    if (w !== resize.w || h !== resize.h) { resize.w = w; resize.h = h; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix() }
   }
   function frame() {
     raf = 0

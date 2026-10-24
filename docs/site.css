@@ -254,6 +254,15 @@ footer a{color:#424245}
 .mac.ready .mac-load{opacity:0;pointer-events:none}
 .mac.failed .mac-load{background:#f5f5f7 url(img/home-glass.jpg) center/70% no-repeat;font-size:0}
 .mac.failed .mac-load span{display:none}
+/* short screens (most laptops): headline, laptop and buttons all fit in the first screen */
+@media (min-width:900px) and (max-height:960px){
+  .hero4{padding-top:66px}
+  .hero4 h1{font-size:clamp(44px,8vh,92px);max-width:none}
+  .hero4 .lead{font-size:clamp(17px,2.4vh,22px);max-width:780px;margin:12px auto 20px}
+  .hero4 .note{margin-top:10px}
+  .mac{aspect-ratio:auto;max-height:none;height:max(320px,calc(100svh - 370px));margin-top:-5.5vh;pointer-events:none}
+  .mac-bar{margin-top:-3.5vh;position:relative}
+}
 .mac-bar{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:6px}
 .screens{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:4px;padding:4px;border-radius:24px;background:rgba(0,0,0,.06)}
 .screens button{border:0;background:none;font:500 14px var(--font);color:var(--ink);padding:8px 16px;border-radius:999px;cursor:pointer;transition:background .25s,box-shadow .25s}
