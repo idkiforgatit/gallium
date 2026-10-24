@@ -1,0 +1,58 @@
+name: Check uploaded theme or mod
+# Runs when someone uploads through the "Upload a theme or mod" form (an issue labelled "upload").
+# Format-checks the file and scans it with ClamAV, then posts the result on the issue.
+# When the repo owner adds the "approved" label, it checks and scans again and publishes the file to the gallery.
+on:
+  issues:
+    types: [opened, edited, labeled]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: upload-${{ github.event.issue.number }}
+jobs:
+  check:
+    if: >-
+      contains(github.event.issue.labels.*.name, 'upload') && github.event.issue.state == 'open' &&
+      (github.event.action != 'labeled' || (github.event.label.name == 'approved' && github.event.sender.login == github.repository_owner))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install ClamAV and update virus definitions
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq clamav
+          sudo systemctl stop clamav-freshclam || true
+          sudo freshclam
+      - name: Check and scan the upload
+        id: scan
+        env:
+          BODY: ${{ github.event.issue.body }}
+          ISSUE: ${{ github.event.issue.number }}
+          PUBLISH: ${{ github.event.action == 'labeled' && '1' || '0' }}
+        run: node tools/submission.js
+      - name: Post the result
+        env:
+          GH_TOKEN: ${{ github.token }}
+          N: ${{ github.event.issue.number }}
+          RESULT: ${{ steps.scan.outputs.result }}
+        run: |
+          gh issue comment "$N" --body-file report.md
+          if [ "$RESULT" = passed ]; then add="scan: passed"; drop="scan: failed"; else add="scan: failed"; drop="scan: passed"; fi
+          gh issue edit "$N" --add-label "$add" --remove-label "$drop" || gh issue edit "$N" --add-label "$add"
+      - name: Publish to the gallery
+        if: steps.scan.outputs.file != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          N: ${{ github.event.issue.number }}
+          FILE: ${{ steps.scan.outputs.file }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/packages docs/gformat.js
+          git commit -m "Add $FILE to the gallery (upload #$N)"
+          git push
+          gh issue close "$N" --reason completed

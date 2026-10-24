@@ -1,0 +1,29 @@
+name: Upload a theme or mod
+description: Share a .gtheme or .gmod. A robot checks it and scans it for viruses, then it's reviewed before it goes in the gallery.
+title: "Upload: "
+labels: [upload]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Easiest way: drop your file on the **[Upload page](https://idkiforgatit.github.io/gallium/themes.html#upload)**. It fills this in for you.
+        After you submit, a robot format-checks the file and scans it with ClamAV, then posts the result below (usually within 2 minutes).
+  - type: textarea
+    id: package
+    attributes:
+      label: Package file
+      description: Paste the file's contents, or drag in the .txt copy the Upload page gave you. GitHub doesn't accept .gtheme or .gmod attachments directly.
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: Optional. Screenshots are welcome.
+  - type: checkboxes
+    id: rights
+    attributes:
+      label: Permission
+      options:
+        - label: I made this, or have permission to share it, including any wallpaper picture inside it.
+          required: true

@@ -104,6 +104,18 @@
 .rules{margin-top:20px;text-align:left;font-size:14.5px;color:var(--mute);line-height:1.6}
 .rules b{color:var(--ink)}
 @media (max-width:900px){ .safe,.steps3,.code2{grid-template-columns:1fr} }
+/* upload */
+.bar .upl{font-size:14px;white-space:nowrap}
+#upload{padding-top:120px;padding-bottom:120px}
+.upgo{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:14px;padding-top:16px;border-top:1px solid var(--line)}
+.upgo .pill{font-size:15px;padding:10px 22px;flex:none}
+.upgo small{color:var(--mute);font-size:13px;flex:1 1 260px}
+.uploads{margin-top:28px;background:#fff;border-radius:22px;padding:20px 24px;box-shadow:0 0 0 1px rgba(0,0,0,.05)}
+.uploads h4{margin:0 0 6px;font:600 17px var(--display)}
+.uprow{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:14.5px;color:var(--ink);text-decoration:none}
+.uprow:first-child{border-top:0}
+.uprow b{font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uprow time{color:var(--mute);font-size:12.5px}
 /* install guide */
 .guide{padding:120px 0 40px}
 .ways{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px;text-align:left}
@@ -173,7 +185,7 @@
     <p class="eyebrow rv">Themes &amp; Mods</p>
     <h1 class="rv d1">Make it yours.</h1>
     <p class="lead rv d2">Themes change Gallium's colours, wallpaper and feel. Mods restyle the interface itself. Every file here is checked and virus-scanned before it's listed.</p>
-    <div class="ctas rv d3"><a class="pill lg" href="#gallery">Browse the gallery</a><a class="more" href="#install">How to install</a><a class="more" href="#make">Make your own</a></div>
+    <div class="ctas rv d3"><a class="pill lg" href="#gallery">Browse the gallery</a><a class="more" href="#install">How to install</a><a class="more" href="#make">Make your own</a><a class="more" href="#upload">Upload yours</a></div>
   </div>
 </header>
 
@@ -224,6 +236,7 @@
     <div class="bar">
       <div class="seg" id="seg"><i></i><button data-k="theme">Themes</button><button data-k="mod">Mods</button></div>
       <div class="scanned" id="scanned">Loading scan results…</div>
+      <a class="upl" href="#upload">Upload yours ›</a>
     </div>
     <div class="grid" id="grid"></div>
   </div>
@@ -274,7 +287,27 @@
   "css": "#clock { font-size: 160px !important }"
 }</pre></figure>
     </div>
-    <p class="rules rv"><b>The rules.</b> Colours are written like <code>#a1b2c3</code>. Styles are <code>gradient</code>, <code>apple</code> or <code>glass</code>. The wallpaper is a built-in name or an embedded JPEG, PNG or WebP picture up to 5 MB. Mods are CSS up to 100 KB, with no <code>@import</code>, no outside <code>url()</code>, nothing that hides the whole window. To get yours listed here, open a pull request adding it to <a href="https://github.com/idkiforgatit/gallium/tree/main/docs/packages">docs/packages</a>; it's checked and scanned automatically.</p>
+    <p class="rules rv"><b>The rules.</b> Colours are written like <code>#a1b2c3</code>. Styles are <code>gradient</code>, <code>apple</code> or <code>glass</code>. The wallpaper is a built-in name or an embedded JPEG, PNG or WebP picture up to 5 MB. Mods are CSS up to 100 KB, with no <code>@import</code>, no outside <code>url()</code>, nothing that hides the whole window. To get yours listed here, <a href="#upload">upload it</a>; it's checked and scanned automatically.</p>
+  </div>
+</section>
+
+<section id="upload" class="center">
+  <div class="wrap">
+    <p class="kicker rv">Upload</p>
+    <h2 class="rv d1">Share your theme or mod.</h2>
+    <p class="lead rv d2">Every upload is format-checked and virus-scanned before anyone can download it. Files that pass are reviewed, then added to the gallery for everyone.</p>
+    <div class="steps3">
+      <div class="rv"><div class="n">1</div><b>Drop your file</b><p>It's checked right here in your browser first, so you know straight away if something's wrong.</p></div>
+      <div class="rv d1"><div class="n">2</div><b>Send it</b><p>Click Upload and submit the form on GitHub (a free account). A robot scans it with ClamAV and posts the result within about 2 minutes.</p></div>
+      <div class="rv d2"><div class="n">3</div><b>It goes live</b><p>Once a clean file is approved, it appears in the gallery with its scan results, ready for anyone to install.</p></div>
+    </div>
+    <div class="checker rv">
+      <label class="drop" id="upDrop"><input type="file" id="upPick" accept=".gtheme,.gmod" hidden>
+        <svg viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 20h14"/></svg>
+        <b>Drop the .gtheme or .gmod you want to share</b><span>or click to choose one</span></label>
+      <div id="upResult"></div>
+      <div class="uploads rv" id="uploads" hidden><h4>Recent uploads</h4><div id="upList"></div></div>
+    </div>
   </div>
 </section>
 
@@ -385,6 +418,40 @@ document.getElementById('grid').addEventListener('click', e => {
 })
 document.getElementById('next-x').onclick = () => next.classList.remove('on')
 document.querySelector('#next a').onclick = () => next.classList.remove('on')
+// Upload: check in the browser, then hand over to the GitHub form where the robot scans it
+const REPO = 'idkiforgatit/gallium'
+const upDrop = document.getElementById('upDrop'), upPick = document.getElementById('upPick')
+async function uploadFile(f) {
+  const res = document.getElementById('upResult')
+  if (f.size > 7 << 20) { res.innerHTML = `<div class="result">${row('bad', 'Too large', 'Uploads can be up to 7 MB.')}</div>`; return }
+  const text = await f.text(), ext = (f.name.match(/\.(gtheme|gmod)$/i) || [])[1] || '', r = GalliumFormat.check(text, ext)
+  if (!r.ok) { res.innerHTML = `<div class="result rv in"><h4>${esc(f.name)}</h4>${row('bad', 'This file can’t be uploaded yet', 'Fix these, then try again:', r.errors)}</div>`; return }
+  const name = r.pkg.name, slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'upload', fext = r.kind === 'mod' ? 'gmod' : 'gtheme'
+  const block = '```json\n' + text.trim() + '\n```', small = encodeURIComponent(block).length < 6000
+  const url = `https://github.com/${REPO}/issues/new?template=upload.yml&title=${encodeURIComponent(`Upload: ${name} (${r.kind})`)}${small ? '&package=' + encodeURIComponent(block) : ''}`
+  res.innerHTML = `<div class="result rv in"><h4>${esc(name)}</h4>
+    ${row('ok', `Ready to upload: a valid ${r.kind}`, 'Passed the same check Gallium runs.', r.changes)}
+    ${r.warnings.length ? row('warn', 'Worth knowing', '', r.warnings) : ''}
+    <div class="upgo"><a class="pill" id="upGo" href="${url}" target="_blank" rel="noopener">Upload to the gallery</a>
+    <small>${small ? 'Opens GitHub with your file already filled in. Just click <b>Create</b>.' : `Your file is big, so it's saved as <b>${esc(slug)}.${fext}.txt</b>. On GitHub, drag that file into the <b>Package file</b> box, then click <b>Create</b>.`}</small></div></div>`
+  if (!small) document.getElementById('upGo').addEventListener('click', () => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' })); a.download = `${slug}.${fext}.txt`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000)
+  })
+}
+upPick.addEventListener('change', () => upPick.files[0] && uploadFile(upPick.files[0]))
+upDrop.addEventListener('dragover', e => { e.preventDefault(); upDrop.classList.add('over') })
+upDrop.addEventListener('dragleave', () => upDrop.classList.remove('over'))
+upDrop.addEventListener('drop', e => { e.preventDefault(); upDrop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) uploadFile(f) })
+// recent uploads and where each one is
+fetch(`https://api.github.com/repos/${REPO}/issues?labels=upload&state=all&per_page=6`).then(r => r.ok ? r.json() : []).then(list => {
+  if (!list.length) return
+  const st = i => { const l = i.labels.map(x => x.name)
+    return i.state === 'closed' ? (i.state_reason === 'completed' && !l.includes('scan: failed') ? ['ok', 'Published'] : ['wait', 'Closed'])
+      : l.includes('scan: failed') ? ['bad', 'Didn’t pass the scan'] : l.includes('scan: passed') ? ['ok', 'Scan passed · in review'] : ['wait', 'Scanning…'] }
+  document.getElementById('upList').innerHTML = list.map(i => { const [k, t] = st(i)
+    return `<a class="uprow" href="${esc(i.html_url)}" target="_blank" rel="noopener"><b>${esc(i.title.replace(/^Upload:\s*/i, ''))}</b><span class="badge ${k}">${k === 'wait' ? '' : icon(k)}${t}</span><time>${new Date(i.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</time></a>` }).join('')
+  document.getElementById('uploads').hidden = false; watch(document.getElementById('uploads').parentNode)
+}).catch(() => {})
 </script>
 </body>
 </html>
