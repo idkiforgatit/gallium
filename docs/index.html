@@ -62,6 +62,7 @@
 </section>
 
 <section class="story" id="story">
+  <div class="story-aurora" id="storyAurora" aria-hidden="true"></div>
   <div class="story-head">
     <p class="kicker rv">Overview</p>
     <h2 class="rv d1">A closer look.</h2>
@@ -122,25 +123,27 @@
 </section>
 
 <section class="dark center" id="welcome">
-  <div class="wrap">
-    <p class="kicker rv">Welcome</p>
-    <h2 class="rv d1">Hello, Gallium.</h2>
-    <p class="lead rv d2">The first time you open it, drops of liquid metal gather into one, a mirror of your wallpaper, drawn live in 3D.</p>
+  <!-- liquid chrome band (React Bits LiquidChrome, see rbits.js): ripples under the pointer -->
+  <div class="w-band" id="chrome">
+    <div class="w-title">
+      <p class="kicker shiny">Welcome</p>
+      <h2 id="hello">Hello, Gallium.</h2>
+      <p class="lead rv d2">The first time you open it, drops of liquid metal gather into one, a mirror of your wallpaper, drawn live in 3D.</p>
+    </div>
   </div>
   <div class="wide">
-    <div class="hero-drop rv par" data-par="0.05"><img src="img/drop.jpg" width="1300" height="950" alt="A liquid metal droplet reflecting a mountain lake" loading="lazy"></div>
     <div class="film">
-      <figure class="rv"><div class="frame"><img src="img/intro-1.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><b>Gather</b>Five drops fly in, one note each.</figcaption></figure>
-      <figure class="rv d1"><div class="frame"><img src="img/intro-2.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><b>Become one</b>They merge and settle into a droplet.</figcaption></figure>
-      <figure class="rv d2"><div class="frame"><img src="img/intro-3.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><b>Say hello</b>Your wallpaper, reflected in liquid metal.</figcaption></figure>
-      <figure class="rv d3"><div class="frame"><img src="img/intro-4.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><b>Splash</b>It falls, and a ripple opens your browser.</figcaption></figure>
+      <figure class="spot rv"><div class="frame"><img src="img/intro-1.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><i>01</i><b>Gather</b>Five drops fly in, one note each.</figcaption></figure>
+      <figure class="spot rv d1"><div class="frame"><img src="img/intro-2.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><i>02</i><b>Become one</b>They merge and settle into a droplet.</figcaption></figure>
+      <figure class="spot rv d2"><div class="frame"><img src="img/intro-3.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><i>03</i><b>Say hello</b>Your wallpaper, reflected in liquid metal.</figcaption></figure>
+      <figure class="spot rv d3"><div class="frame"><img src="img/intro-4.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><i>04</i><b>Splash</b>It falls, and a ripple opens your browser.</figcaption></figure>
     </div>
-    <div class="center rv"><span class="sound"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>Best with sound on. Every sound is made live, no audio files.</span></div>
+    <div class="center rv"><span class="sound"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg><span class="shiny">Best with sound on. Every sound is made live, no audio files.</span></span></div>
   </div>
   <div class="wrap">
-    <div class="duo">
-      <div class="frame rv" style="box-shadow:0 0 0 1px rgba(255,255,255,.1),0 40px 90px -30px rgba(0,0,0,.9)"><img src="img/welcome.jpg" width="2000" height="1250" alt="Gallium's welcome step: choose your look" loading="lazy"></div>
-      <div class="rv d1">
+    <div class="duo spot rv">
+      <div class="frame"><img src="img/welcome.jpg" width="2000" height="1250" alt="Gallium's welcome step: choose your look" loading="lazy"></div>
+      <div>
         <h3>Set up in seconds.</h3>
         <p class="mute" style="margin:0">Three quick choices, each one shown live behind the card.</p>
         <ul class="steps">
@@ -258,5 +261,14 @@
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="motion.js"></script>
 <script type="module" src="mac3d.js"></script>
+<script type="module">
+import { aurora, liquidChrome, blurText, spotlightCards } from './rbits.js'
+const story = document.getElementById('story')
+const sky = aurora(document.getElementById('storyAurora'), { stops: ['#2a1f9e', '#3fbf8f', '#6a2fd6'], amplitude: .9, blend: .6, height: .42, glow: .45, brightness: .7, opacity: .75, speed: .5, active: false })
+new MutationObserver(() => sky.setActive(story.classList.contains('is-dark'))).observe(story, { attributes: true, attributeFilter: ['class'] })
+liquidChrome(document.getElementById('chrome'), { color: '#c9d4ff', speed: .18, amplitude: .32, exposure: .85 })
+blurText(document.getElementById('hello'))
+spotlightCards('#welcome .spot')
+</script>
 </body>
 </html>
