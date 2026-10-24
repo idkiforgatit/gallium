@@ -5,6 +5,7 @@
   "description": "An Arc-style browser",
   "private": true,
   "scripts": {
+    "tauri": "tauri",
     "dev": "tauri dev",
     "build": "tauri build"
   },
