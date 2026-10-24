@@ -4,7 +4,7 @@
   "name": "Sequoia Glass",
   "author": "Gallium",
   "version": "1.0",
-  "description": "Deep Liquid Glass over warm red folds.",
+  "description": "Deep Liquid Glass with a glowing glass capsule.",
   "style": "glass",
   "dark": true,
   "colors": {
@@ -12,5 +12,5 @@
     "c2": "#1a0b2e",
     "accent": "#ff6a3d"
   },
-  "wallpaper": "sequoia"
+  "wallpaper": "pill"
 }

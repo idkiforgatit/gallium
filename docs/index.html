@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gallium</title>
-<meta name="description" content="Gallium is a calm, Arc-style browser for Windows with Liquid Glass, Spaces, real photo wallpapers and a 3D Tab Overview.">
+<meta name="description" content="Gallium is a calm, Arc-style browser for Windows with Liquid Glass, Spaces, rendered wallpapers and a 3D Tab Overview.">
 <meta property="og:title" content="Gallium">
 <meta property="og:description" content="Browsing, beautifully calm. A free, Arc-style browser for Windows.">
-<meta property="og:image" content="img/home-glass.jpg">
+<meta property="og:image" content="img/wp/halo.jpg">
 <link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
@@ -19,27 +19,40 @@
 <nav id="nav">
   <div class="wrap">
     <a class="brand" href="#top"><img src="favicon.png" alt="">Gallium</a>
-    <div class="links"><a href="#story">Overview</a><a href="#welcome">Welcome</a><a href="#features">Features</a><a href="themes.html">Themes &amp; Mods</a><a href="#specs">Specs</a></div>
+    <div class="links"><a href="#story">Overview</a><a href="#welcome">Welcome</a><a href="#walls">Wallpapers</a><a href="#features">Features</a><a href="themes.html">Themes &amp; Mods</a><a href="#specs">Specs</a></div>
     <a class="pill sm" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">Download</a>
   </div>
 </nav>
 
-<header class="hero" id="top">
-  <div class="wrap">
-    <p class="eyebrow rv">Gallium for Windows</p>
-    <h1 class="rv d1">Browsing,<br>beautifully calm.</h1>
-    <p class="lead rv d2">Liquid Glass, Spaces and real photo wallpapers. An Arc-style browser built for Windows, on Chromium.</p>
+<!-- live Liquid Glass: a refracting glass ring drawn in WebGL, turning as you scroll and leaning toward the mouse -->
+<header class="hero3 dark" id="top" data-scroll="hero">
+  <canvas id="glass" aria-hidden="true"></canvas>
+  <div class="hero3-in">
+    <p class="eyebrow3 rv">Gallium for Windows</p>
+    <h1 class="split">Browsing, beautifully calm.</h1>
+    <p class="lead rv d2">Liquid Glass, Spaces and wallpapers you'll actually want to look at. An Arc-style browser built for Windows, on Chromium.</p>
     <div class="ctas rv d3">
       <a class="pill lg" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>Download for Windows</a>
-      <a class="more" href="#story">See how it works</a>
+      <a class="more" href="#zoom">See it</a>
     </div>
     <p class="note rv d3">Free and open source · Windows 10 and 11 · 17 MB</p>
   </div>
-  <div class="stage" id="stage">
-    <div class="frame"><img src="img/home-glass.jpg" width="2000" height="1250" alt="Gallium in Liquid Glass with the Moraine Lake wallpaper: sidebar, favourites and the home search"></div>
-  </div>
+  <div class="cue" aria-hidden="true"><span></span></div>
 </header>
+
+<!-- the browser grows from a tilted card to full width as you scroll -->
+<section class="zoom" id="zoom" data-scroll="zoom">
+  <div class="zoom-pin">
+    <div class="zoom-frame"><img src="img/home-glass.jpg" width="2000" height="1250" alt="Gallium's home screen in Liquid Glass: sidebar, favourites and search"></div>
+    <div class="zoom-cap"><h2>Everything you need.<br>Nothing you don't.</h2></div>
+  </div>
+</section>
+
+<!-- words light up as you read -->
+<section class="statement" data-scroll="words">
+  <div class="statement-pin"><p class="words" id="words">Gallium is a browser that gets out of your way. Tabs tidy themselves. Glass you can almost touch. Wallpapers rendered just for it. And a home screen that finally feels like yours.</p></div>
+</section>
 
 <section class="story" id="story">
   <div class="story-head">
@@ -108,7 +121,7 @@
     <p class="lead rv d2">The first time you open it, drops of liquid metal gather into one, a mirror of your wallpaper, drawn live in 3D.</p>
   </div>
   <div class="wide">
-    <div class="hero-drop rv"><img src="img/drop.jpg" width="1300" height="950" alt="A liquid metal droplet reflecting a mountain lake" loading="lazy"></div>
+    <div class="hero-drop rv par" data-par="0.05"><img src="img/drop.jpg" width="1300" height="950" alt="A liquid metal droplet reflecting a mountain lake" loading="lazy"></div>
     <div class="film">
       <figure class="rv"><div class="frame"><img src="img/intro-1.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><b>Gather</b>Five drops fly in, one note each.</figcaption></figure>
       <figure class="rv d1"><div class="frame"><img src="img/intro-2.jpg" width="1600" height="1000" alt="" loading="lazy"></div><figcaption><b>Become one</b>They merge and settle into a droplet.</figcaption></figure>
@@ -133,20 +146,53 @@
   </div>
 </section>
 
+
+<!-- wallpapers slide sideways while you scroll down -->
+<section class="hgal dark" id="walls" data-scroll="hgal">
+  <div class="hgal-pin">
+    <div class="hgal-head wrap">
+      <p class="kicker">Wallpapers</p>
+      <h2>Rendered for Gallium.</h2>
+      <p class="lead">Seven pieces of Liquid Glass and three pools of liquid metal, made in 3D for this browser. Plus five favourite photographs.</p>
+    </div>
+    <div class="hgal-track" id="track">
+      <figure><div class="hg-img"><img src="img/wp/halo.jpg" alt="" loading="lazy"></div><figcaption>Halo</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/loop.jpg" alt="" loading="lazy"></div><figcaption>Loop</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/mercury.jpg" alt="" loading="lazy"></div><figcaption>Mercury</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/prism.jpg" alt="" loading="lazy"></div><figcaption>Prism</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/pill.jpg" alt="" loading="lazy"></div><figcaption>Capsule</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/gold.jpg" alt="" loading="lazy"></div><figcaption>Gold</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/twin.jpg" alt="" loading="lazy"></div><figcaption>Twin</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/orb.jpg" alt="" loading="lazy"></div><figcaption>Orb</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/frost.jpg" alt="" loading="lazy"></div><figcaption>Frost</figcaption></figure>
+      <figure><div class="hg-img"><img src="img/wp/gallium.jpg" alt="" loading="lazy"></div><figcaption>Gallium</figcaption></figure>
+    </div>
+  </div>
+</section>
+
 <section class="grey center" id="features">
   <div class="wrap">
     <p class="kicker rv">Features</p>
     <h2 class="rv d1">All the little things.</h2>
     <div class="feats">
-      <div class="feat rv"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="2"/><path d="M14 7h7M14 12h7M14 17h7"/></svg></div><b>Spaces</b><p>Separate sets of tabs, each with its own theme. Swipe between them.</p></div>
-      <div class="feat rv d1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 17v5M8 3h8l-1 6 3 3H6l3-3z"/></svg></div><b>Pinned tabs</b><p>The sites you use every day, always one click away.</p></div>
-      <div class="feat rv d2"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 3h6v4a2 2 0 1 0 0 4v4h-4a2 2 0 1 1-4 0H3V9h4a2 2 0 1 0 0-4z"/></svg></div><b>Chrome extensions</b><p>Install from the Chrome Web Store, open them from the toolbar.</p></div>
-      <div class="feat rv d3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></div><b>Downloads</b><p>Live progress, cancel any time, open in one click.</p></div>
-      <div class="feat rv"><div class="ic"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6m0-6 6 6"/></svg></div><b>Mute tab</b><p>Silence any noisy tab right from the sidebar.</p></div>
-      <div class="feat rv d1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></div><b>Undo</b><p>Closed a tab or deleted a Space by mistake? Bring it right back.</p></div>
-      <div class="feat rv d2"><div class="ic"><svg viewBox="0 0 24 24"><path d="m8 9-4 3 4 3m8-6 4 3-4 3M14 5l-4 14"/></svg></div><b>DevTools</b><p>The full Chromium developer tools, plus find in page.</p></div>
-      <div class="feat rv d3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div><b>Light on memory</b><p>Tabs you aren't using unload themselves and wake up when you return.</p></div>
+      <div class="feat tilt rv"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="7" height="16" rx="2"/><path d="M14 7h7M14 12h7M14 17h7"/></svg></div><b>Spaces</b><p>Separate sets of tabs, each with its own theme. Swipe between them.</p></div>
+      <div class="feat tilt rv d1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 17v5M8 3h8l-1 6 3 3H6l3-3z"/></svg></div><b>Pinned tabs</b><p>The sites you use every day, always one click away.</p></div>
+      <div class="feat tilt rv d2"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 3h6v4a2 2 0 1 0 0 4v4h-4a2 2 0 1 1-4 0H3V9h4a2 2 0 1 0 0-4z"/></svg></div><b>Chrome extensions</b><p>Install from the Chrome Web Store, open them from the toolbar.</p></div>
+      <div class="feat tilt rv d3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></div><b>Downloads</b><p>Live progress, cancel any time, open in one click.</p></div>
+      <div class="feat tilt rv"><div class="ic"><svg viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="m22 9-6 6m0-6 6 6"/></svg></div><b>Mute tab</b><p>Silence any noisy tab right from the sidebar.</p></div>
+      <div class="feat tilt rv d1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></div><b>Undo</b><p>Closed a tab or deleted a Space by mistake? Bring it right back.</p></div>
+      <div class="feat tilt rv d2"><div class="ic"><svg viewBox="0 0 24 24"><path d="m8 9-4 3 4 3m8-6 4 3-4 3M14 5l-4 14"/></svg></div><b>DevTools</b><p>The full Chromium developer tools, plus find in page.</p></div>
+      <div class="feat tilt rv d3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></div><b>Light on memory</b><p>Tabs you aren't using unload themselves and wake up when you return.</p></div>
     </div>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="wrap stats-grid">
+    <div class="rv"><b data-count="17">17</b><span>MB to download</span></div>
+    <div class="rv d1"><b data-count="15">15</b><span>wallpapers built in</span></div>
+    <div class="rv d2"><b data-count="0" data-from="60">0</b><span>accounts or trackers</span></div>
+    <div class="rv d3"><b data-count="100" data-suffix="%">100%</b><span>free and open source</span></div>
   </div>
 </section>
 
@@ -156,9 +202,14 @@
     <h2 class="rv d1">Make it yours.</h2>
     <p class="lead rv d2">Design a theme in the Theme Studio and watch the whole browser change as you go. Or pick one from the gallery, where every file is checked and virus-scanned.</p>
     <div class="ctas rv d3"><a class="pill lg" href="themes.html">Browse themes &amp; mods</a><a class="more" href="themes.html#make">Make your own</a></div>
-    <div class="frame rv" style="margin-top:60px"><img src="img/studio.jpg" width="1440" height="900" alt="The Theme Studio open beside a liquid metal wallpaper" loading="lazy"></div>
   </div>
+  <div class="marquee rv" aria-hidden="true"><div class="mq">
+    <span style="--a:#3a0f2e;--b:#1a0b2e">Sequoia Glass</span><span style="--a:#dbe8ff;--b:#c9dcff">Tide</span><span style="--a:#232326;--b:#2c2c30">Mercury</span><span style="--a:#dff3e9;--b:#cfe9f1">Sonoma Mist</span><span style="--a:#1d140b;--b:#e8b86a">Gold Leaf</span><span style="--a:#f5f5f2;--b:#ecebe6">Paper</span><span style="--a:#f6dcf2;--b:#e3d6ff">Bloom</span><span style="--a:#2e3440;--b:#88c0d0">Nord Glass</span><span style="--a:#8e8e93;--b:#3a3a3c">Compact Sidebar</span><span style="--a:#8e8e93;--b:#3a3a3c">Big Clock</span>
+    <span style="--a:#3a0f2e;--b:#1a0b2e">Sequoia Glass</span><span style="--a:#dbe8ff;--b:#c9dcff">Tide</span><span style="--a:#232326;--b:#2c2c30">Mercury</span><span style="--a:#dff3e9;--b:#cfe9f1">Sonoma Mist</span><span style="--a:#1d140b;--b:#e8b86a">Gold Leaf</span><span style="--a:#f5f5f2;--b:#ecebe6">Paper</span><span style="--a:#f6dcf2;--b:#e3d6ff">Bloom</span><span style="--a:#2e3440;--b:#88c0d0">Nord Glass</span><span style="--a:#8e8e93;--b:#3a3a3c">Compact Sidebar</span><span style="--a:#8e8e93;--b:#3a3a3c">Big Clock</span>
+  </div></div>
+  <div class="wrap"><div class="frame rv par" data-par="-0.06" style="margin-top:56px"><img src="img/studio.jpg" width="1440" height="900" alt="The Theme Studio open beside a liquid metal wallpaper" loading="lazy"></div></div>
 </section>
+
 
 <section id="specs">
   <div class="wrap">
@@ -191,51 +242,12 @@
   <div class="wrap">
     <p>Windows may show a SmartScreen warning the first time, because the installer isn't code-signed yet. Choose More info, then Run anyway.</p>
     <div class="row">
-      <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Wallpapers from Unsplash.</span>
+      <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos from Unsplash.</span>
       <a href="https://github.com/idkiforgatit/gallium">GitHub</a>
     </div>
   </div>
 </footer>
 
-<script>
-// Fade things in as they scroll into view
-const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }), { threshold: .12 })
-document.querySelectorAll('.rv').forEach(el => io.observe(el))
-
-// Hero window tilts flat and grows as you scroll; the nav gets a hairline once you leave the top
-const stage = document.getElementById('stage'), heroFrame = stage.firstElementChild, nav = document.getElementById('nav')
-let ticking = false
-function onScroll() {
-  ticking = false
-  const r = stage.getBoundingClientRect(), p = Math.min(1, Math.max(0, 1 - (r.top - innerHeight * .12) / (innerHeight * .7)))
-  heroFrame.style.setProperty('--rx', (18 * (1 - p)).toFixed(2) + 'deg')
-  heroFrame.style.setProperty('--sc', (.88 + .12 * p).toFixed(3))
-  nav.classList.toggle('lined', scrollY > 10)
-  navTone()
-}
-// the nav turns dark over dark sections, like Apple's
-function navTone() { const el = document.elementFromPoint(innerWidth / 2, 60); nav.classList.toggle('dk', !!el?.closest('.dark,.story.is-dark')) }
-addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll) } }, { passive: true })
-onScroll()
-
-// Scroll story: whichever chapter crosses the middle of the screen picks the picture (and light or dark)
-const story = document.getElementById('story'), pics = [...document.querySelectorAll('#storyFrame img')], dots = [...document.querySelectorAll('#dots i')]
-const chapters = [...document.querySelectorAll('.chapter')]
-const cio = new IntersectionObserver(es => es.forEach(e => {
-  if (!e.isIntersecting) return
-  const i = +e.target.dataset.i
-  chapters.forEach(c => c.classList.toggle('on', c === e.target))
-  pics.forEach((p, j) => p.classList.toggle('on', j === i))
-  dots.forEach((d, j) => d.classList.toggle('on', j === i))
-  story.classList.toggle('is-dark', e.target.hasAttribute('data-dark'))
-  navTone()
-}), { rootMargin: '-50% 0px -50% 0px' })
-chapters.forEach(c => cio.observe(c))
-
-// Highlight the nav link for the section on screen
-const links = [...document.querySelectorAll('nav .links a')]
-const sio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.hash === '#' + e.target.id)) }), { rootMargin: '-45% 0px -50% 0px' })
-document.querySelectorAll('section[id]').forEach(s => sio.observe(s))
-</script>
+<script src="motion.js"></script>
 </body>
 </html>

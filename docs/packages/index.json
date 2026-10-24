@@ -4,7 +4,7 @@
     "type": "theme",
     "name": "Sequoia Glass",
     "author": "Gallium",
-    "description": "Deep Liquid Glass over warm red folds.",
+    "description": "Deep Liquid Glass with a glowing glass capsule.",
     "style": "glass",
     "dark": true,
     "colors": {
@@ -12,7 +12,7 @@
       "c2": "#1a0b2e",
       "accent": "#ff6a3d"
     },
-    "wallpaper": "sequoia"
+    "wallpaper": "pill"
   },
   {
     "file": "tide.gtheme",
@@ -27,7 +27,7 @@
       "c2": "#c9dcff",
       "accent": "#3f7cf2"
     },
-    "wallpaper": "tide"
+    "wallpaper": "prism"
   },
   {
     "file": "mercury.gtheme",
@@ -57,7 +57,7 @@
       "c2": "#cfe9f1",
       "accent": "#2f8f7b"
     },
-    "wallpaper": "sonoma"
+    "wallpaper": "orb"
   },
   {
     "file": "gold-leaf.gtheme",
@@ -102,7 +102,7 @@
       "c2": "#e3d6ff",
       "accent": "#9b5de5"
     },
-    "wallpaper": "bloom"
+    "wallpaper": "frost"
   },
   {
     "file": "nord-glass.gtheme",
@@ -117,7 +117,7 @@
       "c2": "#3b4252",
       "accent": "#88c0d0"
     },
-    "wallpaper": "graphite"
+    "wallpaper": "loop"
   },
   {
     "file": "compact-sidebar.gmod",

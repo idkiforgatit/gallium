@@ -1,34 +1,34 @@
 {
-  "scannedAt": "2026-10-24T10:14:29.128Z",
-  "engine": "ClamAV 1.5.4/28163/Sat Oct 24 06:26:10 2026",
+  "scannedAt": "2026-10-24T10:26:30.262Z",
+  "engine": "ClamAV not available",
   "files": {
     "sequoia-glass.gtheme": {
-      "sha256": "49cc12800698bf7fc3b3170b0805b792346004337256bd88c6007b2ea361f447",
-      "size": 314,
+      "sha256": "93189689d305853ba4f2f2cb27490291e933fe2e1f2ca2ab14c5728cf9a38ae3",
+      "size": 320,
       "check": {
         "ok": true,
         "errors": [],
         "warnings": [],
         "changes": [
           "Liquid Glass dark look, colours #3a0f2e and #1a0b2e, accent #ff6a3d",
-          "Wallpaper: sequoia"
+          "Wallpaper: pill"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "tide.gtheme": {
-      "sha256": "b5818bf539f3d6e53fbe40a717e503367010915e6ce0512fd8bfb8dc4b3857ef",
-      "size": 301,
+      "sha256": "8417ef4522ee181362af173118f5a9abe5bfd3ff2bc8a5cb6be3e8773774467a",
+      "size": 302,
       "check": {
         "ok": true,
         "errors": [],
         "warnings": [],
         "changes": [
           "Liquid Glass light look, colours #dbe8ff and #c9dcff, accent #3f7cf2",
-          "Wallpaper: tide"
+          "Wallpaper: prism"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "mercury.gtheme": {
       "sha256": "ca0789302fb5115c0bd257535cf757a85d9f448df1b67dd1767a82c550e8751d",
@@ -42,21 +42,21 @@
           "Wallpaper: mercury"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "sonoma-mist.gtheme": {
-      "sha256": "de66b3206934a6007a44bd53d47e6500850842f47c4ca303b1503f7a2e1599c3",
-      "size": 313,
+      "sha256": "441044024dccb704265b4dd6844914cb27fc5ea22d4f9419df2f6223044d221b",
+      "size": 310,
       "check": {
         "ok": true,
         "errors": [],
         "warnings": [],
         "changes": [
           "Gradient light look, colours #dff3e9 and #cfe9f1, accent #2f8f7b",
-          "Wallpaper: sonoma"
+          "Wallpaper: orb"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "gold-leaf.gtheme": {
       "sha256": "2fb53a68dadb6e9ddc8243f26d0923c234411e4cc28e6303340365dd74165ae9",
@@ -70,7 +70,7 @@
           "Wallpaper: gold"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "paper.gtheme": {
       "sha256": "6f37c783ae07df6f060f400f2b7d22aa56ef9562fcea0744273d25c5fa5b24e2",
@@ -84,10 +84,10 @@
           "Settings: font Georgia, corner roundness"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "bloom.gtheme": {
-      "sha256": "859a9e6657511433d7940f8fcaf9aa1cce4eea6eafc229d7b773be53d40f861a",
+      "sha256": "63d04ddc0f8f6746762cc894b9721c46daa5c0f8206eb055ef3d1a5b67301be3",
       "size": 304,
       "check": {
         "ok": true,
@@ -95,14 +95,14 @@
         "warnings": [],
         "changes": [
           "Gradient light look, colours #f6dcf2 and #e3d6ff, accent #9b5de5",
-          "Wallpaper: bloom"
+          "Wallpaper: frost"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "nord-glass.gtheme": {
-      "sha256": "d4cc4cefe37820210ae6ab488b99dac9249e6b42a422fccf09402e9d164f5f10",
-      "size": 346,
+      "sha256": "5480732c589b9f7df68b8acad7a48763e1f0f32217f65bc5b64c99c8c65525e8",
+      "size": 342,
       "check": {
         "ok": true,
         "errors": [],
@@ -110,10 +110,10 @@
         "changes": [
           "Liquid Glass dark look, colours #2e3440 and #3b4252, accent #88c0d0",
           "Settings: corner roundness",
-          "Wallpaper: graphite"
+          "Wallpaper: loop"
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "compact-sidebar.gmod": {
       "sha256": "7a70f21971f4dfdd07b218a2e05e83ae57ee2c1a979e72c30e07a5496b0d3c86",
@@ -126,7 +126,7 @@
           "Restyles Gallium with 3 CSS rules. It cannot run code, read your tabs or reach the internet."
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "clean-home.gmod": {
       "sha256": "db7c142ba877700e34f9f89cd564b34fd6654d3c33b8593ab9fb629a1f2fba0d",
@@ -139,7 +139,7 @@
           "Restyles Gallium with 1 CSS rule. It cannot run code, read your tabs or reach the internet."
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "big-clock.gmod": {
       "sha256": "85ada51cc09b2efad95f993ee8870cc9a4f8a495161a3d72e9e1b7c09918489b",
@@ -152,7 +152,7 @@
           "Restyles Gallium with 1 CSS rule. It cannot run code, read your tabs or reach the internet."
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     },
     "square-corners.gmod": {
       "sha256": "6c115d06f0539bcea6493b28228c35142965bd05d33857e377b13d7e1e22f52b",
@@ -165,7 +165,7 @@
           "Restyles Gallium with 1 CSS rule. It cannot run code, read your tabs or reach the internet."
         ]
       },
-      "virus": "clean"
+      "virus": "not run"
     }
   }
 }

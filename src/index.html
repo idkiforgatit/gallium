@@ -603,7 +603,8 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 .ofoot .obtn.ghost:disabled{visibility:hidden}
 /* ---- home: Customize is a small glass button that opens a quick panel ---- */
 #hcustom{position:absolute;right:16px;bottom:16px;z-index:3;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:inherit}
-#hcustom svg{width:19px;height:19px}
+#hcustom span{display:grid;place-items:center}
+#hcustom svg{display:block;width:19px;height:19px}
 #hcustom.on{background:color-mix(in srgb,var(--accent) 80%,transparent);color:#fff}
 #cust{position:absolute;right:16px;bottom:66px;z-index:3;width:min(392px,calc(100% - 32px));padding:16px 16px 14px;border-radius:22px;color:var(--ink);background:var(--surface);
   box-shadow:0 24px 60px rgba(10,5,30,.3),0 0 0 1px var(--line);transform-origin:100% 100%;opacity:0;transform:translateY(10px) scale(.95);pointer-events:none;
@@ -886,7 +887,7 @@ const I = {
   layout: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/>',
   file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
-  sliders: '<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/>',
+  sliders: '<path d="M4 7h9M17 7h3M4 12h2M10 12h10M4 17h7M15 17h5"/><circle cx="15" cy="7" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="13" cy="17" r="2"/>',
   brush: '<path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8 9.2 12z"/><path d="M9.2 12C6 12 4.5 14 4.5 16.5c0 1.6-1 2.6-2 3 1.2 1 3 1.5 4.8 1.5 3.4 0 4.7-2.5 4.7-6.2"/>',
   wand: '<path d="m14 6 4 4L8 20l-4-4z"/><path d="m12 8 4 4M18 2v4M16 4h4M21 9v3M19.5 10.5h3"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4-4-7.4-9-7.4z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="8" r="1"/>',
@@ -1058,12 +1059,13 @@ const LG = (() => {
 })()
 
 // ---------------- wallpapers: Gallium's own renders (waves and liquid metal) plus a few photos (Unsplash License) ----------------
-const WALLS = [['sequoia', 'Sequoia', 'r'], ['tide', 'Tide', 'r'], ['sonoma', 'Sonoma', 'r'], ['dusk', 'Dusk', 'r'], ['bloom', 'Bloom', 'r'], ['lagoon', 'Lagoon', 'r'],
-  ['ember', 'Ember', 'r'], ['graphite', 'Graphite', 'r'], ['mercury', 'Mercury', 'm'], ['gallium', 'Gallium', 'm'], ['gold', 'Gold', 'm'],
+const WALLS = [['halo', 'Halo', 'g'], ['loop', 'Loop', 'g'], ['prism', 'Prism', 'g'], ['pill', 'Capsule', 'g'], ['twin', 'Twin', 'g'], ['orb', 'Orb', 'g'], ['frost', 'Frost', 'g'],
+  ['mercury', 'Mercury', 'm'], ['gallium', 'Gallium', 'm'], ['gold', 'Gold', 'm'],
   ['moraine', 'Moraine Lake'], ['milkyway', 'Milky Way'], ['aurora', 'Aurora'], ['braies', 'Lago di Braies'], ['clouds', 'Above the Clouds']]
 // wallpapers that were replaced, mapped to the closest new one
-const OLD_WALLS = { indigo: 'tide', flow: 'tide', violet: 'bloom', pastel: 'bloom', prism: 'sequoia', nebula: 'sequoia', ribbon: 'sequoia', blush: 'dusk', dawn: 'dusk',
-  silk: 'graphite', grain: 'graphite', marble: 'graphite', haze: 'graphite', liquid: 'mercury', shore: 'lagoon', surf: 'lagoon', forest: 'sonoma', highlands: 'sonoma', summit: 'moraine', alpine: 'moraine' }
+const OLD_WALLS = { sequoia: 'pill', tide: 'prism', sonoma: 'orb', dusk: 'halo', bloom: 'frost', lagoon: 'orb', ember: 'halo', graphite: 'mercury',
+  indigo: 'prism', flow: 'prism', violet: 'frost', pastel: 'frost', prism2: 'prism', nebula: 'loop', ribbon: 'loop', blush: 'halo', dawn: 'halo',
+  silk: 'mercury', grain: 'mercury', marble: 'mercury', haze: 'mercury', liquid: 'mercury', shore: 'orb', surf: 'orb', forest: 'orb', highlands: 'orb', summit: 'moraine', alpine: 'moraine' }
 const wallMem = new Map()
 const lumOf = src => { const c = document.createElement('canvas'); c.width = c.height = 8; const x = c.getContext('2d'); x.drawImage(src, 0, 0, 8, 8); const d = x.getImageData(0, 0, 8, 8).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]; return s / 64 / 255 }
 const customWall = () => { try { return localStorage.getItem('gallium-wall') || '' } catch { return '' } }
@@ -1147,7 +1149,7 @@ S ||= {
 }
 S.settings = {
   engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: 'windows',
-  grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'sequoia', backdrop: 'wallpaper',
+  grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'halo', backdrop: 'wallpaper',
   toolbar: 'top', winbg: S.settings?.windowColors === 'theme' ? 'theme' : 'blur', tint: 30, solid: '', accent: '',
   homeDim: 8, homeBlur: 0, clock24: false, showDate: true, showDock: true, showRecent: true, homePos: 'top', calm: false,
   ...S.settings,
@@ -1757,7 +1759,7 @@ const SECTIONS = {
     return `<h2>Background</h2>
       <h3>Wallpaper</h3>
       <p class="note" style="margin-top:0">The photo on the home page. The window around it can take its colors (below).</p>
-      <h4>Waves</h4><div class="walls">${WALLS.filter(w => w[2] === 'r').map(wcard).join('')}</div>
+      <h4>Glass</h4><div class="walls">${WALLS.filter(w => w[2] === 'g').map(wcard).join('')}</div>
       <h4>Liquid metal</h4><div class="walls">${WALLS.filter(w => w[2] === 'm').map(wcard).join('')}</div>
       <h4>Photos</h4><div class="walls">${WALLS.filter(w => !w[2]).map(wcard).join('')}</div>
       <h4>Yours</h4><div class="walls"><button class="wcard${st.wall === 'custom' ? ' on' : ''}" data-act="wall-pick">${hasCustomWall() ? `<img src="${wallThumb('custom')}" alt="">` : `<span class="ph">${svg('plus')}</span>`}<span>${hasCustomWall() ? 'Your photo (change)' : 'Choose photo…'}</span></button></div>
@@ -2630,7 +2632,7 @@ const checkPkg = (text, ext) => GalliumFormat.check(text, ext, { walls: WALLS.ma
 async function useTheme(t, all) {
   for (const s of all ? S.spaces : [space()]) { s.theme = t.id; delete s.custom }
   if (t.settings) Object.assign(S.settings, t.settings)
-  if (t.wallpaper) { S.settings.wall = t.wallpaper; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur' }
+  if (t.wallpaper) { S.settings.wall = OLD_WALLS[t.wallpaper] || t.wallpaper; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur' }
   save(); applyTheme(); render(); sync()
 }
 function applyMods() {
