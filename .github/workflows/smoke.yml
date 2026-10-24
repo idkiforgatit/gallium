@@ -51,7 +51,7 @@ jobs:
           lipo -archs /Applications/Gallium.app/Contents/MacOS/*
       - name: Open Gallium and take screenshots
         run: |
-          /Applications/Gallium.app/Contents/MacOS/gallium > app.log 2>&1 & pid=$!
+          open /Applications/Gallium.app; sleep 2; pid=$(pgrep -n gallium); echo pid $pid > app.log  # like a double-click in Finder
           sleep 12; screencapture -x shot-1.png
           sleep 15; screencapture -x shot-2.png
           # press Return on "Get started", then Return again on the first step's Continue
