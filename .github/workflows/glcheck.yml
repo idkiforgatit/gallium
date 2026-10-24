@@ -25,9 +25,12 @@ jobs:
               time.sleep(.5)
           print(d.title)
           d.save_screenshot('safari.png')
+          import subprocess; subprocess.run(['screencapture', '-x', 'screen.png'])
           d.quit()
           PY
       - uses: actions/upload-artifact@v4
         with:
           name: glcheck
-          path: safari.png
+          path: |
+            safari.png
+            screen.png
