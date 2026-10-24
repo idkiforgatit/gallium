@@ -1,0 +1,33 @@
+name: Check the intro shader on macOS
+# Draws the intro's shader in Safari (the same WebKit as Gallium on a Mac) and reads the pixels back.
+on: workflow_dispatch
+jobs:
+  safari:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the test page
+        run: |
+          python3 .github/glcheck/make.py
+          cp src/wallpapers/$(ls src/wallpapers | grep -i '\.jpg$' | head -1) wall.jpg
+          (python3 -m http.server 8000 >/dev/null 2>&1 &)
+          sudo safaridriver --enable
+          pip3 install --break-system-packages -q selenium
+      - name: Draw it in Safari
+        run: |
+          python3 - <<'PY'
+          import time
+          from selenium import webdriver
+          d = webdriver.Safari()
+          d.get('http://127.0.0.1:8000/glcheck.html')
+          for _ in range(40):
+              if d.title.startswith('DONE'): break
+              time.sleep(.5)
+          print(d.title)
+          d.save_screenshot('safari.png')
+          d.quit()
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: glcheck
+          path: safari.png
