@@ -7,8 +7,7 @@
 <meta name="description" content="Gallium is a calm, Arc-style browser for Windows with Liquid Glass, Spaces, rendered wallpapers and a 3D Tab Overview.">
 <meta property="og:title" content="Gallium">
 <meta property="og:description" content="Browsing, beautifully calm. A free, Arc-style browser for Windows.">
-<meta property="og:image" content="img/hero/poster.jpg">
-<link rel="preload" as="image" href="img/hero/poster.jpg">
+<meta property="og:image" content="img/home-glass.jpg">
 <link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,23 +24,30 @@
   </div>
 </nav>
 
-<!-- a glass ring rendered offline in 96 frames: it turns slowly on its own, and further as you scroll -->
-<header class="hero3 dark" id="top" data-scroll="hero">
- <div class="hero3-pin">
-  <canvas id="glass" aria-hidden="true"></canvas>
-  <div class="hero3-in">
-    <p class="eyebrow3 rv">Gallium for Windows</p>
+<!-- the hero: Gallium on an interactive MacBook Pro (3D model by jackbaeten on Sketchfab, CC BY 4.0) -->
+<header class="hero4" id="top">
+  <div class="wrap">
+    <p class="eyebrow rv">Gallium for Windows</p>
     <h1 class="split">Browsing, beautifully calm.</h1>
     <p class="lead rv d2">Liquid Glass, Spaces and wallpapers you'll actually want to look at. An Arc-style browser built for Windows, on Chromium.</p>
     <div class="ctas rv d3">
       <a class="pill lg" href="https://github.com/idkiforgatit/gallium/releases/latest/download/Gallium_1.0.0_x64-setup.exe">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg>Download for Windows</a>
-      <a class="more" href="#zoom">See it</a>
+      <a class="more" href="#story">See how it works</a>
     </div>
     <p class="note rv d3">Free and open source · Windows 10 and 11 · 17 MB</p>
   </div>
-  <div class="cue" aria-hidden="true"><span></span></div>
- </div>
+  <div class="mac" id="mac">
+    <iframe id="mac-frame" title="Gallium on a MacBook Pro, in 3D" allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
+    <div class="mac-load" aria-hidden="true"><span></span>Loading 3D</div>
+    <button class="mac-touch" id="mac-touch">Tap to turn it around</button>
+  </div>
+  <div class="mac-bar wrap">
+    <div class="screens" id="screens" role="tablist" aria-label="What's on the screen">
+      <button class="on" data-s="home">Home</button><button data-s="page">A page</button><button data-s="dark">Dark</button><button data-s="search">Search</button><button data-s="overview">Tab Overview</button>
+    </div>
+    <p class="mac-hint"><span>Drag to turn it around.</span> <button id="mac-reset">Face front</button></p>
+  </div>
 </header>
 
 <!-- the browser grows from a tilted card to full width as you scroll -->
@@ -245,12 +251,14 @@
   <div class="wrap">
     <p>Windows may show a SmartScreen warning the first time, because the installer isn't code-signed yet. Choose More info, then Run anyway.</p>
     <div class="row">
-      <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos from Unsplash.</span>
+      <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos from Unsplash. MacBook Pro 3D model by <a href="https://sketchfab.com/jackbaeten">jackbaeten</a> on <a href="https://sketchfab.com/3d-models/macbook-pro-m3-16-inch-2024-8e34fc2b303144f78490007d91ff57c4">Sketchfab</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</span>
       <a href="https://github.com/idkiforgatit/gallium">GitHub</a>
     </div>
   </div>
 </footer>
 
+<script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
 <script src="motion.js"></script>
+<script src="mac.js"></script>
 </body>
 </html>

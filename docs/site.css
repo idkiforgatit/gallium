@@ -157,25 +157,9 @@ footer a{color:#424245}
 
 /* ================= motion scenes (index.html) ================= */
 /* hero: live Liquid Glass behind the headline */
-.hero3{position:relative;height:210vh;margin-top:calc(-1 * var(--nav));color:#fff;text-align:center;background:#06050a}
-.hero3-pin{position:sticky;top:0;height:100vh;min-height:620px;overflow:hidden;background:#06050a url(img/hero/poster.jpg) center/cover}
-.hero3 canvas{position:absolute;inset:-2%;width:104%;height:104%;display:block;transform:translate(var(--mx,0px),var(--my,0px)) scale(calc(1 + var(--p,0) * .18));transform-origin:50% 62%}
-.hero3.still canvas{display:none}
-.hero3-pin::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 38%,transparent 70%,rgba(0,0,0,.5));pointer-events:none}
-.hero3-in{position:relative;z-index:2;padding:calc(var(--nav) + 9vh) 22px 0;opacity:calc(1 - var(--p,0) * 2.2);transform:translateY(calc(var(--p,0) * -90px));filter:blur(calc(var(--p,0) * 14px))}
-.eyebrow3{font:600 21px var(--display);margin:0 0 10px;letter-spacing:-.015em;color:rgba(255,255,255,.85)}
-.hero3 h1{text-shadow:0 4px 40px rgba(0,0,0,.45);font-size:clamp(54px,9.4vw,124px);max-width:13ch;margin:0 auto}
-.hero3 .lead{color:rgba(255,255,255,.9);text-shadow:0 2px 20px rgba(60,0,30,.35)}
-.hero3 .note{color:rgba(255,255,255,.75)}
-.hero3 .more{color:#fff}
-.hero3 .pill{background:#fff;color:#1d1d1f}
-.hero3 .pill:hover{background:#f2f2f5}
 .split .w{display:inline-block;vertical-align:top}
 .split .w>span{display:inline-block;transform:translateY(105%) rotate(4deg);opacity:0;filter:blur(8px);transition:transform 1.1s var(--ease),opacity .9s var(--ease),filter .9s var(--ease);transition-delay:calc(.15s + var(--i) * .09s)}
 .split.in .w>span{transform:none;opacity:1;filter:none}
-.cue{position:absolute;left:50%;bottom:28px;z-index:2;width:26px;height:42px;margin-left:-13px;border-radius:14px;border:2px solid rgba(255,255,255,.7);opacity:calc(1 - var(--p,0) * 4)}
-.cue span{position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;border-radius:2px;background:#fff;animation:cue 1.8s var(--ease) infinite}
-@keyframes cue{0%{transform:translateY(0);opacity:1}70%{transform:translateY(14px);opacity:0}100%{opacity:0}}
 
 /* zoom: the browser grows from a tilted card to full width */
 .zoom{position:relative;height:260vh;background:var(--bg)}
@@ -229,7 +213,29 @@ footer a{color:#424245}
 @media (prefers-reduced-motion:reduce){
   .split .w>span{transform:none;opacity:1;filter:none}
   .mq{animation:none}
-  .hero3 canvas{transform:none}
   .zoom-frame{transform:none;border-radius:0}
   .words span{opacity:1}
 }
+
+/* hero: Gallium on an interactive 3D MacBook Pro */
+.hero4{text-align:center;padding:80px 0 30px;background:#f5f5f7;overflow:hidden}
+.hero4 h1{font-size:clamp(52px,8.6vw,104px);max-width:13ch;margin:0 auto}
+.mac{position:relative;width:min(1280px,100%);margin:10px auto 0;aspect-ratio:16/9;max-height:78vh}
+.mac iframe{position:absolute;inset:0;width:100%;height:100%;border:0;opacity:0;transform:translateY(40px) scale(.96);transition:opacity 1.2s var(--ease),transform 1.6s var(--ease)}
+.mac.ready iframe{opacity:1;transform:none}
+.mac-load{position:absolute;inset:0;display:grid;place-items:center;align-content:center;gap:14px;color:var(--mute);font-size:14px;transition:opacity .6s}
+.mac-load span{width:28px;height:28px;border-radius:50%;border:2.5px solid rgba(0,0,0,.12);border-top-color:var(--blue);animation:macspin .9s linear infinite}
+@keyframes macspin{to{transform:rotate(360deg)}}
+.mac.ready .mac-load{opacity:0;pointer-events:none}
+.mac.failed .mac-load{background:#f5f5f7 url(img/home-glass.jpg) center/70% no-repeat;font-size:0}
+.mac.failed .mac-load span{display:none}
+.mac-touch{display:none}
+.mac.touch:not(.live) iframe{pointer-events:none}
+.mac.touch:not(.live) .mac-touch{display:block;position:absolute;left:50%;bottom:14px;transform:translateX(-50%);border:0;border-radius:999px;padding:9px 16px;font:500 13px var(--font);color:#fff;background:rgba(29,29,31,.78);backdrop-filter:blur(10px)}
+.mac-bar{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:6px}
+.screens{display:inline-flex;flex-wrap:wrap;justify-content:center;gap:4px;padding:4px;border-radius:999px;background:rgba(0,0,0,.06)}
+.screens button{border:0;background:none;font:500 14px var(--font);color:var(--ink);padding:8px 16px;border-radius:999px;cursor:pointer;transition:background .25s,box-shadow .25s}
+.screens button.on{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.mac-hint{margin:0;font-size:13px;color:var(--mute)}
+.mac-hint button{border:0;background:none;color:var(--link);font:inherit;cursor:pointer;padding:0}
+@media (pointer:coarse){ .mac-hint span{display:none} }

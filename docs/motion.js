@@ -5,7 +5,6 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const lerp = (a, b, t) => a + (b - a) * t
 const ease = t => 1 - Math.pow(1 - t, 3)
 const nav = document.getElementById('nav')
-let heroP = 0 // how far the hero has scrolled away, read by the glass renderer
 
 // ---- fade + blur in as things arrive ----
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) } }), { threshold: .12 })
@@ -35,7 +34,6 @@ function progress(el) {
   return clamp(-r.top / Math.max(1, r.height - innerHeight)) // 0 when it reaches the top, 1 when its end leaves
 }
 const handlers = {
-  hero(el) { const p = calm ? 0 : progress(el); heroP = p; el.style.setProperty('--p', p.toFixed(3)) },
   zoom(el, p) {
     const t = ease(clamp(p / .7))
     el.style.setProperty('--s', lerp(.58, 1, t).toFixed(4))
@@ -103,42 +101,3 @@ if (story) {
 const links = [...document.querySelectorAll('nav .links a')]
 const nio = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.hash === '#' + e.target.id)) }), { rootMargin: '-45% 0px -50% 0px' })
 document.querySelectorAll('section[id]').forEach(s => nio.observe(s))
-
-// ---- the hero: a glass ring rendered offline in 96 frames (img/hero), played on a canvas ----
-// It turns slowly by itself and further as you scroll; neighbouring frames are blended so the motion stays smooth.
-;(() => {
-  const cv = document.getElementById('glass'), pin = document.querySelector('.hero3-pin')
-  if (!cv) return
-  const ctx = cv.getContext('2d'), N = 96, frames = new Array(N)
-  let loaded = 0, on = true, raf = 0, spin = 0, last = performance.now(), mx = 0, my = 0, tx = 0, ty = 0
-  // load the first frame, then the rest in an order that fills the turn evenly
-  const order = [0]; for (let step = 32; step >= 1; step >>= 1) for (let i = step; i < N; i += step * 2) order.push(i)
-  for (const i of [...new Set([...order, ...Array.from({ length: N }, (_, k) => k)])]) {
-    const img = new Image(); img.decoding = 'async'; img.src = `img/hero/${String(i).padStart(3, '0')}.webp`
-    img.onload = () => { frames[i] = img; loaded++; if (!raf) raf = requestAnimationFrame(draw) }
-  }
-  const near = i => { for (let d = 0; d < N; d++) { const a = frames[(i + d) % N] || frames[(i - d + N) % N]; if (a) return a } }
-  function cover(img, alpha) {
-    const w = cv.width, h = cv.height, s = Math.max(w / img.width, h / img.height), dw = img.width * s, dh = img.height * s
-    ctx.globalAlpha = alpha; ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh)
-  }
-  addEventListener('pointermove', e => { tx = e.clientX / innerWidth - .5; ty = e.clientY / innerHeight - .5 }, { passive: true })
-  new IntersectionObserver(es => { on = es[0].isIntersecting; if (on && !raf) raf = requestAnimationFrame(draw) }).observe(pin)
-  function draw(now) {
-    raf = 0
-    if (!on || document.hidden || !loaded) return
-    const dt = Math.min(.05, (now - last) / 1000); last = now
-    if (!calm) spin += dt * 9                                   // about ten seconds per turn on its own
-    const w = Math.round(cv.clientWidth * Math.min(devicePixelRatio, 2)), h = Math.round(cv.clientHeight * Math.min(devicePixelRatio, 2))
-    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h }
-    const f = ((spin + heroP * N * .85) % N + N) % N, a = Math.floor(f), b = (a + 1) % N, k = f - a
-    ctx.clearRect(0, 0, w, h)
-    cover(near(a), 1)
-    if (frames[b] && k > .02) cover(frames[b], k)
-    ctx.globalAlpha = 1
-    mx += (tx - mx) * .06; my += (ty - my) * .06
-    cv.style.setProperty('--mx', (-mx * 18).toFixed(2) + 'px'); cv.style.setProperty('--my', (-my * 12).toFixed(2) + 'px')
-    if (!calm || loaded < N) raf = requestAnimationFrame(draw)
-  }
-  document.addEventListener('visibilitychange', () => { if (!document.hidden && on && !raf) { last = performance.now(); raf = requestAnimationFrame(draw) } })
-})()
