@@ -1,5 +1,5 @@
-name: Try the Mac and Linux builds
-# Installs the released Mac and Linux builds on clean machines, opens Gallium, and takes screenshots
+name: Try the release builds
+# Installs the released Windows, Mac and Linux builds on clean machines, opens Gallium, and takes screenshots
 # so we can see it really starts. Run it by hand from the Actions tab after a release.
 on:
   workflow_dispatch:
@@ -62,3 +62,33 @@ jobs:
           path: |
             shot-*.png
             app.log
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Install with the setup .exe
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*_x64-setup.exe'
+          $exe = (Get-ChildItem *_x64-setup.exe).FullName
+          Start-Process $exe -ArgumentList '/S' -Wait
+          Get-ChildItem "$env:LOCALAPPDATA\Gallium" | Select-Object -First 5
+      - name: Open Gallium and take screenshots
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+          function Shot($name) {
+            $b = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+            $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+            [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen($b.Location, [System.Drawing.Point]::Empty, $b.Size)
+            $bmp.Save("$PWD\$name.png")
+          }
+          $p = Start-Process "$env:LOCALAPPDATA\Gallium\gallium.exe" -PassThru
+          Start-Sleep 12; Shot shot-1
+          Start-Sleep 15; Shot shot-2
+          if ($p.HasExited) { "EXITED" } else { "STILL RUNNING"; Stop-Process $p.Id }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: shot-*.png

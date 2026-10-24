@@ -1262,6 +1262,14 @@ fn main() {
                 .transparent(true) // lets glass themes show the Mica/Acrylic backdrop
                 .visible(false)
                 .build()?;
+            // Small screens: open at most 90% of the screen, centred
+            if let Ok(Some(m)) = win.current_monitor() {
+                let s = m.size().to_logical::<f64>(m.scale_factor());
+                if s.width < 1600.0 || s.height < 1000.0 {
+                    let _ = win.set_size(LogicalSize::new(1440f64.min(s.width * 0.9), 900f64.min(s.height * 0.9)));
+                    let _ = win.center();
+                }
+            }
             let w = win.clone();
             std::thread::spawn(move || {
                 std::thread::sleep(Duration::from_secs(3));
