@@ -24,7 +24,7 @@
   </div>
 </nav>
 
-<!-- the hero: Gallium on an interactive MacBook Pro (3D model by jackbaeten on Sketchfab, CC BY 4.0) -->
+<!-- the hero: Gallium on a 3D laptop (built in mac3d.js); the buttons turn it and change the screen -->
 <header class="hero4" id="top">
   <div class="wrap">
     <p class="eyebrow rv">Gallium for Windows</p>
@@ -38,15 +38,13 @@
     <p class="note rv d3">Free and open source · Windows 10 and 11 · 17 MB</p>
   </div>
   <div class="mac" id="mac">
-    <iframe id="mac-frame" title="Gallium on a MacBook Pro, in 3D" allow="autoplay; fullscreen; xr-spatial-tracking"></iframe>
-    <div class="mac-load" aria-hidden="true"><span></span>Loading 3D</div>
-    <button class="mac-touch" id="mac-touch">Tap to turn it around</button>
+    <canvas id="mac-canvas" aria-label="Gallium on a laptop, in 3D" role="img"></canvas>
+    <div class="mac-load" aria-hidden="true"><span></span></div>
   </div>
   <div class="mac-bar wrap">
     <div class="screens" id="screens" role="tablist" aria-label="What's on the screen">
       <button class="on" data-s="home">Home</button><button data-s="page">A page</button><button data-s="dark">Dark</button><button data-s="search">Search</button><button data-s="overview">Tab Overview</button>
     </div>
-    <p class="mac-hint"><span>Drag to turn it around.</span> <button id="mac-reset">Face front</button></p>
   </div>
 </header>
 
@@ -251,14 +249,14 @@
   <div class="wrap">
     <p>Windows may show a SmartScreen warning the first time, because the installer isn't code-signed yet. Choose More info, then Run anyway.</p>
     <div class="row">
-      <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos from Unsplash. MacBook Pro 3D model by <a href="https://sketchfab.com/jackbaeten">jackbaeten</a> on <a href="https://sketchfab.com/3d-models/macbook-pro-m3-16-inch-2024-8e34fc2b303144f78490007d91ff57c4">Sketchfab</a>, licensed <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>.</span>
+      <span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company. Photos from Unsplash.</span>
       <a href="https://github.com/idkiforgatit/gallium">GitHub</a>
     </div>
   </div>
 </footer>
 
-<script src="https://static.sketchfab.com/api/sketchfab-viewer-1.12.1.js"></script>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script src="motion.js"></script>
-<script src="mac.js"></script>
+<script type="module" src="mac3d.js"></script>
 </body>
 </html>
