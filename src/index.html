@@ -469,10 +469,9 @@ body.topbar #sidebar{padding-top:12px}
 #t-drop.show{opacity:1;transform:none;clip-path:inset(0 0 0 0 round 16px);visibility:visible;pointer-events:auto;transition:opacity .22s ease,transform .45s var(--out),clip-path .5s var(--out),visibility 0s}
 #t-drop::-webkit-scrollbar{width:0}
 #t-url>span:first-child svg{width:14px;height:14px;opacity:.55}
-#t-reload{width:24px;height:24px;border-radius:12px;display:grid;place-items:center;opacity:0;transition:opacity .15s}
-#t-reload svg{width:13px;height:13px}
-#t-url:hover #t-reload{opacity:.65}
-#t-url.open #t-reload{display:none}
+/* refresh: next to back and forward; spins while the page loads, dims on the home screen */
+:is(#t-reload,#b-reload).spin svg{animation:spin .9s linear infinite}
+:is(#t-reload,#b-reload):disabled{opacity:.25;pointer-events:none}
 #t-url::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:40%;border-radius:2px;background:var(--accent);opacity:0;transform:translateX(-100%)}
 #t-url.loading::after{opacity:.6;animation:bar 1.1s var(--ease) infinite}
 
@@ -773,10 +772,10 @@ body.filedrag::after{content:'Drop to install a theme or mod';position:fixed;ins
     </div>
     <div class="grow" data-tauri-drag-region></div>
     <div id="tbar">
-      <div class="cap seg lg"><button id="t-back" title="Back (Alt+Left)" data-i="back"></button><i></i><button id="t-fwd" title="Forward (Alt+Right)" data-i="fwd"></button></div>
+      <div class="cap seg lg"><button id="t-back" title="Back (Alt+Left)" data-i="back"></button><i></i><button id="t-fwd" title="Forward (Alt+Right)" data-i="fwd"></button><i></i><button id="t-reload" title="Refresh (Ctrl+R)" data-i="reload"></button></div>
       <button class="cap round lg empty" id="t-site" title="Copy link (Ctrl+Shift+C)"><img alt=""></button>
       <div class="turl">
-        <div class="cap lg empty" id="t-url"><span data-i="search"></span><input id="t-q" placeholder="Search or enter website name" spellcheck="false" autocomplete="off"><button id="t-reload" title="Reload (Ctrl+R)" data-i="reload"></button></div>
+        <div class="cap lg empty" id="t-url"><span data-i="search"></span><input id="t-q" placeholder="Search or enter website name" spellcheck="false" autocomplete="off"></div>
         <div class="slist lg" data-lg="panel" id="t-drop"></div>
       </div>
       <button class="cap round lg" id="t-new" title="New tab (Ctrl+T)" data-i="plus"></button>
@@ -1468,6 +1467,7 @@ function render() {
   $('#t-url').classList.toggle('empty', !a)
   $('#t-url').classList.toggle('loading', !!a && loading.has(a.id))
   $('#t-site').classList.toggle('empty', !a)
+  for (const b of [$('#t-reload'), $('#b-reload')]) { b.disabled = !a; b.classList.toggle('spin', !!a && loading.has(a.id)) }
   if (a) setIcon($('#t-site img'), a.url)
   $('#urlbar').classList.toggle('loading', !!a && loading.has(a.id))
   const homeWas = $('#home').hidden
