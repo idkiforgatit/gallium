@@ -1,10 +1,14 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+// Gallium was built on WebView2 (Windows). On macOS and Linux the WebView2-only extras (tab pictures, page menus,
+// download cancel, mute, Chrome extensions, Defender) are switched off and their code isn't compiled.
+#![cfg_attr(not(windows), allow(dead_code, unused_imports, unused_variables))]
 
 use std::{path::PathBuf, sync::mpsc, time::Duration};
 use tauri::{
     webview::{DownloadEvent, NewWindowResponse, PageLoadEvent, PlatformWebview, WebviewBuilder},
     AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, Url, Webview, WebviewUrl,
 };
+#[cfg(windows)]
 use webview2_com::{
     take_pwstr, BrowserExtensionEnableCompletedHandler, BrowserExtensionRemoveCompletedHandler, CapturePreviewCompletedHandler,
     FindActiveMatchIndexChangedEventHandler, FindMatchCountChangedEventHandler, FindStartCompletedHandler,
@@ -13,6 +17,7 @@ use webview2_com::{
     Microsoft::Web::WebView2::Win32::*, ProcessFailedEventHandler, ProfileAddBrowserExtensionCompletedHandler,
     ProfileGetBrowserExtensionsCompletedHandler,
 };
+#[cfg(windows)]
 use windows::core::{Interface, BOOL, HSTRING, PWSTR};
 
 // Injected into every tab. Tab webviews have no IPC, so browser shortcuts pressed
@@ -22,7 +27,7 @@ const KEYS_JS: &str = r#"(() => {
   const K = new Set(['ctrl+t','ctrl+l','ctrl+w','ctrl+s','ctrl+d','ctrl+r','f5','ctrl+shift+c','ctrl+shift+t','ctrl+tab',
     'ctrl+shift+tab','alt+arrowleft','alt+arrowright','ctrl+f','f12','ctrl+shift+i','ctrl+,','ctrl+j','ctrl+shift+a','ctrl+shift+m']);
   addEventListener('keydown', e => {
-    const k = [e.ctrlKey && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+');
+    const k = [(e.ctrlKey || e.metaKey) && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+');
     if (K.has(k) || /^ctrl\+[1-9]$/.test(k)) { e.preventDefault(); e.stopImmediatePropagation(); window.open('https://gallium.key/' + k); }
   }, true);
 })()"#;
@@ -82,6 +87,7 @@ fn ui(app: &AppHandle) -> Result<Webview, String> {
 /// Runs `f` with a webview's WebView2 objects on the UI thread and waits for what it sends back.
 /// Only call from async commands (sync commands run on the UI thread and would deadlock).
 // ponytail: blocks one async worker while WebView2 answers; fine for one call at a time.
+#[cfg(windows)]
 fn on_core<T: Send + 'static>(
     w: Webview,
     f: impl FnOnce(PlatformWebview, mpsc::Sender<T>) + Send + 'static,
@@ -89,6 +95,7 @@ fn on_core<T: Send + 'static>(
     on_core_for(w, Duration::from_secs(30), f)
 }
 
+#[cfg(windows)]
 fn on_core_for<T: Send + 'static>(
     w: Webview,
     wait: Duration,
@@ -113,6 +120,7 @@ fn log(app: &AppHandle, msg: &str) {
 
 
 /// Watches a webview's WebView2 processes and calls `on_fail` when one dies or hangs.
+#[cfg(windows)]
 fn watch_crashes(w: &Webview, on_fail: impl Fn(COREWEBVIEW2_PROCESS_FAILED_KIND) + 'static + Send) {
     let _ = w.with_webview(move |pv| unsafe {
         let Ok(core) = pv.controller().CoreWebView2() else { return };
@@ -129,11 +137,13 @@ fn watch_crashes(w: &Webview, on_fail: impl Fn(COREWEBVIEW2_PROCESS_FAILED_KIND)
     });
 }
 
+#[cfg(windows)]
 thread_local! {
     // Downloads in progress, so the UI can cancel them. WebView2 objects only live on the UI thread.
     static DOWNLOADS: std::cell::RefCell<Vec<ICoreWebView2DownloadOperation>> = const { std::cell::RefCell::new(Vec::new()) };
 }
 
+#[cfg(windows)]
 fn op_path(op: &ICoreWebView2DownloadOperation) -> String {
     let mut p = PWSTR::null();
     unsafe {
@@ -143,6 +153,7 @@ fn op_path(op: &ICoreWebView2DownloadOperation) -> String {
 }
 
 /// Tracks a tab's downloads: progress goes to the UI (at most 4x a second) and each one can be cancelled.
+#[cfg(windows)]
 fn watch_downloads(w: &Webview, app: AppHandle) {
     let _ = w.with_webview(move |pv| unsafe {
         let Ok(core) = pv.controller().CoreWebView2().and_then(|c| c.cast::<ICoreWebView2_4>()) else { return };
@@ -179,6 +190,7 @@ fn watch_downloads(w: &Webview, app: AppHandle) {
     });
 }
 
+#[cfg(windows)]
 #[tauri::command]
 async fn download_cancel(app: AppHandle, path: String) -> Result<(), String> {
     on_core(ui(&app)?, move |_, tx| {
@@ -191,6 +203,12 @@ async fn download_cancel(app: AppHandle, path: String) -> Result<(), String> {
         });
         let _ = tx.send(());
     })
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+async fn download_cancel(path: String) -> Result<(), String> {
+    Err("Cancelling downloads isn't available on this system yet".into())
 }
 
 // ---------------- right-click menus ----------------
@@ -223,22 +241,27 @@ struct MenuRequest {
     items: Vec<MenuItem>,
 }
 
+#[cfg(windows)]
 thread_local! {
     static MENUS: std::cell::RefCell<std::collections::HashMap<u32, (ICoreWebView2ContextMenuRequestedEventArgs, ICoreWebView2Deferral)>> =
         std::cell::RefCell::new(std::collections::HashMap::new());
 }
+#[cfg(windows)]
 static NEXT_MENU: std::sync::atomic::AtomicU32 = std::sync::atomic::AtomicU32::new(1);
 
+#[cfg(windows)]
 fn pwstr(f: impl FnOnce(*mut PWSTR) -> windows::core::Result<()>) -> String {
     let mut p = PWSTR::null();
     if f(&mut p).is_ok() { take_pwstr(p) } else { String::new() }
 }
 
+#[cfg(windows)]
 fn flag(f: impl FnOnce(*mut BOOL) -> windows::core::Result<()>) -> bool {
     let mut b = BOOL(0);
     f(&mut b).is_ok() && b.as_bool()
 }
 
+#[cfg(windows)]
 fn read_menu(list: &ICoreWebView2ContextMenuItemCollection) -> Vec<MenuItem> {
     let mut out = vec![];
     unsafe {
@@ -271,6 +294,7 @@ fn read_menu(list: &ICoreWebView2ContextMenuItemCollection) -> Vec<MenuItem> {
     out
 }
 
+#[cfg(windows)]
 fn watch_menus(w: &Webview, app: AppHandle, tab: String) {
     let scale = w.window().scale_factor().unwrap_or(1.0);
     let _ = w.with_webview(move |pv| unsafe {
@@ -313,6 +337,7 @@ fn watch_menus(w: &Webview, app: AppHandle, tab: String) {
 }
 
 /// Finishes a page's right-click: cmd = the built-in item to run, or -1 for none.
+#[cfg(windows)]
 #[tauri::command]
 async fn menu_pick(app: AppHandle, req: u32, cmd: i32) -> Result<(), String> {
     on_core(ui(&app)?, move |_, tx| {
@@ -330,8 +355,15 @@ async fn menu_pick(app: AppHandle, req: u32, cmd: i32) -> Result<(), String> {
     })
 }
 
+#[cfg(not(windows))]
+#[tauri::command]
+async fn menu_pick(req: u32, cmd: i32) -> Result<(), String> {
+    Ok(()) // pages show the system's own right-click menu here
+}
+
 // ---------------- sound ----------------
 
+#[cfg(windows)]
 fn emit_audio(app: &AppHandle, id: &str, core: &ICoreWebView2_8) {
     let (mut playing, mut muted) = (BOOL(0), BOOL(0));
     unsafe {
@@ -342,6 +374,7 @@ fn emit_audio(app: &AppHandle, id: &str, core: &ICoreWebView2_8) {
 }
 
 /// Tells the UI when a tab starts/stops making sound or is (un)muted, so it can show the speaker icon.
+#[cfg(windows)]
 fn watch_audio(w: &Webview, app: AppHandle, id: String, muted: bool) {
     let _ = w.with_webview(move |pv| unsafe {
         let Ok(core) = pv.controller().CoreWebView2().and_then(|c| c.cast::<ICoreWebView2_8>()) else { return };
@@ -363,6 +396,7 @@ fn watch_audio(w: &Webview, app: AppHandle, id: String, muted: bool) {
     });
 }
 
+#[cfg(windows)]
 #[tauri::command]
 fn tab_mute(app: AppHandle, id: String, muted: bool) -> Result<(), String> {
     tab(&app, &id)?
@@ -374,6 +408,13 @@ fn tab_mute(app: AppHandle, id: String, muted: bool) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
+#[cfg(not(windows))]
+#[tauri::command]
+fn tab_mute(id: String, muted: bool) -> Result<(), String> {
+    Err("Muting tabs isn't available on this system yet".into())
+}
+
+#[cfg(windows)]
 fn emit_find(app: &AppHandle, id: &str, f: &ICoreWebView2Find) {
     let (mut i, mut n) = (0, 0);
     unsafe {
@@ -440,6 +481,8 @@ async fn tab_open(app: AppHandle, id: String, url: String, r: [f64; 4], muted: O
         .add_child(builder, LogicalPosition::new(r[0], r[1]), LogicalSize::new(r[2], r[3]))
         .map_err(|e| e.to_string())?;
 
+    #[cfg(windows)]
+    {
     // A crashed or hung page reloads itself (at most every 5s, so a page that keeps crashing can't loop).
     let (a5, i5, w5) = (app.clone(), id.clone(), w.clone());
     let last = std::sync::Mutex::new(None::<std::time::Instant>);
@@ -475,6 +518,7 @@ async fn tab_open(app: AppHandle, id: String, url: String, r: [f64; 4], muted: O
         let _ = find.add_MatchCountChanged(&on_count, &mut tok);
         let _ = find.add_ActiveMatchIndexChanged(&on_index, &mut tok);
     });
+    }
     Ok(())
 }
 
@@ -505,6 +549,7 @@ fn tab_show(app: AppHandle, id: Option<String>, r: [f64; 4], radius: f64, focus:
 }
 
 /// Clips a tab's native window to rounded corners so it matches the frame drawn by the UI.
+#[cfg(windows)]
 fn round_corners(w: &Webview, width: f64, height: f64, radius: f64) {
     use windows::Win32::{Foundation::HWND, Graphics::Gdi::{CreateRoundRectRgn, SetWindowRgn}};
     let scale = w.window().scale_factor().unwrap_or(1.0);
@@ -518,6 +563,9 @@ fn round_corners(w: &Webview, width: f64, height: f64, radius: f64) {
         }
     });
 }
+
+#[cfg(not(windows))]
+fn round_corners(_: &Webview, _: f64, _: f64, _: f64) {}
 
 #[tauri::command]
 fn ui_focus(app: AppHandle) {
@@ -569,6 +617,12 @@ fn tab_close_all(app: AppHandle) {
 fn set_material(app: AppHandle, kind: String, dark: bool) -> Result<(), String> {
     use tauri::window::{Effect, EffectsBuilder};
     let win = app.get_window("main").ok_or("no window")?;
+    #[cfg(target_os = "macos")]
+    let effect = match kind.as_str() {
+        "none" => return win.set_effects(None).map_err(|e| e.to_string()),
+        _ => Effect::UnderWindowBackground,
+    };
+    #[cfg(not(target_os = "macos"))]
     let effect = match (kind.as_str(), dark) {
         ("mica", false) => Effect::MicaLight,
         ("mica", true) => Effect::MicaDark,
@@ -581,6 +635,7 @@ fn set_material(app: AppHandle, kind: String, dark: bool) -> Result<(), String> 
 }
 
 /// JPEG snapshot of a tab, so the UI can draw over (or animate) a picture of the page.
+#[cfg(windows)]
 #[tauri::command]
 async fn tab_snap(app: AppHandle, id: String) -> Result<tauri::ipc::Response, String> {
     use windows::Win32::UI::Shell::{IStream_Read, IStream_Reset, IStream_Size, SHCreateMemStream};
@@ -603,7 +658,14 @@ async fn tab_snap(app: AppHandle, id: String) -> Result<tauri::ipc::Response, St
     Ok(tauri::ipc::Response::new(bytes))
 }
 
+#[cfg(not(windows))]
+#[tauri::command]
+async fn tab_snap(id: String) -> Result<tauri::ipc::Response, String> {
+    Err("no snapshots on this system".into()) // the UI carries on without a picture
+}
+
 /// Find in page: op = start | next | prev | stop.
+#[cfg(windows)]
 #[tauri::command]
 async fn tab_find(app: AppHandle, id: String, op: String, term: String) -> Result<(), String> {
     on_core(tab(&app, &id)?, move |pv, tx| unsafe {
@@ -626,6 +688,19 @@ async fn tab_find(app: AppHandle, id: String, op: String, term: String) -> Resul
     })?
 }
 
+#[cfg(not(windows))]
+#[tauri::command]
+async fn tab_find(app: AppHandle, id: String, op: String, term: String) -> Result<(), String> {
+    // WebKit's own find: selects the next match (no match count)
+    let t = serde_json::to_string(&term).map_err(|e| e.to_string())?;
+    let js = match op.as_str() {
+        "stop" => "getSelection().removeAllRanges()".to_string(),
+        "prev" => format!("window.find({t}, false, true, true)"),
+        _ => format!("window.find({t}, false, false, true)"),
+    };
+    tab(&app, &id)?.eval(js).map_err(|e| e.to_string())
+}
+
 // ---------------- extension popups ----------------
 // An extension's popup opens in a small floating window under its toolbar button (like Chrome),
 // sized to its content, and closes when it loses focus, on Esc, or when the extension closes it.
@@ -646,6 +721,7 @@ fn close_popup(app: &AppHandle, why: &str) {
 }
 
 /// Fits the popup to its content (200-800 x 60-600, like Chrome), right edge under the button.
+#[cfg(windows)]
 fn fit_popup(w: &Webview, right: f64, top: f64) {
     let w2 = w.clone();
     let _ = w.eval_with_callback(MEASURE_JS, move |res| {
@@ -661,6 +737,7 @@ fn fit_popup(w: &Webview, right: f64, top: f64) {
     });
 }
 
+#[cfg(windows)]
 #[tauri::command]
 async fn ext_popup(app: AppHandle, url: String, right: f64, top: f64) -> Result<(), String> {
     close_popup(&app, "replaced");
@@ -738,6 +815,12 @@ async fn ext_popup(app: AppHandle, url: String, right: f64, top: f64) -> Result<
     });
     let _ = w.set_focus();
     Ok(())
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+async fn ext_popup(url: String, right: f64, top: f64) -> Result<(), String> {
+    Err("Extensions need Windows for now".into())
 }
 
 #[tauri::command]
@@ -822,6 +905,7 @@ fn ext_page(dir: &std::path::Path) -> Option<String> {
         .find_map(|p| m.pointer(p)?.as_str().map(str::to_owned))
 }
 
+#[cfg(windows)]
 unsafe fn ext_info(e: &ICoreWebView2BrowserExtension) -> (String, String, bool) {
     let (mut id, mut name, mut on) = (PWSTR::null(), PWSTR::null(), BOOL(0));
     let _ = e.Id(&mut id);
@@ -830,11 +914,13 @@ unsafe fn ext_info(e: &ICoreWebView2BrowserExtension) -> (String, String, bool) 
     (take_pwstr(id), take_pwstr(name), on.as_bool())
 }
 
+#[cfg(windows)]
 fn profile(pv: &PlatformWebview) -> windows::core::Result<ICoreWebView2Profile7> {
     unsafe { pv.controller().CoreWebView2()?.cast::<ICoreWebView2_13>()?.Profile()?.cast() }
 }
 
 /// Calls `f` with every installed extension (on the UI thread).
+#[cfg(windows)]
 fn each_ext(pv: PlatformWebview, f: impl FnOnce(Vec<ICoreWebView2BrowserExtension>) + 'static) {
     let Ok(p) = profile(&pv) else { return f(vec![]) };
     let done = ProfileGetBrowserExtensionsCompletedHandler::create(Box::new(move |_, list| {
@@ -854,6 +940,7 @@ fn each_ext(pv: PlatformWebview, f: impl FnOnce(Vec<ICoreWebView2BrowserExtensio
     }
 }
 
+#[cfg(windows)]
 #[tauri::command]
 async fn ext_list(app: AppHandle) -> Result<Vec<Ext>, String> {
     let list = on_core(ui(&app)?, |pv, tx| {
@@ -876,7 +963,14 @@ async fn ext_list(app: AppHandle) -> Result<Vec<Ext>, String> {
         .collect())
 }
 
+#[cfg(not(windows))]
+#[tauri::command]
+async fn ext_list() -> Result<Vec<Ext>, String> {
+    Ok(vec![]) // Chrome extensions need WebView2 (Windows)
+}
+
 /// action = enable | disable | remove
+#[cfg(windows)]
 #[tauri::command]
 async fn ext_set(app: AppHandle, id: String, action: String) -> Result<(), String> {
     on_core(ui(&app)?, move |pv, tx| {
@@ -890,6 +984,12 @@ async fn ext_set(app: AppHandle, id: String, action: String) -> Result<(), Strin
             };
         })
     })
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+async fn ext_set(id: String, action: String) -> Result<(), String> {
+    Err("Extensions need Windows for now".into())
 }
 
 /// Strips the CRX header (v2 or v3) and returns the zip inside.
@@ -907,6 +1007,7 @@ fn crx_zip(b: &[u8]) -> Option<&[u8]> {
 }
 
 /// Downloads an extension from the Chrome Web Store and installs it into WebView2.
+#[cfg(windows)]
 #[tauri::command]
 async fn ext_install(app: AppHandle, store_id: String) -> Result<Ext, String> {
     if store_id.len() != 32 || !store_id.bytes().all(|c| (b'a'..=b'p').contains(&c)) {
@@ -971,9 +1072,16 @@ async fn ext_install(app: AppHandle, store_id: String) -> Result<Ext, String> {
     Ok(Ext { id, name, enabled, page, icon: ext_icon(&dir), launch, mine: true })
 }
 
+#[cfg(not(windows))]
+#[tauri::command]
+async fn ext_install(store_id: String) -> Result<Ext, String> {
+    Err("Chrome extensions are only in Gallium for Windows for now".into())
+}
+
 // ---------------- misc ----------------
 
 /// Opens a downloaded file, or shows it in Explorer.
+#[cfg(windows)]
 #[tauri::command]
 fn reveal(path: String, open: bool) -> Result<(), String> {
     if !std::path::Path::new(&path).is_file() {
@@ -982,6 +1090,23 @@ fn reveal(path: String, open: bool) -> Result<(), String> {
     use std::os::windows::process::CommandExt;
     let arg = if open { format!("\"{path}\"") } else { format!("/select,\"{path}\"") };
     std::process::Command::new("explorer").raw_arg(arg).spawn().map(|_| ()).map_err(|e| e.to_string())
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+fn reveal(path: String, open: bool) -> Result<(), String> {
+    let p = std::path::Path::new(&path);
+    if !p.is_file() {
+        return Err("file not found".into());
+    }
+    let mac = cfg!(target_os = "macos");
+    let mut c = std::process::Command::new(if mac { "open" } else { "xdg-open" });
+    if mac && !open {
+        c.arg("-R"); // show it in Finder
+    }
+    // Linux file managers have no common "select this file", so "show" opens its folder
+    c.arg(if open || mac { p } else { p.parent().unwrap_or(p) });
+    c.spawn().map(|_| ()).map_err(|e| e.to_string())
 }
 
 /// Clears cookies, cache, history and site data for every tab (they share one profile).
@@ -1005,13 +1130,13 @@ async fn pkg_read(path: String) -> Result<String, String> {
 
 /// Writes an exported theme or mod into the Downloads folder (never overwriting) and returns its path.
 #[tauri::command]
-async fn pkg_save(name: String, ext: String, text: String) -> Result<String, String> {
+async fn pkg_save(app: AppHandle, name: String, ext: String, text: String) -> Result<String, String> {
     if !PKG_EXT.contains(&ext.as_str()) || text.len() > 8 << 20 {
         return Err("can't save that file".into());
     }
     let stem: String = name.chars().filter(|c| c.is_alphanumeric() || " -_".contains(*c)).take(60).collect();
     let stem = if stem.trim().is_empty() { "Gallium".to_string() } else { stem.trim().to_string() };
-    let dir = std::env::var_os("USERPROFILE").map(|h| PathBuf::from(h).join("Downloads")).filter(|d| d.is_dir()).ok_or("no Downloads folder")?;
+    let dir = app.path().download_dir().ok().filter(|d| d.is_dir()).ok_or("no Downloads folder")?;
     let mut p = dir.join(format!("{stem}.{ext}"));
     for n in 2.. {
         if !p.exists() {
@@ -1024,6 +1149,7 @@ async fn pkg_save(name: String, ext: String, text: String) -> Result<String, Str
 }
 
 /// Scans the exact file contents with Microsoft Defender's command-line scanner: "clean", "threat" or "unavailable".
+#[cfg(windows)]
 #[tauri::command]
 async fn av_scan(text: String) -> Result<String, String> {
     use std::os::windows::process::CommandExt;
@@ -1048,6 +1174,23 @@ async fn av_scan(text: String) -> Result<String, String> {
     Ok(match out.map(|o| o.status.code()) {
         Ok(Some(0)) => "clean",
         Ok(Some(2)) => "threat",
+        _ => "unavailable",
+    }
+    .into())
+}
+
+#[cfg(not(windows))]
+#[tauri::command]
+async fn av_scan(text: String) -> Result<String, String> {
+    // ClamAV, if it's installed: "clean", "threat" or "unavailable"
+    let nanos = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+    let f = std::env::temp_dir().join(format!("gallium-scan-{nanos}.tmp"));
+    std::fs::write(&f, &text).map_err(|e| e.to_string())?;
+    let out = std::process::Command::new("clamscan").arg("--no-summary").arg(&f).output();
+    let _ = std::fs::remove_file(&f);
+    Ok(match out.map(|o| o.status.code()) {
+        Ok(Some(0)) => "clean",
+        Ok(Some(1)) => "threat",
         _ => "unavailable",
     }
     .into())
@@ -1133,7 +1276,9 @@ fn main() {
             let ui = win.add_child(ui, LogicalPosition::new(0.0, 0.0), win.inner_size()?)?;
 
             // If the UI's page dies, reload it; if the whole engine dies, restart Gallium.
+            #[cfg(windows)]
             let (h, w) = (app.handle().clone(), ui.clone());
+            #[cfg(windows)]
             watch_crashes(&ui, move |kind| {
                 log(&h, &format!("UI: WebView2 process failed (kind {})", kind.0));
                 if kind == COREWEBVIEW2_PROCESS_FAILED_KIND_BROWSER_PROCESS_EXITED {

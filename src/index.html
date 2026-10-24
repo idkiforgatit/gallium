@@ -1221,7 +1221,7 @@ S ||= {
   spaces: [mkSpace('Personal', 'lavender'), mkSpace('Work', 'ocean')], cur: 0, collapsed: false, sbw: 264,
 }
 S.settings = {
-  engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: 'windows',
+  engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: /Mac/.test(navigator.userAgent) ? 'mac' : 'windows',
   grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'halo', backdrop: 'wallpaper',
   toolbar: 'top', winbg: S.settings?.windowColors === 'theme' ? 'theme' : 'blur', tint: 30, solid: '', accent: '',
   homeDim: 8, homeBlur: 0, clock24: false, widgets: true, weather: null, showDate: true, showDock: true, showRecent: true, homePos: 'top', calm: false,
@@ -2131,7 +2131,8 @@ async function installExt() {
 const KEYS = new Set(['ctrl+t', 'ctrl+l', 'ctrl+w', 'ctrl+s', 'ctrl+d', 'ctrl+r', 'f5', 'ctrl+shift+c', 'ctrl+shift+t', 'ctrl+tab', 'ctrl+shift+tab',
   'alt+arrowleft', 'alt+arrowright', 'ctrl+f', 'f12', 'ctrl+shift+i', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a', 'ctrl+shift+m'])
 const OPENERS = new Set(['ctrl+t', 'ctrl+l', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a'])
-const combo = e => [e.ctrlKey && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+')
+// on a Mac, ⌘ does what Ctrl does
+const combo = e => [(e.ctrlKey || e.metaKey) && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+')
 function shortcut(k) {
   if (!$('#onb').hidden) return // the welcome screen is up
   const a = space().active
@@ -2151,7 +2152,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && !$('#studio').hidden) return studioCancel()
   if (e.key === 'Escape' && !$('#inst').hidden) return closeInst()
   if (e.key === 'Escape' && overlayOpen()) return hideOverlay(!$('#panel').hidden ? $('#panel') : $('#cmdk'))
-  if (e.target.isContentEditable && !e.ctrlKey) return
+  if (e.target.isContentEditable && !e.ctrlKey && !e.metaKey) return
   const k = combo(e)
   if (KEYS.has(k) || /^ctrl\+[1-9]$/.test(k)) { e.preventDefault(); shortcut(k) }
 })

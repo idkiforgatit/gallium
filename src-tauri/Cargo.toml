@@ -17,7 +17,7 @@ base64 = "0.22" # extension icons as data: URLs
 zip = { version = "9", default-features = false, features = ["deflate"] } # unpack .crx extensions
 tauri-plugin-single-instance = "2"
 
-# Gallium is Windows-only: it talks to WebView2 (Chromium) directly for snapshots, find and extensions.
+# On Windows Gallium talks to WebView2 (Chromium) directly for snapshots, find, menus and extensions.
 # Same versions Tauri uses, so the COM types line up.
 [target.'cfg(windows)'.dependencies]
 webview2-com = "0.39"
