@@ -235,7 +235,6 @@ body.dark .hsearch{color:#f3f1f8}
 .hchip:active{transform:scale(.95)}
 .hchip img{width:16px;height:16px;border-radius:3px;flex:none}
 .hchip span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#hcustom{position:absolute;right:18px;bottom:18px;z-index:2;height:36px;padding:0 15px 0 12px;border-radius:18px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:500}
 .hwrap.anim .hin{animation:hin .8s var(--ease) backwards;animation-delay:var(--d,0s)}
 @keyframes hin{from{opacity:0;transform:translateY(16px) scale(.98)}}
 
@@ -602,6 +601,127 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 .ofoot .dots i{width:7px;height:7px;border-radius:9px;background:currentColor;opacity:.2;transition:width .4s var(--out),opacity .3s}
 .ofoot .dots i.on{width:20px;opacity:.8}
 .ofoot .obtn.ghost:disabled{visibility:hidden}
+/* ---- home: Customize is a small glass button that opens a quick panel ---- */
+#hcustom{position:absolute;right:16px;bottom:16px;z-index:3;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:inherit}
+#hcustom svg{width:19px;height:19px}
+#hcustom.on{background:color-mix(in srgb,var(--accent) 80%,transparent);color:#fff}
+#cust{position:absolute;right:16px;bottom:66px;z-index:3;width:min(392px,calc(100% - 32px));padding:16px 16px 14px;border-radius:22px;color:var(--ink);background:var(--surface);
+  box-shadow:0 24px 60px rgba(10,5,30,.3),0 0 0 1px var(--line);transform-origin:100% 100%;opacity:0;transform:translateY(10px) scale(.95);pointer-events:none;
+  transition:opacity .2s,transform .4s var(--out)}
+#cust.on{opacity:1;transform:none;pointer-events:auto}
+#cust h5{margin:0 0 8px;font-size:11px;font-weight:600;opacity:.55;text-transform:uppercase;letter-spacing:.05em}
+#cust .strip{display:flex;gap:8px;overflow-x:auto;padding:3px 3px 6px;margin:0 -3px 10px;scrollbar-width:none}
+#cust .strip button{flex:none;width:72px;height:46px;border-radius:10px;background:center/cover;box-shadow:inset 0 0 0 1px var(--line);transition:transform .25s var(--bounce)}
+#cust .strip button:hover{transform:translateY(-2px)}
+#cust .strip button.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+#cust .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.chip{height:30px;padding:0 12px 0 7px;border-radius:999px;display:flex;align-items:center;gap:7px;font-size:12px;background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line);transition:transform .2s var(--bounce)}
+.chip:active{transform:scale(.96)}
+.chip i{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.chip.on{box-shadow:inset 0 0 0 2px var(--accent)}
+#cust .acts{display:flex;gap:8px}
+#cust .acts .btn{flex:1;height:36px;display:flex;align-items:center;justify-content:center;gap:7px;border-radius:10px}
+#cust .acts svg,.studio footer svg{width:15px;height:15px}
+.btn.pri{background:var(--accent);color:#fff}
+.btn.pri:hover{background:color-mix(in srgb,var(--accent) 88%,#000)}
+.btn:disabled{opacity:.45;pointer-events:none}
+
+/* ---- Theme Studio: a side sheet, so the browser behind shows every change live ---- */
+#studio{justify-content:flex-end;align-items:stretch;background:transparent!important}
+#studio>div{transform:translateX(40px);opacity:0}
+#studio.in>div{transform:none;opacity:1;transition:opacity .25s,transform .5s var(--out)}
+.studio{width:min(384px,calc(100vw - 24px));margin:10px;border-radius:calc(18px * var(--r));background:var(--surface);color:var(--ink);display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 30px 80px rgba(20,10,40,.35),0 0 0 1px var(--line)}
+.studio header{padding:18px 18px 8px 20px;display:flex;align-items:center;gap:10px}
+.studio header h2{font:600 18px var(--font-d);margin:0;flex:1}
+.studio .sbody{flex:1;overflow-y:auto;padding:2px 20px 18px}
+.studio .f{display:block;margin:16px 0 7px;font-size:11px;font-weight:600;opacity:.55;text-transform:uppercase;letter-spacing:.05em}
+.studio input[type=text],.studio select{width:100%;height:36px;border-radius:9px;border:0;padding:0 12px;background:var(--surface2);outline:0;font-size:13.5px;color:inherit}
+.studio input[type=text]:focus{box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 55%,transparent)}
+.studio input[type=range]{width:100%;accent-color:var(--accent)}
+.seg2{display:flex;padding:3px;border-radius:10px;background:var(--surface2);gap:2px}
+.seg2 button{flex:1;height:30px;border-radius:8px;font-size:12.5px;font-weight:500;transition:background .2s}
+.seg2 button.on{background:var(--surface);box-shadow:0 1px 4px rgba(0,0,0,.16)}
+.swatches{display:flex;gap:10px;align-items:center}
+.swatches input[type=color]{width:42px;height:42px;border:0;padding:0;border-radius:50%;background:none;cursor:pointer;flex:none}
+.swatches input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+.swatches input[type=color]::-webkit-color-swatch{border:0;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.swatches .btn{height:30px}
+.swatches .btn:first-of-type{margin-left:auto}
+.spv{height:116px;border-radius:14px;background:linear-gradient(135deg,var(--a),var(--b));display:flex;gap:10px;padding:12px;box-shadow:inset 0 0 0 1px var(--line);margin-top:4px}
+.spv .sb{width:30%;display:grid;gap:6px;align-content:start}
+.spv .sb i{height:9px;border-radius:5px;background:rgba(255,255,255,.55)}
+.spv .sb i:first-child{background:rgba(255,255,255,.95)}
+.spv .pg{flex:1;border-radius:10px;background:#fff;padding:12px;display:grid;gap:9px;align-content:start;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.spv .pg b{height:10px;width:62%;border-radius:5px;background:rgba(0,0,0,.12)}
+.spv .pg b+b{width:44%}
+.spv .pg span{height:20px;width:42%;border-radius:10px;background:var(--acc)}
+.spv.d .sb i{background:rgba(255,255,255,.2)}
+.spv.d .sb i:first-child{background:rgba(255,255,255,.4)}
+.spv.d .pg{background:#1c1b22}
+.spv.d .pg b{background:rgba(255,255,255,.14)}
+.spv.glass .pg{background:rgba(255,255,255,.5);backdrop-filter:blur(8px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.6)}
+.spv.glass.d .pg{background:rgba(28,28,40,.55);box-shadow:inset 0 0 0 1px rgba(255,255,255,.12)}
+.spv.apple .sb i{background:rgba(0,0,0,.09)}
+.spv.apple .sb i:first-child{background:rgba(0,0,0,.16)}
+.spv.apple.d .sb i{background:rgba(255,255,255,.1)}
+.walls2{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.walls2 button{aspect-ratio:16/10;border-radius:9px;background:center/cover var(--surface2);box-shadow:inset 0 0 0 1px var(--line);font-size:10.5px;display:grid;place-items:center;text-align:center;line-height:1.2;padding:2px}
+.walls2 button.on{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
+.walls2 button svg{width:16px;height:16px;opacity:.6}
+.studio footer{display:flex;gap:8px;padding:14px 18px;border-top:1px solid var(--line)}
+.studio footer .btn{height:36px;display:flex;align-items:center;gap:6px;border-radius:10px}
+.grow{flex:1}
+
+/* ---- install sheet: what the file is, what it changes, and the scan results ---- */
+.instbox{width:min(540px,calc(100vw - 32px));max-height:calc(100vh - 60px);overflow:auto;background:var(--surface);color:var(--ink);border-radius:calc(18px * var(--r));padding:24px 26px 20px;
+  box-shadow:0 30px 80px rgba(20,10,40,.35),0 0 0 1px var(--line)}
+.ihead{display:flex;gap:14px;align-items:center}
+.ibadge{width:54px;height:54px;border-radius:15px;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:inset 0 0 0 1px var(--line)}
+.ibadge svg{width:24px;height:24px;stroke:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
+.instbox h2{margin:0;font:600 19px var(--font-d)}
+.instbox .by{opacity:.6;font-size:12.5px;margin-top:2px}
+.instbox .desc{margin:14px 0 0;font-size:13.5px;opacity:.8;line-height:1.5}
+.warnbox{margin:16px 0 2px;padding:12px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;background:color-mix(in srgb,#ff9f0a 14%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,#ff9f0a 38%,transparent)}
+.warnbox.red{background:color-mix(in srgb,#ff3b30 12%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,#ff3b30 42%,transparent)}
+.warnbox.info{background:var(--surface2);box-shadow:inset 0 0 0 1px var(--line)}
+.warnbox kbd,.chk kbd{font:600 11px var(--font);padding:2px 6px;border-radius:5px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line)}
+.checks{margin:12px 0 0}
+.chk{display:flex;gap:11px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
+.chk>span:first-child{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;margin-top:1px;font-weight:700;font-size:12px;color:#fff;background:var(--surface2)}
+.chk>span:first-child svg{width:12px;height:12px;stroke-width:3}
+.chk.pass>span:first-child{background:#30d158}
+.chk.fail>span:first-child{background:#ff3b30}
+.chk.warn>span:first-child{background:#ff9f0a}
+.chk.info>span:first-child{background:color-mix(in srgb,var(--ink) 35%,transparent)}
+.chk.wait>span:first-child::after{content:'';width:9px;height:9px;border-radius:50%;border:2px solid var(--ink);border-right-color:transparent;animation:spin .8s linear infinite;opacity:.5}
+@keyframes spin{to{transform:rotate(360deg)}}
+.chk>div{min-width:0;flex:1}
+.chk b{display:block;font-weight:600}
+.chk small{display:block;opacity:.65;font-size:12px;margin-top:2px;line-height:1.45}
+.chk ul{margin:5px 0 0;padding-left:16px;font-size:12px;opacity:.8;line-height:1.5}
+.hash{display:block;font:11px/1.45 "Cascadia Code",Consolas,monospace;opacity:.6;word-break:break-all;margin-top:3px}
+.chk a{display:inline-block;margin-top:5px;color:var(--accent);cursor:pointer;font-size:12px}
+.ifoot{display:flex;align-items:center;gap:8px;margin-top:18px}
+.ifoot .btn{height:36px;border-radius:10px;padding:0 16px}
+.ifoot small{opacity:.6;font-size:12px}
+
+/* ---- Settings > Themes & Mods ---- */
+.pkgs{display:grid;gap:8px;margin:8px 0}
+.pkg{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:var(--surface2)}
+.pkg .sw{width:38px;height:38px;border-radius:11px;flex:none;background:linear-gradient(135deg,var(--a),var(--b));box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center}
+.pkg .sw svg{width:18px;height:18px;stroke:#fff}
+.pkg .meta{flex:1;min-width:0}
+.pkg .meta b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pkg .meta small{opacity:.6;font-size:11.5px}
+.pkg .btn{height:28px;padding:0 10px}
+.pkg .btn.on{background:var(--accent);color:#fff}
+.tprev.new{display:grid;place-items:center;background:var(--surface2);border:1.5px dashed color-mix(in srgb,var(--ink) 22%,transparent);padding:0}
+.tprev.new::after,.tprev.new i{display:none}
+.tprev.new svg{width:20px;height:20px;opacity:.55}
+.dropzone{margin-top:16px;padding:16px;border-radius:12px;border:1.5px dashed color-mix(in srgb,var(--ink) 18%,transparent);text-align:center;font-size:12.5px;opacity:.65}
+body.filedrag::after{content:'Drop to install a theme or mod';position:fixed;inset:12px;z-index:95;border-radius:20px;border:2px dashed var(--accent);
+  background:color-mix(in srgb,var(--accent) 14%,transparent);display:grid;place-items:center;font:600 20px var(--font-d);color:var(--ink);pointer-events:none;backdrop-filter:blur(4px)}
 </style>
 </head>
 <body class="boot">
@@ -686,7 +806,8 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
         <div id="hdock" class="lg hin" style="--d:.2s"></div>
         <div id="hrecent" class="hin" style="--d:.28s"></div>
       </div>
-      <button id="hcustom" class="lg press"><span data-i="palette"></span>Customize</button>
+      <button id="hcustom" class="lg press" title="Customize"><span data-i="sliders"></span></button>
+      <div id="cust" class="lg" data-lg="panel"></div>
     </div>
   </main>
 </div>
@@ -698,6 +819,7 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
       <div class="ptitle">Settings</div>
       <button data-sec="appearance"><span data-i="palette"></span>Appearance</button>
       <button data-sec="background"><span data-i="image"></span>Background</button>
+      <button data-sec="themes"><span data-i="brush"></span>Themes &amp; Mods</button>
       <button data-sec="home"><span data-i="home"></span>Home</button>
       <button data-sec="layout"><span data-i="layout"></span>Layout</button>
       <button data-sec="general"><span data-i="gear"></span>General</button>
@@ -721,12 +843,15 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
   <div class="ostage"></div>
   <div class="otop"><button id="onb-snd" title="Sound"></button><button id="onb-skip">Skip</button></div>
 </div>
+<div id="studio" class="overlay" hidden><div class="studio lg" data-lg="panel"></div></div>
+<div id="inst" class="overlay" hidden><div class="instbox lg" data-lg="panel"></div></div>
 <div id="tprev" hidden></div>
 <div id="toast"></div>
 <div id="ctx-root"></div>
 <div id="pop" class="pop"></div>
 <svg width="0" height="0" style="position:absolute"><defs id="lgdefs"><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b6cff"/><stop offset="1" stop-color="#ff7ac3"/></linearGradient></defs></svg>
 
+<script src="gformat.js"></script>
 <script>
 if (window.top !== window || window.__TAURI_INTERNALS__?.metadata?.currentWebview?.label !== 'ui') {
   document.documentElement.innerHTML = ''
@@ -761,6 +886,9 @@ const I = {
   layout: '<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18M9 9v11"/>',
   file: '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  sliders: '<path d="M4 7h9M17 7h3M4 12h3M11 12h9M4 17h11M19 17h1"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="17" r="2"/>',
+  brush: '<path d="M18.4 2.6a2 2 0 0 1 2.9 2.9L12 14.8 9.2 12z"/><path d="M9.2 12C6 12 4.5 14 4.5 16.5c0 1.6-1 2.6-2 3 1.2 1 3 1.5 4.8 1.5 3.4 0 4.7-2.5 4.7-6.2"/>',
+  wand: '<path d="m14 6 4 4L8 20l-4-4z"/><path d="m12 8 4 4M18 2v4M16 4h4M21 9v3M19.5 10.5h3"/>',
   palette: '<path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.5-.2-.9-.5-1.2-.3-.3-.5-.7-.5-1.2 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4-4-7.4-9-7.4z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7.5" r="1"/><circle cx="15" cy="8" r="1"/>',
 }
 const svg = n => `<svg viewBox="0 0 24 24">${I[n]}</svg>`
@@ -805,7 +933,13 @@ const FONTS = {
   mono: ['"Cascadia Code",Consolas,monospace', '"Cascadia Code",Consolas,monospace'],
 }
 const lum = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255 }
+// a theme you made or installed, in the same shape as the built-in THEMES
+const userTheme = t => ({ id: t.id, name: t.name, c: [t.colors.c1, t.colors.c2], dark: !!t.dark, glass: t.style === 'glass', apple: t.style === 'apple',
+  accent: t.colors.accent || (t.style === 'gradient' ? undefined : '#0a84ff'), user: true })
 function themeOf(s) {
+  if (draft && s.theme === draft.id) return userTheme(draft)
+  const u = S.themes.find(t => t.id === s.theme)
+  if (u) return userTheme(u)
   if (s.theme === 'custom' && s.custom) return { id: 'custom', name: 'Custom', c: [s.custom.c1, s.custom.c2], dark: (lum(s.custom.c1) + lum(s.custom.c2)) / 2 < 0.5 }
   return THEMES.find(t => t.id === s.theme) || THEMES[0]
 }
@@ -923,20 +1057,21 @@ const LG = (() => {
   return { refresh: () => document.querySelectorAll('.lg').forEach(apply) }
 })()
 
-// ---------------- wallpapers: real photos bundled in src/wallpapers (Unsplash License) ----------------
-const WALLS = [['moraine', 'Moraine Lake'], ['clouds', 'Above the Clouds'], ['milkyway', 'Milky Way'], ['aurora', 'Aurora'],
-  ['braies', 'Lago di Braies'], ['shore', 'Shoreline'], ['summit', 'Summit'], ['forest', 'Forest'], ['surf', 'Surf'],
-  ['highlands', 'Highlands'], ['alpine', 'Alpine'], ['haze', 'Haze'],
-  ['flow', 'Flow', 'a'], ['indigo', 'Indigo', 'a'], ['prism', 'Prism', 'a'], ['pastel', 'Pastel', 'a'], ['violet', 'Violet', 'a'],
-  ['blush', 'Blush', 'a'], ['dawn', 'Dawn', 'a'], ['silk', 'Silk', 'a'], ['nebula', 'Nebula', 'a'], ['ribbon', 'Ribbon', 'a'],
-  ['grain', 'Grain', 'a'], ['marble', 'Marble', 'a'], ['liquid', 'Liquid', 'a'], ['ember', 'Ember', 'a']]
+// ---------------- wallpapers: Gallium's own renders (waves and liquid metal) plus a few photos (Unsplash License) ----------------
+const WALLS = [['sequoia', 'Sequoia', 'r'], ['tide', 'Tide', 'r'], ['sonoma', 'Sonoma', 'r'], ['dusk', 'Dusk', 'r'], ['bloom', 'Bloom', 'r'], ['lagoon', 'Lagoon', 'r'],
+  ['ember', 'Ember', 'r'], ['graphite', 'Graphite', 'r'], ['mercury', 'Mercury', 'm'], ['gallium', 'Gallium', 'm'], ['gold', 'Gold', 'm'],
+  ['moraine', 'Moraine Lake'], ['milkyway', 'Milky Way'], ['aurora', 'Aurora'], ['braies', 'Lago di Braies'], ['clouds', 'Above the Clouds']]
+// wallpapers that were replaced, mapped to the closest new one
+const OLD_WALLS = { indigo: 'tide', flow: 'tide', violet: 'bloom', pastel: 'bloom', prism: 'sequoia', nebula: 'sequoia', ribbon: 'sequoia', blush: 'dusk', dawn: 'dusk',
+  silk: 'graphite', grain: 'graphite', marble: 'graphite', haze: 'graphite', liquid: 'mercury', shore: 'lagoon', surf: 'lagoon', forest: 'sonoma', highlands: 'sonoma', summit: 'moraine', alpine: 'moraine' }
 const wallMem = new Map()
 const lumOf = src => { const c = document.createElement('canvas'); c.width = c.height = 8; const x = c.getContext('2d'); x.drawImage(src, 0, 0, 8, 8); const d = x.getImageData(0, 0, 8, 8).data; let s = 0; for (let i = 0; i < d.length; i += 4) s += .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2]; return s / 64 / 255 }
 const customWall = () => { try { return localStorage.getItem('gallium-wall') || '' } catch { return '' } }
 const hasCustomWall = () => !!customWall()
 const wallThumb = id => id === 'custom' ? customWall() : `wallpapers/thumbs/${id}.jpg`
 async function buildWall(id) {
-  const url = (id === 'custom' && customWall()) || `wallpapers/${WALLS.some(w => w[0] === id) ? id : 'moraine'}.jpg`
+  const url = id.startsWith('pic:') ? await pics.get(id.slice(4)) : (id === 'custom' && customWall()) || `wallpapers/${WALLS.some(w => w[0] === id) ? id : 'moraine'}.jpg`
+  if (!url) throw new Error('missing picture')
   const img = new Image(); img.src = url; await img.decode()
   return { url, lum: lumOf(img), pal: paletteOf(img) }
 }
@@ -1012,14 +1147,15 @@ S ||= {
 }
 S.settings = {
   engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: 'windows',
-  grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'moraine', backdrop: 'wallpaper',
+  grain: false, material: 'acrylic', glass: 40, newtab: 'cmd', clock: true, wall: 'sequoia', backdrop: 'wallpaper',
   toolbar: 'top', winbg: S.settings?.windowColors === 'theme' ? 'theme' : 'blur', tint: 30, solid: '', accent: '',
   homeDim: 8, homeBlur: 0, clock24: false, showDate: true, showDock: true, showRecent: true, homePos: 'top', calm: false,
   ...S.settings,
 }
 S.downloads = (S.downloads || []).map(d => d.state === 'started' ? { ...d, state: 'failed' } : d) // interrupted by a restart
 if (S.neon === 1) { S.neon = 2; if (S.settings.wall === 'neon') S.settings.wall = 'theme'; for (const s of S.spaces) if (s.theme === 'neon') s.theme = 'glass-dark' } // undo an earlier default
-if (S.settings.wall !== 'custom' && !WALLS.some(w => w[0] === S.settings.wall)) S.settings.wall = 'moraine' // old drawn wallpapers
+if (OLD_WALLS[S.settings.wall]) S.settings.wall = OLD_WALLS[S.settings.wall]
+if (S.settings.wall !== 'custom' && !S.settings.wall?.startsWith('pic:') && !WALLS.some(w => w[0] === S.settings.wall)) S.settings.wall = 'moraine' // old drawn wallpapers
 for (const s of S.spaces) if (typeof s.theme === 'number') s.theme = THEMES[s.theme]?.id || 'lavender' // old saves
 const save = () => { try { localStorage.setItem('gallium', JSON.stringify(S)) } catch {} }
 const space = () => S.spaces[S.cur]
@@ -1037,6 +1173,9 @@ allLists().flat().forEach(t => t.seen ||= Date.now())
 const live = new Set(), loading = new Set() // live = tabs that have a native view
 S.closed = (S.closed || []).filter(c => c && typeof c === 'object').slice(-30)
 const closed = S.closed // recently closed tabs: { url, title }
+S.themes ||= [] // themes you made or installed
+S.mods ||= []   // restyle-only CSS mods
+let draft = null // the theme open in the Theme Studio
 const remember = t => { closed.push({ url: t.url, title: label(t) }); if (closed.length > 30) closed.splice(0, closed.length - 30) }
 let frozen = false, dragId = null, animate = false, newDl = false
 
@@ -1360,7 +1499,7 @@ function renderHome() {
 setInterval(() => { if (!$('#home').hidden) renderHome() }, 15e3)
 
 // ---------------- overlays ----------------
-const overlayOpen = () => !$('#cmdk').hidden || !$('#panel').hidden || !$('#ov').hidden || !$('#onb').hidden
+const overlayOpen = () => !$('#cmdk').hidden || !$('#panel').hidden || !$('#ov').hidden || !$('#onb').hidden || !$('#studio').hidden || !$('#inst').hidden
 async function showOverlay(el) {
   closePop(true)
   for (const o of document.querySelectorAll('.overlay')) if (o !== el) { o.classList.remove('in'); o.hidden = true }
@@ -1535,7 +1674,6 @@ $('#home').addEventListener('click', e => {
     return list.hidden = !list.hidden
   }
   if (!e.target.closest('#hengs')) $('#hengs').hidden = true
-  if (e.target.closest('#hcustom')) openPanel('background')
 })
 // on the home page, just start typing to search
 document.addEventListener('keydown', e => {
@@ -1543,7 +1681,7 @@ document.addEventListener('keydown', e => {
   if (e.target.closest?.('input,textarea,[contenteditable]')) return
   $('#hq').focus()
 })
-document.querySelectorAll('.overlay').forEach(o => o.addEventListener('mousedown', e => { if (e.target === o) hideOverlay(o) }))
+document.querySelectorAll('.overlay').forEach(o => o.addEventListener('mousedown', e => { if (e.target === o && o.id !== 'studio') hideOverlay(o) })) // the Studio keeps your edits
 
 // ---------------- find in page ----------------
 let findT
@@ -1599,6 +1737,7 @@ const SECTIONS = {
     const group = f => `<div class="themes">${THEMES.filter(f).map(card).join('')}</div>`
     return `<h2>Appearance</h2>
       <div class="themes-head"><h3>Theme for “${esc(sp.name)}”</h3><button class="btn sm" data-act="theme-all">Use for every space</button></div>
+      <h4>Yours</h4><div class="themes">${S.themes.map(t => card(userTheme(t))).join('')}<button class="tcard" data-act="studio"><span class="tprev new">${svg('plus')}</span><span class="tname">New theme…</span></button></div>
       <h4>Apple &amp; Liquid Glass</h4>${group(t => t.apple || t.glass)}
       <h4>Light</h4>${group(t => !t.dark && !t.apple && !t.glass)}
       <h4>Dark</h4>${group(t => t.dark && !t.apple && !t.glass)}
@@ -1618,8 +1757,9 @@ const SECTIONS = {
     return `<h2>Background</h2>
       <h3>Wallpaper</h3>
       <p class="note" style="margin-top:0">The photo on the home page. The window around it can take its colors (below).</p>
-      <h4>Landscapes</h4><div class="walls">${WALLS.filter(w => !w[2]).map(wcard).join('')}</div>
-      <h4>Abstract</h4><div class="walls">${WALLS.filter(w => w[2] === 'a').map(wcard).join('')}</div>
+      <h4>Waves</h4><div class="walls">${WALLS.filter(w => w[2] === 'r').map(wcard).join('')}</div>
+      <h4>Liquid metal</h4><div class="walls">${WALLS.filter(w => w[2] === 'm').map(wcard).join('')}</div>
+      <h4>Photos</h4><div class="walls">${WALLS.filter(w => !w[2]).map(wcard).join('')}</div>
       <h4>Yours</h4><div class="walls"><button class="wcard${st.wall === 'custom' ? ' on' : ''}" data-act="wall-pick">${hasCustomWall() ? `<img src="${wallThumb('custom')}" alt="">` : `<span class="ph">${svg('plus')}</span>`}<span>${hasCustomWall() ? 'Your photo (change)' : 'Choose photo…'}</span></button></div>
       <h3>Window</h3>
       ${field('Window background', 'Behind the sidebar and toolbar. Blurred photo is like macOS tinting windows from your wallpaper.',
@@ -1685,6 +1825,23 @@ const SECTIONS = {
     ['Alt ← / →', 'Back / forward'], ['Ctrl Shift C', 'Copy URL'], ['Ctrl J', 'Downloads'], ['Ctrl ,', 'Settings'], ['F12', 'Developer tools'],
     ['Ctrl + / − / 0', 'Zoom in / out / reset'], ['Ctrl P', 'Print'],
   ].map(([k, d]) => `<div class="field"><span>${d}</span><kbd>${k}</kbd></div>`).join('')}`,
+  themes: () => {
+    const cur = space().theme
+    const tRow = t => `<div class="pkg"><span class="sw" style="--a:${t.colors.c1};--b:${t.colors.c2}"></span><div class="meta"><b>${esc(t.name)}</b><small>${GalliumFormat.STYLES[t.style]} ${t.dark ? 'dark' : 'light'}${t.author ? ' · by ' + esc(t.author) : ''}</small></div>
+      <button class="btn sm${cur === t.id ? ' on' : ''}" data-act="ut-use" data-id="${t.id}">${cur === t.id ? 'In use' : 'Use'}</button><button class="btn sm" data-act="ut-edit" data-id="${t.id}">Edit</button>
+      <button class="btn sm" data-act="ut-export" data-id="${t.id}">Export</button><button class="btn sm danger" data-act="ut-del" data-id="${t.id}">Delete</button></div>`
+    const mRow = m => `<div class="pkg"><span class="sw" style="--a:#8e8e93;--b:#3a3a3c">${svg('brush')}</span><div class="meta"><b>${esc(m.name)}</b><small>Mod${m.author ? ' · by ' + esc(m.author) : ''}${m.description ? ' · ' + esc(m.description) : ''}</small></div>
+      <label class="switch"><input type="checkbox" data-mod="${m.id}"${m.on ? ' checked' : ''}><i></i></label>
+      <button class="btn sm" data-act="mod-export" data-id="${m.id}">Export</button><button class="btn sm danger" data-act="mod-del" data-id="${m.id}">Remove</button></div>`
+    return `<h2>Themes &amp; Mods</h2>
+      <p class="lead">Make your own theme in the Theme Studio, or install themes and mods other people share. Before anything is installed, Gallium checks the file and scans it with Microsoft Defender.</p>
+      <div class="custom"><button class="btn pri" data-act="studio">Create a theme</button><button class="btn" data-act="pkg-import">Import a file…</button><button class="btn" data-act="pkg-browse">Browse themes &amp; mods</button></div>
+      <h3>Your themes</h3>${S.themes.length ? `<div class="pkgs">${S.themes.map(tRow).join('')}</div>` : '<p class="note" style="margin-top:4px">No themes yet. Create one, or get one from the website.</p>'}
+      <h3>Mods</h3>
+      ${field('Use mods', 'Turns every mod off at once. Works anywhere with Ctrl Shift M, in case a mod breaks something.', `<label class="switch"><input type="checkbox" data-act="mods-all"${S.modsOff ? '' : ' checked'}><i></i></label>`)}
+      ${S.mods.length ? `<div class="pkgs">${S.mods.map(mRow).join('')}</div>` : `<p class="note" style="margin-top:8px">No mods installed. Mods only restyle Gallium: they can't run code or go online.</p>`}
+      <div class="dropzone">Tip: drag a <b>.gtheme</b> or <b>.gmod</b> file onto Gallium to install it.</div>`
+  },
   about: () => {
     const chrome = navigator.userAgent.match(/Chrome\/([\d.]+)/)?.[1] || '?'
     return `<div class="about">${LOGO}<div><h2>Gallium</h2><p style="opacity:.55">Version 1.0.0</p></div></div>
@@ -1721,6 +1878,8 @@ $('#psec').addEventListener('input', onSetting)
 $('#psec').addEventListener('change', e => {
   if (e.target.type === 'range' || e.target.type === 'color') return showSec(curSec) // refresh selection marks
   onSetting(e)
+  if (e.target.dataset.mod) { const m = S.mods.find(x => x.id === e.target.dataset.mod); m.on = e.target.checked; save(); applyMods() }
+  if (e.target.dataset.act === 'mods-all') { S.modsOff = !e.target.checked; save(); applyMods() }
   if (e.target.dataset.act === 'ext-toggle') invoke('ext_set', { id: e.target.dataset.id, action: e.target.checked ? 'enable' : 'disable' }).then(() => showSec('extensions'))
 })
 $('#psec').addEventListener('click', async e => {
@@ -1728,7 +1887,7 @@ $('#psec').addEventListener('click', async e => {
   if (!b) return
   const d = S.downloads[+b.dataset.n]
   const acts = {
-    theme: () => { if (S.settings.winbg !== 'theme') { S.settings.winbg = 'theme'; toast('Window now uses the theme colors', 'check') } setTheme(b.dataset.id) },
+    theme: () => { const u = S.themes.find(t => t.id === b.dataset.id); if (u) return useTheme(u).then(() => showSec(curSec)); if (S.settings.winbg !== 'theme') { S.settings.winbg = 'theme'; toast('Window now uses the theme colors', 'check') } setTheme(b.dataset.id) },
     'accent-reset': () => { S.settings.accent = ''; save(); applyTheme(); showSec(curSec) },
     'solid-auto': () => { S.settings.solid = ''; S.settings.winbg = 'solid'; save(); applyTheme(); showSec(curSec) },
     'theme-custom': () => {
@@ -1751,6 +1910,25 @@ $('#psec').addEventListener('click', async e => {
     'dl-show': () => invoke('reveal', { path: d.path, open: false }).catch(err => toast(String(err), 'alert')),
     wall: () => { S.settings.wall = b.dataset.id; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur'; save(); applyTheme(); showSec(curSec) },
     'wall-pick': pickWall,
+    studio: () => { hideOverlay($('#panel'), false); studioOpen() },
+    'pkg-import': pickPkg,
+    'pkg-browse': () => { hideOverlay($('#panel'), false); open('https://idkiforgatit.github.io/gallium/themes.html') },
+    'ut-use': () => useTheme(S.themes.find(t => t.id === b.dataset.id)).then(() => showSec('themes')),
+    'ut-edit': () => { hideOverlay($('#panel'), false); studioOpen(S.themes.find(t => t.id === b.dataset.id)) },
+    'ut-export': () => exportTheme(S.themes.find(t => t.id === b.dataset.id)),
+    'ut-del': () => {
+      const i = S.themes.findIndex(t => t.id === b.dataset.id), t = S.themes[i]
+      S.themes.splice(i, 1)
+      for (const s of S.spaces) if (s.theme === t.id) s.theme = 'glass'
+      save(); applyTheme(); render(); showSec('themes')
+      toast(`Deleted “${t.name}”`, 'trash', { label: 'Undo', run: () => { S.themes.splice(i, 0, t); save(); showSec('themes') } })
+    },
+    'mod-export': () => exportMod(S.mods.find(m => m.id === b.dataset.id)),
+    'mod-del': () => {
+      const i = S.mods.findIndex(m => m.id === b.dataset.id), m = S.mods[i]
+      S.mods.splice(i, 1); save(); applyMods(); showSec('themes')
+      toast(`Removed mod “${m.name}”`, 'trash', { label: 'Undo', run: () => { S.mods.splice(i, 0, m); save(); applyMods(); showSec('themes') } })
+    },
     welcome: () => { hideOverlay($('#panel'), false); ONB.begin() },
     'dl-cancel': () => { d.canceled = true; invoke('download_cancel', { path: d.path }).catch(err => toast(String(err), 'alert')); showSec('downloads') },
     'dl-clear': () => { S.downloads = S.downloads.filter(x => x.state === 'started'); save(); showSec('downloads') },
@@ -1771,7 +1949,7 @@ async function installExt() {
 
 // ---------------- shortcuts (pressed here, or relayed from a page by the backend) ----------------
 const KEYS = new Set(['ctrl+t', 'ctrl+l', 'ctrl+w', 'ctrl+s', 'ctrl+d', 'ctrl+r', 'f5', 'ctrl+shift+c', 'ctrl+shift+t', 'ctrl+tab', 'ctrl+shift+tab',
-  'alt+arrowleft', 'alt+arrowright', 'ctrl+f', 'f12', 'ctrl+shift+i', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a'])
+  'alt+arrowleft', 'alt+arrowright', 'ctrl+f', 'f12', 'ctrl+shift+i', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a', 'ctrl+shift+m'])
 const OPENERS = new Set(['ctrl+t', 'ctrl+l', 'ctrl+,', 'ctrl+j', 'ctrl+shift+a'])
 const combo = e => [e.ctrlKey && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+')
 function shortcut(k) {
@@ -1785,11 +1963,13 @@ function shortcut(k) {
     'ctrl+d': pin, 'ctrl+r': () => act('reload'), f5: () => act('reload'), 'ctrl+shift+c': copy, 'ctrl+shift+t': reopen,
     'ctrl+tab': () => cycle(1), 'ctrl+shift+tab': () => cycle(-1), 'alt+arrowleft': () => act('back'), 'alt+arrowright': () => act('forward'),
     'ctrl+f': openFind, f12: () => act('devtools'), 'ctrl+shift+i': () => act('devtools'),
-    'ctrl+,': () => openPanel('appearance'), 'ctrl+j': () => openPop('dl'), 'ctrl+shift+a': () => openOverview(),
+    'ctrl+,': () => openPanel('appearance'), 'ctrl+j': () => openPop('dl'), 'ctrl+shift+a': () => openOverview(), 'ctrl+shift+m': toggleMods,
   }
   map[k]?.()
 }
 document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !$('#studio').hidden) return studioCancel()
+  if (e.key === 'Escape' && !$('#inst').hidden) return closeInst()
   if (e.key === 'Escape' && overlayOpen()) return hideOverlay(!$('#panel').hidden ? $('#panel') : $('#cmdk'))
   if (e.target.isContentEditable && !e.ctrlKey) return
   const k = combo(e)
@@ -1818,7 +1998,7 @@ T.event.listen('download', ({ payload: d }) => {
   i > -1 ? S.downloads[i] = rec : S.downloads.unshift(rec)
   S.downloads = S.downloads.slice(0, 50)
   if (d.state === 'started') toast(`Downloading ${d.name}`, 'dl')
-  else if (d.state === 'done') { toast(`Downloaded ${d.name}`, 'check'); newDl = true }
+  else if (d.state === 'done') { newDl = true; PKG_RE.test(d.name) ? offerDownload(d) : toast(`Downloaded ${d.name}`, 'check') }
   else toast(rec.canceled ? `Canceled ${d.name}` : `Download failed: ${d.name}`, rec.canceled ? 'check' : 'alert')
   save(); render()
   if (!$('#panel').hidden && curSec === 'downloads') showSec('downloads')
@@ -2432,6 +2612,296 @@ function toast(m, icon, action) {
   clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('show', 'act'), action ? 6000 : 2200)
 }
 
+// ---------------- your themes, mods, Theme Studio and installing .gtheme / .gmod files ----------------
+// Theme pictures live in IndexedDB: they can be several MB and localStorage is too small for that.
+const pics = (() => {
+  const db = new Promise((ok, no) => { const r = indexedDB.open('gallium', 1); r.onupgradeneeded = () => r.result.createObjectStore('pics'); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error) })
+  const tx = (mode, f) => db.then(d => new Promise((ok, no) => { const t = d.transaction('pics', mode), q = f(t.objectStore('pics')); t.oncomplete = () => ok(q.result); t.onerror = () => no(t.error) }))
+  return { get: k => tx('readonly', s => s.get(k)), put: (k, v) => tx('readwrite', s => s.put(v, k)), del: k => tx('readwrite', s => s.delete(k)) }
+})()
+const PKG_RE = /\.(gtheme|gmod)$/i
+const hex2 = n => Math.round(n).toString(16).padStart(2, '0')
+const rgbHex = s => s.startsWith('#') ? s : '#' + s.match(/\d+/g).slice(0, 3).map(hex2).join('')
+const hslHex = (h, s, l) => { s /= 100; l /= 100; const f = n => { const k = (n + h / 30) % 12; return hex2(255 * (l - s * Math.min(l, 1 - l) * Math.max(-1, Math.min(k - 3, 9 - k, 1)))) }; return '#' + f(0) + f(8) + f(4) }
+const wallName = id => WALLS.find(w => w[0] === id)?.[1]
+const checkPkg = (text, ext) => GalliumFormat.check(text, ext, { walls: WALLS.map(w => w[0]), wallName })
+
+// switch to a theme of yours: its colours plus the settings and wallpaper it carries
+async function useTheme(t, all) {
+  for (const s of all ? S.spaces : [space()]) { s.theme = t.id; delete s.custom }
+  if (t.settings) Object.assign(S.settings, t.settings)
+  if (t.wallpaper) { S.settings.wall = t.wallpaper; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur' }
+  save(); applyTheme(); render(); sync()
+}
+function applyMods() {
+  document.querySelectorAll('style[data-mod]').forEach(s => s.remove())
+  if (S.modsOff) return
+  for (const m of S.mods) {
+    if (!m.on) continue
+    // checked again on every start: CSS the checker would block is never applied, whatever is stored
+    if (!GalliumFormat.check(JSON.stringify({ gallium: 1, type: 'mod', name: m.name, css: m.css })).ok) { m.on = false; continue }
+    const st = document.createElement('style'); st.dataset.mod = m.id; st.textContent = m.css; document.head.append(st)
+  }
+}
+function toggleMods() { S.modsOff = !S.modsOff; save(); applyMods(); toast(S.modsOff ? 'All mods are off' : 'Mods are back on', 'check'); if (!$('#panel').hidden && curSec === 'themes') showSec('themes') }
+async function savePkg(pkg, ext) {
+  try {
+    const path = await invoke('pkg_save', { name: pkg.name, ext, text: GalliumFormat.stringify(pkg) })
+    toast(`Saved ${pkg.name}.${ext} to Downloads`, 'check', { label: 'Show', run: () => invoke('reveal', { path, open: false }) })
+  } catch (e) { toast(String(e), 'alert') }
+}
+async function exportTheme(t) {
+  const pkg = { gallium: 1, type: 'theme', name: t.name, author: t.author || '', version: t.version || '1.0', description: t.description || '', style: t.style, dark: !!t.dark, colors: t.colors }
+  if (t.settings) pkg.settings = t.settings
+  const w = t.wallpaper
+  if (w?.startsWith('pic:')) pkg.wallpaper = await pics.get(w.slice(4))
+  else if (w === 'custom') pkg.wallpaper = customWall()
+  else if (w) pkg.wallpaper = w
+  savePkg(pkg, 'gtheme')
+}
+const exportMod = m => savePkg({ gallium: 1, type: 'mod', name: m.name, author: m.author || '', version: m.version || '1.0', description: m.description || '', css: m.css }, 'gmod')
+
+// ---- Theme Studio ----
+let studioPrev = null // what Cancel puts back
+function studioOpen(base) {
+  closeCust()
+  const sp = space(), th = themeOf(sp)
+  studioPrev = { theme: sp.theme, custom: sp.custom, settings: { ...S.settings } }
+  draft = base ? structuredClone(base) : {
+    id: 'u-' + uid(), name: 'My Theme', author: '', version: '1.0', description: '',
+    style: th.glass ? 'glass' : th.apple ? 'apple' : 'gradient', dark: !!th.dark,
+    colors: { c1: rgbHex(th.c[0]), c2: rgbHex(th.c[1]), ...(th.accent ? { accent: th.accent } : {}) },
+    settings: { font: S.settings.font, radius: S.settings.radius, glass: S.settings.glass },
+  }
+  draft.isNew = !base
+  sp.theme = draft.id
+  studioApply(); studioRender()
+  showOverlay($('#studio'))
+}
+function studioApply() {
+  Object.assign(S.settings, draft.settings)
+  if (draft.wallpaper) S.settings.wall = draft.wallpaper
+  applyTheme(); render()
+  const p = $('#studio .spv')
+  if (p) { p.className = `spv ${draft.style}${draft.dark ? ' d' : ''}`; p.style.cssText = `--a:${draft.colors.c1};--b:${draft.colors.c2};--acc:${draft.colors.accent || 'var(--accent)'}` }
+}
+function studioRender() {
+  const d = draft, st = d.settings
+  const seg = (key, opts) => `<div class="seg2">${opts.map(([v, n]) => `<button class="${String(d[key]) === String(v) ? 'on' : ''}" data-seg="${key}" data-v="${v}">${n}</button>`).join('')}</div>`
+  const wb = (id, inner, style = '') => `<button class="${(d.wallpaper || '') === id ? 'on' : ''}" data-wall="${id}" style="${style}">${inner}</button>`
+  $('#studio .studio').innerHTML = `
+    <header><h2>Theme Studio</h2><button class="icon press" data-s="cancel" title="Close (Esc)">${svg('x')}</button></header>
+    <div class="sbody">
+      <div class="spv"><div class="sb"><i></i><i></i><i></i><i></i></div><div class="pg"><b></b><b></b><span></span></div></div>
+      <label class="f">Name</label><input type="text" data-t="name" value="${esc(d.name)}" maxlength="60" spellcheck="false">
+      <label class="f">Style</label>${seg('style', [['gradient', 'Gradient'], ['apple', 'Apple'], ['glass', 'Liquid Glass']])}
+      <label class="f">Appearance</label>${seg('dark', [[false, 'Light'], [true, 'Dark']])}
+      <label class="f">Colours</label>
+      <div class="swatches"><input type="color" data-c="c1" value="${d.colors.c1}" title="First colour"><input type="color" data-c="c2" value="${d.colors.c2}" title="Second colour">
+        <button class="btn sm" data-s="fromwall">From wallpaper</button><button class="btn sm" data-s="shuffle">Shuffle</button></div>
+      <label class="f">Accent</label>
+      <div class="swatches"><input type="color" data-c="accent" value="${d.colors.accent || rgbHex(getComputedStyle(body).getPropertyValue('--accent').trim() || '#0a84ff')}" title="Accent colour">
+        <button class="btn sm" data-s="accent-auto">${d.colors.accent ? 'Use automatic' : 'Automatic'}</button></div>
+      <label class="f">Font</label><select data-st="font">${Object.entries(GalliumFormat.FONTS).map(([v, n]) => `<option value="${v}"${st.font === v ? ' selected' : ''}>${n}</option>`).join('')}</select>
+      <label class="f">Corner roundness</label><input type="range" data-st="radius" min="0.3" max="1.8" step="0.05" value="${st.radius}">
+      ${d.style === 'glass' ? `<label class="f">Glass tint</label><input type="range" data-st="glass" min="0" max="85" step="1" value="${st.glass}">` : ''}
+      <label class="f">Wallpaper</label>
+      <div class="walls2">${wb('', 'Keep yours')}${WALLS.map(([id, n]) => wb(id, '', `background-image:url('${wallThumb(id)}')" title="${esc(n)}`)).join('')}${wb('pic:draft', d.wallpaper === 'pic:draft' ? 'Your photo' : svg('plus') + '<span>Photo…</span>')}</div>
+      <label class="f">Author (optional)</label><input type="text" data-t="author" value="${esc(d.author || '')}" maxlength="60" spellcheck="false" placeholder="Shown when you share it">
+    </div>
+    <footer><button class="btn" data-s="export">${svg('dl')}Export</button><span class="grow"></span><button class="btn" data-s="cancel">Cancel</button><button class="btn pri" data-s="save">Save theme</button></footer>`
+  studioApply()
+}
+async function studioSave() {
+  const t = { ...draft, name: draft.name.trim() || 'My Theme' }
+  delete t.isNew
+  if (t.wallpaper === 'pic:draft') { await pics.put(t.id, await pics.get('draft')); wallMem.delete('pic:' + t.id); t.wallpaper = 'pic:' + t.id }
+  const i = S.themes.findIndex(x => x.id === t.id)
+  i > -1 ? S.themes[i] = t : S.themes.push(t)
+  draft = studioPrev = null
+  hideOverlay($('#studio'))
+  await useTheme(t)
+  toast(`Saved “${t.name}”`, 'check')
+  if (!$('#panel').hidden) showSec(curSec)
+}
+function studioCancel() {
+  if (studioPrev) {
+    const sp = space()
+    sp.theme = studioPrev.theme
+    if (studioPrev.custom) sp.custom = studioPrev.custom
+    S.settings = studioPrev.settings
+  }
+  draft = studioPrev = null
+  wallMem.delete('pic:draft'); pics.del('draft').catch(() => {})
+  applyTheme(); render(); hideOverlay($('#studio'))
+}
+function pickPhoto(done) {
+  const inp = document.createElement('input')
+  inp.type = 'file'; inp.accept = 'image/*'
+  inp.onchange = async () => {
+    const f = inp.files[0]
+    if (!f) return
+    const img = await createImageBitmap(f), s = Math.min(1, 2560 / img.width), c = document.createElement('canvas')
+    c.width = Math.round(img.width * s); c.height = Math.round(img.height * s)
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+    done(c.toDataURL('image/jpeg', .85))
+  }
+  inp.click()
+}
+const sbox = $('#studio')
+sbox.addEventListener('input', e => {
+  const el = e.target, d = draft
+  if (!d) return
+  if (el.dataset.t) d[el.dataset.t] = el.value
+  else if (el.dataset.c) { d.colors[el.dataset.c] = el.value; if (el.dataset.c === 'accent') $('[data-s="accent-auto"]').textContent = 'Use automatic' }
+  else if (el.dataset.st) d.settings[el.dataset.st] = el.type === 'range' ? +el.value : el.value
+  else return
+  if (!el.dataset.t) studioApply()
+})
+sbox.addEventListener('change', e => { if (e.target.dataset.st === 'font') { draft.settings.font = e.target.value; studioApply() } })
+sbox.addEventListener('click', e => {
+  const b = e.target.closest('button'), d = draft
+  if (!b || !d) return
+  const k = b.dataset
+  if (k.seg) { d[k.seg] = k.seg === 'dark' ? k.v === 'true' : k.v; return studioRender() }
+  if (k.wall !== undefined) {
+    if (k.wall !== 'pic:draft') { d.wallpaper = k.wall || undefined; if (!k.wall) S.settings.wall = studioPrev.settings.wall; return studioRender() }
+    return pickPhoto(async url => { await pics.put('draft', url); wallMem.delete('pic:draft'); wallKey = ''; d.wallpaper = 'pic:draft'; studioRender() })
+  }
+  const acts = {
+    cancel: studioCancel, save: studioSave, export: () => exportTheme({ ...d, wallpaper: d.wallpaper }),
+    'accent-auto': () => { delete d.colors.accent; studioRender() },
+    fromwall: () => {
+      const w = wallMem.get(wallKey)
+      if (!w) return toast('No wallpaper colours yet', 'alert')
+      d.colors.c1 = rgbHex(softColor(w.pal[0], d.dark)); d.colors.c2 = rgbHex(softColor(w.pal[2], d.dark)); studioRender()
+    },
+    shuffle: () => {
+      const h = Math.random() * 360, h2 = h + 30 + Math.random() * 60
+      d.colors.c1 = d.dark ? hslHex(h, 45, 16) : hslHex(h, 80, 86); d.colors.c2 = d.dark ? hslHex(h2, 50, 24) : hslHex(h2, 75, 88)
+      if (d.colors.accent) d.colors.accent = hslHex(h, 85, d.dark ? 65 : 50)
+      studioRender()
+    },
+  }
+  acts[k.s]?.()
+})
+
+// ---- installing a .gtheme / .gmod: check it, scan it, show what it does, then ask ----
+let inst = null
+const sha256 = async text => [...new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)))].map(hex2).join('')
+async function installFile(text, fileName, from) {
+  closeCust()
+  const ext = (fileName.match(PKG_RE) || [])[1] || ''
+  const my = inst = { r: checkPkg(text, ext), text, fileName, from, av: 'wait', hash: '' }
+  renderInst()
+  await showOverlay($('#inst'))
+  sha256(text).then(h => { my.hash = h; if (inst === my) renderInst() })
+  invoke('av_scan', { text }).then(v => my.av = v, () => my.av = 'unavailable').then(() => { if (inst === my) renderInst() })
+}
+function renderInst() {
+  const { r, av, hash, fileName, from } = inst, p = r.pkg, mod = r.kind === 'mod'
+  const list = mod ? S.mods : S.themes, old = p && list.find(x => x.name === p.name && x.author === p.author)
+  const row = (cls, title, text, items) => `<div class="chk ${cls}"><span>${cls === 'pass' ? svg('check') : cls === 'fail' ? svg('x') : cls === 'warn' ? '!' : cls === 'info' ? 'i' : ''}</span><div><b>${title}</b>${text ? `<small>${text}</small>` : ''}${items?.length ? `<ul>${items.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div></div>`
+  const scan = {
+    wait: () => row('wait', 'Scanning with Microsoft Defender…'),
+    clean: () => row('pass', 'Microsoft Defender: no threats found', 'The exact contents of this file were scanned on this PC.'),
+    threat: () => row('fail', 'Microsoft Defender found a threat', 'Gallium won\'t install this file. Delete it from your computer.'),
+    unavailable: () => row('warn', 'Virus scan unavailable', 'Microsoft Defender isn\'t available on this PC, so Gallium couldn\'t scan the file. Your own antivirus may still check it.'),
+  }[av]()
+  const blocked = !r.ok || av === 'threat', waiting = av === 'wait'
+  $('#inst .instbox').innerHTML = `
+    <div class="ihead"><div class="ibadge" style="${p?.colors ? `--a:${p.colors.c1};--b:${p.colors.c2}` : '--a:#8e8e93;--b:#3a3a3c'}">${svg(mod ? 'brush' : r.ok ? 'palette' : 'alert')}</div>
+      <div><h2>${esc(p?.name || fileName || 'Unknown file')}</h2><div class="by">${r.kind ? (mod ? 'Mod' : 'Theme') : 'Not a Gallium file'}${p ? ` · by ${esc(p.author)} · version ${esc(p.version)}` : ''}${from ? ` · ${esc(from)}` : ''}</div></div></div>
+    ${p?.description ? `<p class="desc">${esc(p.description)}</p>` : ''}
+    ${blocked ? `<div class="warnbox red"><b>This file can't be installed.</b> ${av === 'threat' ? 'It was flagged as dangerous.' : 'It isn\'t a valid Gallium theme or mod, or it tries to do something mods aren\'t allowed to do.'}</div>`
+      : mod ? `<div class="warnbox"><b>Only install mods from people you trust.</b> A mod restyles Gallium. It can't run code, read your tabs or go online, but it can change how things look, for example hide or imitate parts of the address bar. If anything breaks, press <kbd>Ctrl Shift M</kbd> to turn all mods off.</div>`
+      : `<div class="warnbox info">Themes only hold colours, a few appearance settings and an optional picture. They can't change how Gallium works.</div>`}
+    <div class="checks">
+      ${r.ok ? row('pass', 'File check passed', 'Gallium read every field and kept only what it understands.', r.changes) : row('fail', 'File check failed', '', r.errors)}
+      ${r.warnings.length ? row('warn', 'Worth knowing', '', r.warnings) : ''}
+      ${scan}
+      ${hash ? row('info', 'Fingerprint (SHA-256)', `<span class="hash">${hash}</span><a data-vt="${hash}">Look it up on VirusTotal</a>`) : ''}
+    </div>
+    <div class="ifoot"><small>${old && r.ok ? `Replaces the installed “${esc(old.name)}”` : ''}</small><span class="grow"></span>
+      <button class="btn" data-i-act="cancel">${blocked ? 'Close' : 'Cancel'}</button>
+      ${blocked ? '' : `<button class="btn pri" data-i-act="install"${waiting ? ' disabled' : ''}>${waiting ? 'Scanning…' : old ? 'Update' : mod ? 'Install mod' : 'Install theme'}</button>`}</div>`
+}
+const closeInst = () => { inst = null; hideOverlay($('#inst')) }
+async function doInstall() {
+  const { r } = inst, p = r.pkg
+  if (r.kind === 'theme') {
+    const old = S.themes.find(x => x.name === p.name && x.author === p.author)
+    const t = { id: old?.id || 'u-' + uid(), name: p.name, author: p.author, version: p.version, description: p.description, style: p.style, dark: p.dark, colors: p.colors, ...(p.settings ? { settings: p.settings } : {}) }
+    if (p.wallpaper?.startsWith('data:')) { await pics.put(t.id, p.wallpaper); wallMem.delete('pic:' + t.id); if (wallKey === 'pic:' + t.id) wallKey = ''; t.wallpaper = 'pic:' + t.id }
+    else if (p.wallpaper) t.wallpaper = p.wallpaper
+    old ? S.themes[S.themes.indexOf(old)] = t : S.themes.push(t)
+    const before = { theme: space().theme, settings: { ...S.settings } }
+    closeInst(); await useTheme(t)
+    toast(`Installed “${t.name}”`, 'check', { label: 'Undo', run: () => { space().theme = before.theme; S.settings = before.settings; save(); applyTheme(); render() } })
+  } else {
+    const old = S.mods.find(x => x.name === p.name && x.author === p.author)
+    const m = { id: old?.id || 'm-' + uid(), name: p.name, author: p.author, version: p.version, description: p.description, css: p.css, on: true }
+    old ? S.mods[S.mods.indexOf(old)] = m : S.mods.push(m)
+    if (S.modsOff) S.modsOff = false
+    save(); applyMods(); closeInst()
+    toast(`Installed mod “${m.name}”`, 'check', { label: 'Turn off', run: () => { m.on = false; save(); applyMods() } })
+  }
+  if (!$('#panel').hidden && curSec === 'themes') showSec('themes')
+}
+$('#inst').addEventListener('click', e => {
+  const b = e.target.closest('[data-i-act],[data-vt]')
+  if (!b) return
+  if (b.dataset.vt) { closeInst(); return open('https://www.virustotal.com/gui/file/' + b.dataset.vt) }
+  b.dataset.iAct === 'install' ? doInstall() : closeInst()
+})
+function pickPkg() {
+  const inp = document.createElement('input')
+  inp.type = 'file'; inp.accept = '.gtheme,.gmod'
+  inp.onchange = async () => { const f = inp.files[0]; if (!f) return; if (f.size > 8 << 20) return toast('That file is too large', 'alert'); installFile(await f.text(), f.name) }
+  inp.click()
+}
+// drag a .gtheme / .gmod onto the window to install it
+let fileDrag = 0
+const hasFiles = e => e.dataTransfer?.types.includes('Files')
+addEventListener('dragenter', e => { if (hasFiles(e)) { fileDrag++; body.classList.add('filedrag') } })
+addEventListener('dragleave', e => { if (hasFiles(e) && --fileDrag <= 0) { fileDrag = 0; body.classList.remove('filedrag') } })
+addEventListener('dragover', e => { if (hasFiles(e)) e.preventDefault() })
+addEventListener('drop', async e => {
+  if (!hasFiles(e)) return
+  e.preventDefault(); fileDrag = 0; body.classList.remove('filedrag')
+  const f = [...e.dataTransfer.files].find(f => PKG_RE.test(f.name))
+  if (!f) return toast('Drop a .gtheme or .gmod file to install it', 'alert')
+  if (f.size > 8 << 20) return toast('That file is too large', 'alert')
+  installFile(await f.text(), f.name)
+})
+// a theme or mod downloaded in Gallium (for example from the website) opens straight into the install sheet
+async function offerDownload(d) {
+  try { installFile(await invoke('pkg_read', { path: d.path }), d.name, 'downloaded') } catch (e) { toast(String(e), 'alert') }
+}
+
+// ---- Customize (home, bottom right) ----
+function renderCust() {
+  const st = S.settings, cur = space().theme
+  const looks = [...S.themes.map(userTheme), ...['glass', 'glass-dark', 'apple', 'apple-dark', 'lavender', 'midnight'].map(id => THEMES.find(t => t.id === id))]
+  $('#cust').innerHTML = `<h5>Wallpaper</h5>
+    <div class="strip">${WALLS.map(([id, n]) => `<button class="${st.wall === id ? 'on' : ''}" data-cw="${id}" title="${esc(n)}" style="background-image:url('${wallThumb(id)}')"></button>`).join('')}</div>
+    <h5>Look</h5><div class="chips">${looks.map(t => `<button class="chip${cur === t.id ? ' on' : ''}" data-ct="${t.id}" style="--a:${t.c[0]};--b:${t.c[1]}"><i></i>${esc(t.name)}</button>`).join('')}</div>
+    <div class="acts"><button class="btn pri" data-ca="studio">${svg('wand')}Theme Studio</button><button class="btn" data-ca="more">${svg('gear')}All settings</button></div>`
+}
+const closeCust = () => { $('#cust').classList.remove('on'); $('#hcustom').classList.remove('on') }
+$('#hcustom').onclick = () => { if ($('#cust').classList.contains('on')) return closeCust(); renderCust(); $('#cust').classList.add('on'); $('#hcustom').classList.add('on') }
+$('#cust').addEventListener('click', e => {
+  const b = e.target.closest('button')
+  if (!b) return
+  const k = b.dataset
+  if (k.cw) { S.settings.wall = k.cw; if (S.settings.winbg === 'theme') S.settings.winbg = 'blur'; save(); applyTheme(); renderCust() }
+  else if (k.ct) { const u = S.themes.find(t => t.id === k.ct); (u ? useTheme(u) : (setTheme(k.ct), Promise.resolve())).then(renderCust) }
+  else if (k.ca === 'studio') studioOpen()
+  else if (k.ca === 'more') { closeCust(); openPanel('appearance') }
+})
+document.addEventListener('mousedown', e => { if ($('#cust').classList.contains('on') && !e.target.closest('#cust,#hcustom')) closeCust() })
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('#cust').classList.contains('on')) { e.stopImmediatePropagation(); closeCust() } }, true)
+
 // ---------------- sounds: synthesized with Web Audio (no files), through a generated reverb ----------------
 const SND = (() => {
   let ctx, out, verb
@@ -2599,7 +3069,7 @@ void main(){
     const id = S.settings.wall
     if (texFor === id) return
     try {
-      const img = new Image(); img.src = (id === 'custom' && customWall()) || `wallpapers/${WALLS.some(w => w[0] === id) ? id : 'moraine'}.jpg`
+      const img = new Image(); img.src = wallMem.get(id)?.url || (await buildWall(id)).url
       await img.decode()
       const c = document.createElement('canvas'); c.width = 1024; c.height = 512
       c.getContext('2d').drawImage(img, 0, 0, 1024, 512)
@@ -2627,7 +3097,7 @@ void main(){
     () => `<h2>Choose your look</h2><p class="osub">Pick a style. You can fine-tune everything later in Settings.</p>
       <div class="ogrid">${LOOKS.map(th => `<button class="tcard${space().theme === th.id ? ' on' : ''}" data-look="${th.id}"><span class="tprev${th.dark ? ' d' : ''}${th.glass ? ' g' : ''}${th.apple ? ' a' : ''}" style="--a:${th.c[0]};--b:${th.c[1]}"><i></i><i></i><i></i></span><span class="tname">${th.name}</span></button>`).join('')}</div>`,
     () => `<h2>Pick a wallpaper</h2><p class="osub">It fills your home screen and tints the whole window.</p>
-      <div class="ogrid">${WALLS.slice(0, 12).map(([id, name]) => `<button class="wcard${S.settings.wall === id ? ' on' : ''}" data-wall="${id}"><img src="${wallThumb(id)}" alt="" loading="lazy"><span>${esc(name)}</span></button>`).join('')}</div>`,
+      <div class="ogrid">${WALLS.map(([id, name]) => `<button class="wcard${S.settings.wall === id ? ' on' : ''}" data-wall="${id}"><img src="${wallThumb(id)}" alt="" loading="lazy"><span>${esc(name)}</span></button>`).join('')}</div>`,
     () => `<h2>Search your way</h2><p class="osub">Choose a search engine and where your tabs live.</p>
       <div class="oh">Search engine</div><div class="opills">${Object.entries(ENGINES).map(([k, [name, , dom]]) => `<button class="opill${S.settings.engine === k ? ' on' : ''}" data-engine="${k}"><img src="${ico('https://' + dom)}" alt="">${name}</button>`).join('')}</div>
       <div class="oh">Layout</div><div class="opills">
@@ -2727,6 +3197,7 @@ void main(){
 // boot: drop tab views left over from a reloaded UI, paint once without animations, then show the window
 body.style.setProperty('--sbw', (S.sbw || 264) + 'px')
 body.classList.toggle('collapsed', !!S.collapsed)
+applyMods()
 invoke('tab_close_all').finally(() => {
   activate(space().active)
   if (!S.onboarded) ONB.begin()

@@ -1,0 +1,16 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Tide",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Bright, airy glass with ocean blues.",
+  "style": "glass",
+  "dark": false,
+  "colors": {
+    "c1": "#dbe8ff",
+    "c2": "#c9dcff",
+    "accent": "#3f7cf2"
+  },
+  "wallpaper": "tide"
+}

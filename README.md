@@ -13,4 +13,10 @@ npm run dev     # run in development
 npm run build   # installer in src-tauri/target/release/bundle
 ```
 
-Not affiliated with The Browser Company. Wallpapers from [Unsplash](https://unsplash.com).
+## Themes and mods
+
+Themes (`.gtheme`) and mods (`.gmod`) are plain JSON files: a theme holds colours, a few settings and an optional picture, a mod holds CSS. Nothing in them ever runs. `src/gformat.js` checks every file (the app, the website and the scan job all use it; `docs/gformat.js` is a copy that `tools/scan.js` keeps in sync). Run its tests with `node tools/gformat.test.js`.
+
+Files in `docs/packages` show up on the [Themes & Mods page](https://idkiforgatit.github.io/gallium/themes.html). The `Scan themes and mods` workflow checks and virus-scans them with ClamAV on every change and weekly, and Gallium scans again with Microsoft Defender before installing. `node tools/make-packages.js` rebuilds the starter set.
+
+Not affiliated with Apple or The Browser Company. The wave and liquid-metal wallpapers are Gallium's own renders; the photos are from [Unsplash](https://unsplash.com).

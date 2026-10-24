@@ -1,0 +1,16 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Sequoia Glass",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Deep Liquid Glass over warm red folds.",
+  "style": "glass",
+  "dark": true,
+  "colors": {
+    "c1": "#3a0f2e",
+    "c2": "#1a0b2e",
+    "accent": "#ff6a3d"
+  },
+  "wallpaper": "sequoia"
+}

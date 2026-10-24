@@ -1,0 +1,16 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Sonoma Mist",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Soft greens, calm as a morning walk.",
+  "style": "gradient",
+  "dark": false,
+  "colors": {
+    "c1": "#dff3e9",
+    "c2": "#cfe9f1",
+    "accent": "#2f8f7b"
+  },
+  "wallpaper": "sonoma"
+}

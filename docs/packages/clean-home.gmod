@@ -1,0 +1,9 @@
+{
+  "gallium": 1,
+  "type": "mod",
+  "name": "Clean Home",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Hides the greeting and recent tabs on the home screen.",
+  "css": "#greet,#hrecent{display:none!important}"
+}

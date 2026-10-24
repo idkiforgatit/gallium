@@ -1,0 +1,16 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Mercury",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Quiet graphite with a liquid metal home.",
+  "style": "apple",
+  "dark": true,
+  "colors": {
+    "c1": "#232326",
+    "c2": "#2c2c30",
+    "accent": "#8e8e93"
+  },
+  "wallpaper": "mercury"
+}

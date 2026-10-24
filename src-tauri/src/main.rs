@@ -20,7 +20,7 @@ use windows::core::{Interface, BOOL, HSTRING, PWSTR};
 // ponytail: a page could fake these too (worst case: it triggers a Gallium shortcut).
 const KEYS_JS: &str = r#"(() => {
   const K = new Set(['ctrl+t','ctrl+l','ctrl+w','ctrl+s','ctrl+d','ctrl+r','f5','ctrl+shift+c','ctrl+shift+t','ctrl+tab',
-    'ctrl+shift+tab','alt+arrowleft','alt+arrowright','ctrl+f','f12','ctrl+shift+i','ctrl+,','ctrl+j','ctrl+shift+a']);
+    'ctrl+shift+tab','alt+arrowleft','alt+arrowright','ctrl+f','f12','ctrl+shift+i','ctrl+,','ctrl+j','ctrl+shift+a','ctrl+shift+m']);
   addEventListener('keydown', e => {
     const k = [e.ctrlKey && 'ctrl', e.altKey && 'alt', e.shiftKey && 'shift', e.key.toLowerCase()].filter(Boolean).join('+');
     if (K.has(k) || /^ctrl\+[1-9]$/.test(k)) { e.preventDefault(); e.stopImmediatePropagation(); window.open('https://gallium.key/' + k); }
@@ -36,8 +36,8 @@ fn is_internal(u: &Url) -> bool {
 
 /// The shortcuts a page may relay (anything else sent to gallium.key is ignored).
 fn is_shortcut(k: &str) -> bool {
-    const K: [&str; 19] = ["ctrl+t", "ctrl+l", "ctrl+w", "ctrl+s", "ctrl+d", "ctrl+r", "f5", "ctrl+shift+c", "ctrl+shift+t", "ctrl+tab",
-        "ctrl+shift+tab", "alt+arrowleft", "alt+arrowright", "ctrl+f", "f12", "ctrl+shift+i", "ctrl+,", "ctrl+j", "ctrl+shift+a"];
+    const K: [&str; 20] = ["ctrl+t", "ctrl+l", "ctrl+w", "ctrl+s", "ctrl+d", "ctrl+r", "f5", "ctrl+shift+c", "ctrl+shift+t", "ctrl+tab",
+        "ctrl+shift+tab", "alt+arrowleft", "alt+arrowright", "ctrl+f", "f12", "ctrl+shift+i", "ctrl+,", "ctrl+j", "ctrl+shift+a", "ctrl+shift+m"];
     K.contains(&k) || matches!(k.as_bytes(), [b'c', b't', b'r', b'l', b'+', b'1'..=b'9'])
 }
 
@@ -985,6 +985,74 @@ fn reveal(path: String, open: bool) -> Result<(), String> {
 }
 
 /// Clears cookies, cache, history and site data for every tab (they share one profile).
+// ---- theme and mod files (.gtheme / .gmod): plain JSON that the UI checks before using ----
+const PKG_EXT: [&str; 2] = ["gtheme", "gmod"];
+fn is_pkg(p: &std::path::Path) -> bool {
+    p.extension().and_then(|e| e.to_str()).is_some_and(|e| PKG_EXT.contains(&e.to_ascii_lowercase().as_str()))
+}
+
+#[tauri::command]
+async fn pkg_read(path: String) -> Result<String, String> {
+    let p = std::path::Path::new(&path);
+    if !is_pkg(p) {
+        return Err("not a Gallium theme or mod file".into());
+    }
+    if std::fs::metadata(p).map_err(|e| e.to_string())?.len() > 8 << 20 {
+        return Err("file is too large".into());
+    }
+    std::fs::read_to_string(p).map_err(|e| e.to_string())
+}
+
+/// Writes an exported theme or mod into the Downloads folder (never overwriting) and returns its path.
+#[tauri::command]
+async fn pkg_save(name: String, ext: String, text: String) -> Result<String, String> {
+    if !PKG_EXT.contains(&ext.as_str()) || text.len() > 8 << 20 {
+        return Err("can't save that file".into());
+    }
+    let stem: String = name.chars().filter(|c| c.is_alphanumeric() || " -_".contains(*c)).take(60).collect();
+    let stem = if stem.trim().is_empty() { "Gallium".to_string() } else { stem.trim().to_string() };
+    let dir = std::env::var_os("USERPROFILE").map(|h| PathBuf::from(h).join("Downloads")).filter(|d| d.is_dir()).ok_or("no Downloads folder")?;
+    let mut p = dir.join(format!("{stem}.{ext}"));
+    for n in 2.. {
+        if !p.exists() {
+            break;
+        }
+        p = dir.join(format!("{stem} ({n}).{ext}"));
+    }
+    std::fs::write(&p, text).map_err(|e| e.to_string())?;
+    Ok(p.to_string_lossy().into())
+}
+
+/// Scans the exact file contents with Microsoft Defender's command-line scanner: "clean", "threat" or "unavailable".
+#[tauri::command]
+async fn av_scan(text: String) -> Result<String, String> {
+    use std::os::windows::process::CommandExt;
+    let exe = PathBuf::from(std::env::var_os("ProgramFiles").unwrap_or_else(|| r"C:\Program Files".into())).join("Windows Defender").join("MpCmdRun.exe");
+    if !exe.is_file() {
+        return Ok("unavailable".into());
+    }
+    let nanos = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0);
+    let f = std::env::temp_dir().join(format!("gallium-scan-{nanos}.tmp"));
+    std::fs::write(&f, &text).map_err(|e| e.to_string())?;
+    std::thread::sleep(std::time::Duration::from_millis(150));
+    if !f.exists() {
+        return Ok("threat".into()); // real-time protection removed it as soon as it was written
+    }
+    let out = std::process::Command::new(&exe)
+        .args(["-Scan", "-ScanType", "3", "-File"])
+        .arg(&f)
+        .arg("-DisableRemediation")
+        .creation_flags(0x0800_0000) // no console window
+        .output();
+    let _ = std::fs::remove_file(&f);
+    Ok(match out.map(|o| o.status.code()) {
+        Ok(Some(0)) => "clean",
+        Ok(Some(2)) => "threat",
+        _ => "unavailable",
+    }
+    .into())
+}
+
 #[tauri::command]
 fn clear_data(app: AppHandle) -> Result<(), String> {
     ui(&app)?.clear_all_browsing_data().map_err(|e| e.to_string())
@@ -1013,7 +1081,7 @@ fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             tab_open, tab_show, ui_focus, tab_nav, tab_do, tab_close, tab_close_all, tab_snap, tab_find,
-            ext_list, ext_set, ext_install, reveal, clear_data, suggest, set_material, download_cancel, menu_pick, ext_popup, ext_popup_close, tab_mute
+            ext_list, ext_set, ext_install, reveal, clear_data, suggest, set_material, download_cancel, menu_pick, ext_popup, ext_popup_close, tab_mute, pkg_read, pkg_save, av_scan
         ])
         .setup(|app| {
             // Panics go to gallium.log (stderr is invisible in release builds).

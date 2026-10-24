@@ -1,0 +1,150 @@
+[
+  {
+    "file": "sequoia-glass.gtheme",
+    "type": "theme",
+    "name": "Sequoia Glass",
+    "author": "Gallium",
+    "description": "Deep Liquid Glass over warm red folds.",
+    "style": "glass",
+    "dark": true,
+    "colors": {
+      "c1": "#3a0f2e",
+      "c2": "#1a0b2e",
+      "accent": "#ff6a3d"
+    },
+    "wallpaper": "sequoia"
+  },
+  {
+    "file": "tide.gtheme",
+    "type": "theme",
+    "name": "Tide",
+    "author": "Gallium",
+    "description": "Bright, airy glass with ocean blues.",
+    "style": "glass",
+    "dark": false,
+    "colors": {
+      "c1": "#dbe8ff",
+      "c2": "#c9dcff",
+      "accent": "#3f7cf2"
+    },
+    "wallpaper": "tide"
+  },
+  {
+    "file": "mercury.gtheme",
+    "type": "theme",
+    "name": "Mercury",
+    "author": "Gallium",
+    "description": "Quiet graphite with a liquid metal home.",
+    "style": "apple",
+    "dark": true,
+    "colors": {
+      "c1": "#232326",
+      "c2": "#2c2c30",
+      "accent": "#8e8e93"
+    },
+    "wallpaper": "mercury"
+  },
+  {
+    "file": "sonoma-mist.gtheme",
+    "type": "theme",
+    "name": "Sonoma Mist",
+    "author": "Gallium",
+    "description": "Soft greens, calm as a morning walk.",
+    "style": "gradient",
+    "dark": false,
+    "colors": {
+      "c1": "#dff3e9",
+      "c2": "#cfe9f1",
+      "accent": "#2f8f7b"
+    },
+    "wallpaper": "sonoma"
+  },
+  {
+    "file": "gold-leaf.gtheme",
+    "type": "theme",
+    "name": "Gold Leaf",
+    "author": "Gallium",
+    "description": "Dark glass with warm gold accents.",
+    "style": "glass",
+    "dark": true,
+    "colors": {
+      "c1": "#1d140b",
+      "c2": "#2e1f12",
+      "accent": "#e8b86a"
+    },
+    "wallpaper": "gold"
+  },
+  {
+    "file": "paper.gtheme",
+    "type": "theme",
+    "name": "Paper",
+    "author": "Gallium",
+    "description": "Warm paper tones and a serif font for reading.",
+    "style": "apple",
+    "dark": false,
+    "colors": {
+      "c1": "#f5f5f2",
+      "c2": "#ecebe6",
+      "accent": "#c2410c"
+    },
+    "wallpaper": null
+  },
+  {
+    "file": "bloom.gtheme",
+    "type": "theme",
+    "name": "Bloom",
+    "author": "Gallium",
+    "description": "Lilac and pink, light and playful.",
+    "style": "gradient",
+    "dark": false,
+    "colors": {
+      "c1": "#f6dcf2",
+      "c2": "#e3d6ff",
+      "accent": "#9b5de5"
+    },
+    "wallpaper": "bloom"
+  },
+  {
+    "file": "nord-glass.gtheme",
+    "type": "theme",
+    "name": "Nord Glass",
+    "author": "Gallium",
+    "description": "The Nord palette as Liquid Glass.",
+    "style": "glass",
+    "dark": true,
+    "colors": {
+      "c1": "#2e3440",
+      "c2": "#3b4252",
+      "accent": "#88c0d0"
+    },
+    "wallpaper": "graphite"
+  },
+  {
+    "file": "compact-sidebar.gmod",
+    "type": "mod",
+    "name": "Compact Sidebar",
+    "author": "Gallium",
+    "description": "Shorter tab rows and smaller favourites, so more fits."
+  },
+  {
+    "file": "clean-home.gmod",
+    "type": "mod",
+    "name": "Clean Home",
+    "author": "Gallium",
+    "description": "Hides the greeting and recent tabs on the home screen."
+  },
+  {
+    "file": "big-clock.gmod",
+    "type": "mod",
+    "name": "Big Clock",
+    "author": "Gallium",
+    "description": "A much larger clock on the home screen."
+  },
+  {
+    "file": "square-corners.gmod",
+    "type": "mod",
+    "name": "Square Corners",
+    "author": "Gallium",
+    "description": "Sharper corners everywhere."
+  }
+]

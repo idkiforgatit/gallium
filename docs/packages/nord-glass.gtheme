@@ -1,0 +1,19 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Nord Glass",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "The Nord palette as Liquid Glass.",
+  "style": "glass",
+  "dark": true,
+  "colors": {
+    "c1": "#2e3440",
+    "c2": "#3b4252",
+    "accent": "#88c0d0"
+  },
+  "settings": {
+    "radius": 1.1
+  },
+  "wallpaper": "graphite"
+}

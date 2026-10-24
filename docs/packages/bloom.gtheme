@@ -1,0 +1,16 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Bloom",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Lilac and pink, light and playful.",
+  "style": "gradient",
+  "dark": false,
+  "colors": {
+    "c1": "#f6dcf2",
+    "c2": "#e3d6ff",
+    "accent": "#9b5de5"
+  },
+  "wallpaper": "bloom"
+}

@@ -1,0 +1,9 @@
+{
+  "gallium": 1,
+  "type": "mod",
+  "name": "Square Corners",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Sharper corners everywhere.",
+  "css": "body{--r:.35!important}"
+}

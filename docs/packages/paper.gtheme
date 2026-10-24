@@ -1,0 +1,19 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Paper",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Warm paper tones and a serif font for reading.",
+  "style": "apple",
+  "dark": false,
+  "colors": {
+    "c1": "#f5f5f2",
+    "c2": "#ecebe6",
+    "accent": "#c2410c"
+  },
+  "settings": {
+    "font": "serif",
+    "radius": 0.8
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "gallium": 1,
+  "type": "mod",
+  "name": "Compact Sidebar",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Shorter tab rows and smaller favourites, so more fits.",
+  "css": "body{--tab-h:30px!important;--fav-h:40px!important}\n.tab{font-size:12.5px}\n#favorites{gap:6px}"
+}

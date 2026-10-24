@@ -1,0 +1,16 @@
+{
+  "gallium": 1,
+  "type": "theme",
+  "name": "Gold Leaf",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "Dark glass with warm gold accents.",
+  "style": "glass",
+  "dark": true,
+  "colors": {
+    "c1": "#1d140b",
+    "c2": "#2e1f12",
+    "accent": "#e8b86a"
+  },
+  "wallpaper": "gold"
+}

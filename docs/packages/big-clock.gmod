@@ -1,0 +1,9 @@
+{
+  "gallium": 1,
+  "type": "mod",
+  "name": "Big Clock",
+  "author": "Gallium",
+  "version": "1.0",
+  "description": "A much larger clock on the home screen.",
+  "css": "#clock{font-size:clamp(90px,14vw,180px)!important;letter-spacing:-.05em}"
+}
