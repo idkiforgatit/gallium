@@ -180,22 +180,37 @@ main{flex:1;position:relative;margin:0 var(--gap) var(--gap) 0;border-radius:cal
   --hl:rgba(255,255,255,.14)}
 #home.light{color:#1d1b26;--hl:rgba(0,0,0,.07)}
 #wall{position:absolute;inset:-28px;background:var(--wall,linear-gradient(140deg,var(--c1),var(--c2))) center/cover no-repeat;
-  }
-#wallshade{position:absolute;inset:0;pointer-events:none;background:radial-gradient(130% 100% at 50% 35%,transparent 45%,rgba(0,0,0,.3)),linear-gradient(rgba(0,0,0,.14),transparent 35%)}
+  transform:translate3d(var(--px,0px),var(--py,0px),0) scale(var(--wz,1));transition:transform 1.2s var(--out),filter .7s var(--out);will-change:transform}
+#home:not([hidden]) #wall{animation:wallin 1.8s var(--out)}
+@keyframes wallin{from{transform:scale(1.08);filter:blur(10px) brightness(.85)}}
+/* typing in the search bar: the photo softens behind it, like Spotlight */
+#home:has(.hbox:focus-within) #wall{--wz:1.04;filter:blur(16px) brightness(.82) saturate(1.1)}
+#wallshade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(0,0,0,.32),rgba(0,0,0,.08) 34%,transparent 55%,rgba(0,0,0,.22)),radial-gradient(120% 90% at 50% 40%,transparent 50%,rgba(0,0,0,.28))}
 #home.light #wallshade{background:radial-gradient(130% 100% at 50% 35%,transparent 55%,rgba(255,255,255,.3))}
-.hwrap{position:relative;z-index:1;height:100%;width:min(700px,calc(100% - 48px));margin:0 auto;display:flex;flex-direction:column;align-items:center;padding-top:clamp(36px,13vh,150px)}
-#clock{font:200 clamp(64px,9.5vw,116px)/1 var(--font-d);letter-spacing:-.045em;text-shadow:0 2px 40px rgba(0,0,0,.25);font-variant-numeric:tabular-nums}
-#home.light #clock{text-shadow:0 0 24px rgba(255,255,255,.75),0 0 60px rgba(255,255,255,.5)}
-#greet{margin:12px 0 30px;font-size:16px;font-weight:500;opacity:.88;text-shadow:0 1px 14px rgba(0,0,0,.28)}
+.hwrap{position:relative;z-index:1;height:100%;width:min(700px,calc(100% - 48px));margin:0 auto;display:flex;flex-direction:column;align-items:center;padding-top:clamp(34px,10vh,120px)}
+/* a big, bold lock-screen clock; each digit rolls in when it changes */
+#clock{font:600 clamp(86px,12.5vw,168px)/.95 var(--font-d);letter-spacing:-.04em;color:rgba(255,255,255,.95);margin:0 0 40px;
+  text-shadow:0 6px 40px rgba(0,0,0,.22);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+#clock span{display:inline-block}
+#clock span.colon{opacity:.8;transform:translateY(-.05em);margin:0 -.02em}
+#clock span.tick{animation:tick .7s var(--out)}
+@keyframes tick{from{opacity:0;transform:translateY(-.22em) scale(.96);filter:blur(8px)}}
+#home.light #clock{color:rgba(22,20,32,.88);text-shadow:0 0 40px rgba(255,255,255,.55)}
+#greet{margin:0 0 2px;font:600 19px/1.2 var(--font-d);letter-spacing:-.01em;opacity:.92;text-shadow:0 1px 14px rgba(0,0,0,.3)}
 #home.light #greet{text-shadow:0 0 12px rgba(255,255,255,.9),0 0 30px rgba(255,255,255,.6)}
-.hbox{width:100%;position:relative;z-index:3}
+.hbox{width:min(620px,100%);position:relative;z-index:3}
 /* home search: a frosted Spotlight/Safari-style capsule (light or dark to match the theme) */
-.hsearch{height:58px;border-radius:29px;display:flex;align-items:center;gap:12px;padding:0 8px 0 22px;position:relative;color:#1d1b26;
+.hsearch{height:60px;border-radius:30px;display:flex;align-items:center;gap:12px;padding:0 8px 0 22px;position:relative;color:#1d1b26;
   outline:3px solid transparent;outline-offset:8px;transition:outline-color .35s ease,outline-offset .5s var(--out),box-shadow .4s var(--out)}
-#home .hsearch.lg:not(#_){--tint:rgba(255,255,255,.74);--rimHi:.9;--rimLo:.35;--shade:.2}
-body.dark #home .hsearch.lg:not(#_){--tint:rgba(28,26,34,.72);--rimHi:.35;--rimLo:.08;--shade:.35}
-body.dark .hsearch{color:#f3f1f8}
-#home .hsearch.lg:focus-within:not(#_){--hov:.1;outline-color:color-mix(in srgb,var(--accent) 50%,transparent);outline-offset:2px}
+#home .hsearch.lg:not(#_),body.dark #home .hsearch.lg:not(#_){--tint:linear-gradient(rgba(255,255,255,.2),rgba(255,255,255,.12));--rimHi:.6;--rimLo:.14;--shade:.16;
+  --lgf:blur(28px) saturate(1.9) brightness(1.04);color:#fff}
+body #home.light .hsearch.lg:not(#_):not(#__){--tint:rgba(255,255,255,.6);--rimHi:.9;--rimLo:.35;color:#1d1b26}
+#home .hsearch>span:first-child svg{opacity:.8}
+#home #hq::placeholder{opacity:.72}
+#home #heng{background:rgba(255,255,255,.16)}
+#home #heng:hover{background:rgba(255,255,255,.26)}
+body #home.light #heng{background:rgba(0,0,0,.06)}
+#home .hsearch.lg:focus-within:not(#_){--hov:.08;outline-color:rgba(255,255,255,.35);outline-offset:3px}
 .hsearch>span:first-child svg{width:19px;height:19px;opacity:.55}
 #hq{flex:1;min-width:0;border:0;outline:0;background:none;font-size:17px;color:inherit;letter-spacing:-.01em}
 #hq::placeholder{color:currentColor;opacity:.5}
@@ -216,8 +231,8 @@ body.dark .hsearch{color:#f3f1f8}
 #hengs img{width:16px;height:16px;border-radius:3px}
 /* while searching, everything else on the home page steps back */
 #home :is(#clock,#greet,#hdock,#hrecent){transition:opacity .35s var(--ease),filter .35s var(--ease)}
-#home:has(.hbox:focus-within) :is(#clock,#greet,#hdock,#hrecent){opacity:.3;filter:blur(2px)}
-#hdock{margin-top:42px;display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:12px;border-radius:28px}
+#home:has(.hbox:focus-within) :is(#clock,#greet,#hdock,#hrecent){opacity:.22;filter:blur(3px)}
+#hdock{margin-top:36px;display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:12px;border-radius:28px}
 #hdock:empty{display:none}
 .hfav{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;flex:none;position:relative;background:rgba(255,255,255,.94);
   box-shadow:0 3px 10px rgba(0,0,0,.18),inset 0 0 0 .5px rgba(0,0,0,.06);transition:transform .45s var(--bounce),box-shadow .3s;
@@ -601,7 +616,7 @@ body.glass.collapsed #sidebar{background:var(--ptint);backdrop-filter:blur(30px)
 .ofoot .dots i.on{width:20px;opacity:.8}
 .ofoot .obtn.ghost:disabled{visibility:hidden}
 /* ---- home: Customize is a small glass button that opens a quick panel ---- */
-#hcustom{position:absolute;right:16px;bottom:16px;z-index:3;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:inherit}
+#hcustom{position:absolute;right:18px;bottom:18px;z-index:3;width:42px;height:42px;--tint:rgba(255,255,255,.16);--lgf:blur(20px) saturate(1.8);color:#fff;border-radius:50%;display:grid;place-items:center;color:inherit}
 #hcustom span{display:grid;place-items:center}
 #hcustom svg{display:block;width:19px;height:19px}
 #hcustom.on{background:color-mix(in srgb,var(--accent) 80%,transparent);color:#fff}
@@ -796,8 +811,8 @@ body.filedrag::after{content:'Drop to install a theme or mod';position:fixed;ins
     <div id="home" hidden>
       <div id="wall"></div><div id="wallshade"></div>
       <div class="hwrap">
-        <div id="clock" class="hin"></div>
-        <div id="greet" class="hin" style="--d:.06s"></div>
+        <div id="greet" class="hin"></div>
+        <div id="clock" class="hin" style="--d:.06s"></div>
         <div class="hbox hin" style="--d:.12s">
           <div class="hsearch lg"><span data-i="search"></span><input id="hq" placeholder="Search or enter website name" spellcheck="false" autocomplete="off"><button id="heng" title="Search engine"><img alt=""><span id="hengname"></span><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button></div>
           <div class="slist" id="hsugg"></div>
@@ -1482,6 +1497,21 @@ function render() {
   $('#b-dl').classList.toggle('new', newDl)
   document.title = a ? `${label(a)} - Gallium` : 'Gallium'
 }
+// the clock is one span per character, so only the digits that change roll in
+let clockWas = ''
+function setClock(t) {
+  const el = $('#clock')
+  if (t === clockWas) return
+  if (el.children.length !== t.length) el.innerHTML = [...t].map(c => `<span${c === ':' ? ' class="colon"' : ''}>${c}</span>`).join('')
+  else [...t].forEach((c, i) => { if (c !== clockWas[i]) { const sp = el.children[i]; sp.textContent = c; sp.classList.remove('tick'); void sp.offsetWidth; sp.classList.add('tick') } })
+  clockWas = t
+}
+// the photo drifts a little with the pointer, for depth
+addEventListener('pointermove', e => {
+  if ($('#home').hidden || S.settings.calm) return
+  const w = $('#wall'), x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5
+  w.style.setProperty('--px', (-x * 18).toFixed(1) + 'px'); w.style.setProperty('--py', (-y * 12).toFixed(1) + 'px')
+}, { passive: true })
 function renderHome() {
   const now = new Date(), h = now.getHours(), eng = engine()
   const st = S.settings
@@ -1490,15 +1520,14 @@ function renderHome() {
   $('#hdock').hidden = !st.showDock
   $('#hrecent').hidden = !st.showRecent
   $('#home').classList.toggle('mid', st.homePos === 'center')
-  $('#clock').textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: !st.clock24 }).replace(/\s?[AP]M$/i, '')
-  $('#greet').textContent = now.toLocaleDateString([], { weekday: 'long', month: 'long', day: 'numeric' }) + '  ·  ' +
-    (h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening')
+  setClock(now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: !st.clock24 }).replace(/\s?[AP]M$/i, ''))
+  $('#greet').textContent = now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })
   $('#hengname').textContent = eng[0].replace(' Search', '')
   setIcon($('#heng img'), 'https://' + eng[2])
   syncList($('#hdock'), [...S.favorites, ...space().pinned], makeHfav, updHfav)
   syncList($('#hrecent'), space().today.slice(0, 5), makeChip, updChip)
 }
-setInterval(() => { if (!$('#home').hidden) renderHome() }, 15e3)
+setInterval(() => { if (!$('#home').hidden) renderHome() }, 5e3)
 
 // ---------------- overlays ----------------
 const overlayOpen = () => !$('#cmdk').hidden || !$('#panel').hidden || !$('#ov').hidden || !$('#onb').hidden || !$('#studio').hidden || !$('#inst').hidden
