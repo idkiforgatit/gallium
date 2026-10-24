@@ -3264,8 +3264,15 @@ void main(){
       texFor = id
     } catch {}
   }
+  // Slow graphics (no GPU, old machines): halve the resolution after slow frames; if even that is too slow, skip the 3D
+  let res = 0, slow = 0, lastT = 0
   function frame(now) {
-    const s = Math.min(devicePixelRatio, 2), w = Math.round(innerWidth * s), h = Math.round(innerHeight * s)
+    if (lastT && now - lastT > 120 && ++slow >= 2) {
+      res = (res || Math.min(devicePixelRatio, 2)) / 2; slow = 0
+      if (res < .3) { cv.hidden = true; raf = 0; return }
+    }
+    lastT = now
+    const s = res || Math.min(devicePixelRatio, 2), w = Math.round(innerWidth * s), h = Math.round(innerHeight * s)
     if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; gl.viewport(0, 0, w, h) }
     const t = S.settings.calm ? 6 : (now - start) / 1000
     gl.uniform1f(U.t, t); gl.uniform1f(U.f, fallAt ? (now - fallAt) / 1000 : 0); gl.uniform2f(U.R, w, h); gl.uniform1i(U.env, 0)
@@ -3333,7 +3340,7 @@ void main(){
     invoke('ui_focus').catch(() => {})
     if (gl || setupGL()) {
       await Promise.race([loadEnv(), new Promise(r => setTimeout(r, 1200))])
-      start = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(frame)
+      start = performance.now(); lastT = 0; slow = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(frame)
     } else cv.hidden = true
     SND.ambient()
     ARRIVE.forEach((s, i) => later(s * 1000, () => SND.merge(i)))
