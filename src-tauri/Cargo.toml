@@ -15,6 +15,7 @@ serde_json = "1"
 ureq = "3" # search suggestions + Chrome Web Store downloads
 base64 = "0.22" # extension icons as data: URLs
 zip = { version = "9", default-features = false, features = ["deflate"] } # unpack .crx extensions
+tauri-plugin-single-instance = "2"
 
 # Gallium is Windows-only: it talks to WebView2 (Chromium) directly for snapshots, find and extensions.
 # Same versions Tauri uses, so the COM types line up.

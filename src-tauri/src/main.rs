@@ -1077,11 +1077,34 @@ async fn suggest(q: String) -> Result<String, String> {
     .map_err(|e| e.to_string())?
 }
 
+// Theme and mod files Gallium was opened with (double-clicking a .gtheme or .gmod). The UI collects them once it's ready.
+static PENDING: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+fn pkg_args(args: &[String]) -> Vec<String> {
+    args.iter().skip(1).filter(|a| is_pkg(std::path::Path::new(a)) && std::path::Path::new(a).is_file()).cloned().collect()
+}
+
+#[tauri::command]
+fn pkg_pending() -> Vec<String> {
+    std::mem::take(&mut *PENDING.lock().unwrap())
+}
+
 fn main() {
+    *PENDING.lock().unwrap() = pkg_args(&std::env::args().collect::<Vec<_>>());
     tauri::Builder::default()
+        // Opening a second Gallium (for example by double-clicking a theme file) hands the file to the one already running.
+        .plugin(tauri_plugin_single_instance::init(|app, argv, _cwd| {
+            for path in pkg_args(&argv) {
+                let _ = app.emit("open-pkg", path);
+            }
+            if let Some(w) = app.get_window("main") {
+                let _ = w.unminimize();
+                let _ = w.show();
+                let _ = w.set_focus();
+            }
+        }))
         .invoke_handler(tauri::generate_handler![
             tab_open, tab_show, ui_focus, tab_nav, tab_do, tab_close, tab_close_all, tab_snap, tab_find,
-            ext_list, ext_set, ext_install, reveal, clear_data, suggest, set_material, download_cancel, menu_pick, ext_popup, ext_popup_close, tab_mute, pkg_read, pkg_save, av_scan
+            ext_list, ext_set, ext_install, reveal, clear_data, suggest, set_material, download_cancel, menu_pick, ext_popup, ext_popup_close, tab_mute, pkg_read, pkg_save, av_scan, pkg_pending
         ])
         .setup(|app| {
             // Panics go to gallium.log (stderr is invisible in release builds).

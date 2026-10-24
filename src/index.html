@@ -2877,9 +2877,12 @@ addEventListener('drop', async e => {
   installFile(await f.text(), f.name)
 })
 // a theme or mod downloaded in Gallium (for example from the website) opens straight into the install sheet
-async function offerDownload(d) {
-  try { installFile(await invoke('pkg_read', { path: d.path }), d.name, 'downloaded') } catch (e) { toast(String(e), 'alert') }
+async function openPkgFile(path, from) {
+  try { installFile(await invoke('pkg_read', { path }), path.split(/[\\/]/).pop(), from) } catch (e) { toast(String(e), 'alert') }
 }
+const offerDownload = d => openPkgFile(d.path, 'downloaded')
+// double-clicking a .gtheme / .gmod opens Gallium (or the one already running) straight into the install sheet
+T.event.listen('open-pkg', e => openPkgFile(e.payload, 'opened from a file'))
 
 // ---- Customize (home, bottom right) ----
 function renderCust() {
@@ -3203,6 +3206,7 @@ applyMods()
 invoke('tab_close_all').finally(() => {
   activate(space().active)
   if (!S.onboarded) ONB.begin()
+  else invoke('pkg_pending').then(ps => ps.forEach(p => openPkgFile(p, 'opened from a file'))).catch(() => {})
   autoArchive(); setInterval(autoArchive, 10 * 60e3)
   requestAnimationFrame(() => requestAnimationFrame(() => { body.classList.remove('boot'); appWin.show() }))
 })

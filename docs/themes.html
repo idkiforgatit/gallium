@@ -104,6 +104,58 @@
 .rules{margin-top:20px;text-align:left;font-size:14.5px;color:var(--mute);line-height:1.6}
 .rules b{color:var(--ink)}
 @media (max-width:900px){ .safe,.steps3,.code2{grid-template-columns:1fr} }
+/* install guide */
+.guide{padding:120px 0 40px}
+.ways{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:56px;text-align:left}
+.way{position:relative;background:#fff;border-radius:26px;padding:26px 26px 28px;box-shadow:0 0 0 1px rgba(0,0,0,.06);display:flex;flex-direction:column;gap:16px}
+.way.best{box-shadow:0 0 0 2px var(--blue),0 30px 60px -30px rgba(0,113,227,.45)}
+.way .tag{z-index:2;position:absolute;top:18px;right:18px;font-size:12px;font-weight:600;color:#fff;background:var(--blue);padding:4px 10px;border-radius:999px}
+.way h3{margin:0;font-size:24px}
+.way ol{margin:0;padding:0;list-style:none;counter-reset:s;display:grid;gap:12px}
+.way li{counter-increment:s;display:flex;gap:12px;font-size:15px;line-height:1.45;color:#424245}
+.way li::before{content:counter(s);flex:none;width:24px;height:24px;border-radius:50%;background:var(--soft);color:var(--ink);font:600 12px var(--font);display:grid;place-items:center;margin-top:1px}
+.way li b{color:var(--ink)}
+.way kbd,.after kbd,.faq kbd,.next kbd{font:600 12px var(--font);padding:2px 7px;border-radius:6px;background:var(--soft);box-shadow:inset 0 0 0 1px var(--line);white-space:nowrap}
+/* little pictures of each way */
+.pic{height:150px;border-radius:16px;background:linear-gradient(135deg,#1d1b2e,#3a2a5c);position:relative;overflow:hidden;display:grid;place-items:center}
+.pic.sheet .s{width:74%;border-radius:12px;background:rgba(255,255,255,.95);padding:12px 12px 10px;box-shadow:0 18px 40px -10px rgba(0,0,0,.6);display:grid;gap:7px}
+.pic.sheet .s i{height:7px;border-radius:4px;background:#e5e5ea}
+.pic.sheet .s i:first-child{width:55%;height:9px;background:#1d1d1f}
+.pic.sheet .s .ok{display:flex;gap:6px;align-items:center;font-size:10.5px;color:#16743e;font-weight:600}
+.pic.sheet .s .ok::before{content:"";width:10px;height:10px;border-radius:50%;background:#30d158}
+.pic.sheet .s .b{justify-self:end;font-size:10.5px;font-weight:600;color:#fff;background:var(--blue);padding:4px 10px;border-radius:7px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 6px rgba(0,113,227,.25)}}
+.pic.file .f{width:64px;height:80px;border-radius:8px 18px 8px 8px;background:#fff;box-shadow:0 14px 30px -8px rgba(0,0,0,.6);display:grid;place-items:end center;padding-bottom:10px;font:700 11px var(--font);color:var(--blue)}
+.pic.file .f::before{content:"";position:absolute;width:26px;height:26px;border-radius:50%;background:conic-gradient(#ff375f,#ff9f0a,#30d158,#0a84ff,#bf5af2,#ff375f);transform:translateY(-14px)}
+.pic.file .cur{position:absolute;left:58%;top:58%;width:22px;height:22px;animation:dbl 2.4s ease-in-out infinite}
+.pic.file .cur svg{width:22px;height:22px;fill:#fff;stroke:#1d1d1f;stroke-width:1.4}
+@keyframes dbl{0%,30%{transform:translate(30px,26px)}50%,100%{transform:none}55%,65%{transform:scale(.85)}60%,70%{transform:none}}
+.pic.drag .win{width:70%;height:72%;border-radius:10px;border:2px dashed rgba(255,255,255,.55);display:grid;place-items:center;color:rgba(255,255,255,.75);font-size:11.5px;font-weight:600}
+.pic.drag .f{position:absolute;left:12%;top:16%;width:38px;height:48px;border-radius:6px 12px 6px 6px;background:#fff;box-shadow:0 10px 24px -6px rgba(0,0,0,.6);animation:drag 3s var(--ease) infinite}
+@keyframes drag{0%,15%{transform:none}55%,85%{transform:translate(140%,80%) rotate(-6deg)}100%{transform:none;opacity:0}}
+.after{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px;text-align:left}
+.after>div{background:var(--soft);border-radius:22px;padding:24px 26px}
+.after .h{display:block;font:600 19px var(--display);letter-spacing:-.02em;margin-bottom:8px}
+.after p{margin:0;color:#424245;font-size:15px;line-height:1.55}
+.faq{max-width:780px;margin:56px auto 0;text-align:left}
+.faq details{border-bottom:1px solid var(--line);padding:18px 0}
+.faq summary{cursor:pointer;list-style:none;font:600 17px var(--display);letter-spacing:-.015em;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font-weight:400;font-size:22px;line-height:1;color:var(--mute);transition:transform .3s var(--ease)}
+.faq details[open] summary::after{transform:rotate(45deg)}
+.faq p{margin:10px 0 0;color:#424245;font-size:15px;line-height:1.55}
+/* what to do after "Get" */
+.next{position:fixed;left:50%;bottom:24px;z-index:30;width:min(560px,calc(100vw - 32px));transform:translate(-50%,140%);transition:transform .6s var(--ease);
+  background:rgba(29,29,31,.92);backdrop-filter:blur(20px) saturate(1.6);color:#f5f5f7;border-radius:20px;padding:18px 20px;box-shadow:0 30px 70px -20px rgba(0,0,0,.6);display:flex;gap:14px;align-items:flex-start}
+.next.on{transform:translate(-50%,0)}
+.next .ic{flex:none;width:36px;height:36px;border-radius:10px;background:var(--blue);display:grid;place-items:center}
+.next .ic svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.next .h{display:block;font-size:15px;margin-bottom:3px}
+.next p{margin:0;font-size:13.5px;color:#d2d2d7;line-height:1.5}
+.next p a{color:#64b5ff}
+.next kbd{background:rgba(255,255,255,.12);box-shadow:none;color:#fff}
+.next button{flex:none;border:0;background:none;color:#a1a1a6;font-size:20px;line-height:1;cursor:pointer;padding:2px 4px}
+@media (max-width:900px){ .ways,.after{grid-template-columns:1fr} }
 </style>
 </head>
 <body>
@@ -121,7 +173,7 @@
     <p class="eyebrow rv">Themes &amp; Mods</p>
     <h1 class="rv d1">Make it yours.</h1>
     <p class="lead rv d2">Themes change Gallium's colours, wallpaper and feel. Mods restyle the interface itself. Every file here is checked and virus-scanned before it's listed.</p>
-    <div class="ctas rv d3"><a class="pill lg" href="#gallery">Browse the gallery</a><a class="more" href="#make">Make your own</a></div>
+    <div class="ctas rv d3"><a class="pill lg" href="#gallery">Browse the gallery</a><a class="more" href="#install">How to install</a><a class="more" href="#make">Make your own</a></div>
   </div>
 </header>
 
@@ -131,6 +183,41 @@
   <div class="rv d2"><div class="ic o"><svg viewBox="0 0 24 24"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg></div><b>Your call</b><p>Gallium shows exactly what a file changes and asks before installing. If a mod ever breaks things, press <kbd>Ctrl Shift M</kbd> to turn every mod off.</p></div>
 </div>
 <div class="warnline rv"><div><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/></svg><span><b>Only install mods from people you trust.</b> Mods can't run code, read your tabs or go online, but they can change how things look, for example hide or imitate parts of the address bar. Scans catch known threats, not every trick. Files from anywhere other than this page haven't been reviewed.</span></div></div>
+
+<section id="install" class="guide center">
+  <div class="wrap">
+    <p class="kicker rv">How to install</p>
+    <h2 class="rv d1">One click. Really.</h2>
+    <p class="lead rv d2">Pick whichever way is easiest for you. Every way ends at the same place: Gallium shows what the file does, scans it, and asks before installing.</p>
+    <div class="ways">
+      <div class="way best rv"><span class="tag">Easiest</span>
+        <div class="pic sheet"><div class="s"><i></i><i></i><span class="ok">No threats found</span><span class="b">Install</span></div></div>
+        <h3>In Gallium</h3>
+        <ol><li><span>Open this page <b>in Gallium</b>.</span></li><li><span>Click <b>Get</b> on any theme or mod.</span></li><li><span>The install sheet opens by itself. Click <b>Install</b>.</span></li></ol>
+      </div>
+      <div class="way rv d1">
+        <div class="pic file"><div class="f">.gmod</div><div class="cur"><svg viewBox="0 0 24 24"><path d="M4 2l15 11-7 1-3 7z"/></svg></div></div>
+        <h3>Double-click the file</h3>
+        <ol><li><span>Click <b>Get</b> in any browser to download it.</span></li><li><span><b>Double-click</b> the file in your Downloads.</span></li><li><span>Gallium opens with the install sheet. Click <b>Install</b>.</span></li></ol>
+      </div>
+      <div class="way rv d2">
+        <div class="pic drag"><div class="win">Gallium</div><div class="f"></div></div>
+        <h3>Drag it in</h3>
+        <ol><li><span>Drag the <b>.gtheme</b> or <b>.gmod</b> file onto Gallium's window.</span></li><li><span>Or go to <b>Settings</b> › <b>Themes &amp; Mods</b> › <b>Import a file</b>.</span></li><li><span>Check what it does, then click <b>Install</b>.</span></li></ol>
+      </div>
+    </div>
+    <div class="after">
+      <div class="rv"><strong class="h">After installing a theme</strong><p>It switches on straight away, with an Undo button if you change your mind. Swap looks any time from the <b>Customize</b> button in the corner of the home screen, or in <b>Settings</b> › <b>Themes &amp; Mods</b>.</p></div>
+      <div class="rv d1"><strong class="h">After installing a mod</strong><p>It's on straight away. Turn it on or off, or remove it, in <b>Settings</b> › <b>Themes &amp; Mods</b>. If anything looks wrong, press <kbd>Ctrl Shift M</kbd> to switch every mod off at once.</p></div>
+    </div>
+    <div class="faq">
+      <details class="rv"><summary>Nothing happens when I double-click the file</summary><p>Install the latest Gallium from this site first; its installer teaches Windows to open these files with Gallium. You can also right-click the file, choose <b>Open with</b>, then <b>Gallium</b>. Or just drag the file onto Gallium's window.</p></details>
+      <details class="rv"><summary>Windows says the file might be harmful</summary><p>Windows says that about many downloaded files. Theme and mod files are plain text that Gallium checks and scans with Microsoft Defender before anything is installed. If Gallium's check or scan fails, it won't install the file.</p></details>
+      <details class="rv"><summary>How do I go back to how things looked before?</summary><p>For a theme, click <b>Undo</b> right after installing, or pick another look from the <b>Customize</b> button or <b>Settings</b> › <b>Appearance</b>. For a mod, switch it off or remove it in <b>Settings</b> › <b>Themes &amp; Mods</b>.</p></details>
+      <details class="rv"><summary>Can a mod harm my computer?</summary><p>Mods are only CSS, so they can't run code, read your tabs or reach the internet, and Gallium blocks anything that tries. They can still change how Gallium looks, so only install mods from people you trust.</p></details>
+    </div>
+  </div>
+</section>
 
 <section id="gallery" class="grey" style="margin-top:110px">
   <div class="wrap" style="max-width:1180px">
@@ -197,6 +284,12 @@
     <div class="row"><span>Gallium is an independent open-source project, not affiliated with Apple or The Browser Company.</span><a href="https://github.com/idkiforgatit/gallium">GitHub</a></div>
   </div>
 </footer>
+
+<div class="next" id="next" role="status" aria-live="polite">
+  <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 20h14"/></svg></span>
+  <div><strong class="h" id="next-t">Downloading…</strong><p>Now <b>double-click it</b> in your Downloads, or drag it onto Gallium. Using Gallium? The install sheet opens by itself. <a href="#install">Need help?</a></p></div>
+  <button id="next-x" aria-label="Close">×</button>
+</div>
 
 <script src="gformat.js"></script>
 <script>
@@ -282,6 +375,16 @@ pick.addEventListener('change', () => pick.files[0] && checkFile(pick.files[0]))
 drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over') })
 drop.addEventListener('dragleave', () => drop.classList.remove('over'))
 drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) checkFile(f) })
+
+// after "Get": say what to do next
+const next = document.getElementById('next'); let nextT
+document.getElementById('grid').addEventListener('click', e => {
+  const a = e.target.closest('.acts a.pill'); if (!a || a.closest('.blocked')) return
+  document.getElementById('next-t').textContent = 'Downloading ' + decodeURIComponent(a.getAttribute('href').split('/').pop())
+  next.classList.add('on'); clearTimeout(nextT); nextT = setTimeout(() => next.classList.remove('on'), 12000)
+})
+document.getElementById('next-x').onclick = () => next.classList.remove('on')
+document.querySelector('#next a').onclick = () => next.classList.remove('on')
 </script>
 </body>
 </html>
