@@ -9,7 +9,7 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 # "unstable" = several webviews in one window (one per tab); "devtools" = F12 in release builds.
-tauri = { version = "2", features = ["unstable", "devtools"] }
+tauri = { version = "2", features = ["unstable", "devtools", "macos-private-api"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 ureq = "3" # search suggestions + Chrome Web Store downloads

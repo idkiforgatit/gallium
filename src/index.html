@@ -523,6 +523,63 @@ body.apple.dark main{box-shadow:0 0 0 1px rgba(255,255,255,.08),0 2px 12px rgba(
 body.apple #pnav{background:var(--surface2)}
 body.apple .hsearch{border-radius:calc(12px * var(--r))}
 
+/* ---- macOS: the window is the system's own behind-window material (vibrancy), with Apple's system colours ----
+   Windows draws it with Acrylic, macOS with its real sidebar material, Linux with the blurred wallpaper. */
+body.vibrant{background:linear-gradient(var(--vtint),var(--vtint));--hl:rgba(0,0,0,.06)}
+body.vibrant.dark{--hl:rgba(255,255,255,.08)}
+body.vibrant #winbg{display:none!important}
+body.vibrant.novib #winbg{display:block!important}
+body.vibrant.novib #winbg::before{display:block}
+body.vibrant.novib #winbg::after{background:var(--vtint2)}
+/* a window in the background goes flat, like macOS */
+body.vibrant.inactive{background:var(--vflat)}
+body.vibrant.inactive #winbg{display:none!important}
+body.vibrant .tab.on,body.vibrant .fav.on,body.vibrant #pnav button.on{box-shadow:none}
+body.vibrant :is(.fav,.caption,.cap){box-shadow:none}
+body.vibrant #findbar{box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent)}
+body.vibrant #urlbar{border-radius:calc(7px * var(--r))}
+body.vibrant .fav{border-radius:calc(8px * var(--r))}
+body.vibrant .divider hr{border-top-color:var(--line)}
+body.vibrant main{box-shadow:0 0 0 .5px rgba(0,0,0,.2),0 1px 3px rgba(0,0,0,.06)}
+body.vibrant.dark main{box-shadow:0 0 0 .5px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.07),0 1px 3px rgba(0,0,0,.3)}
+/* menus, popovers, Spotlight-style search and the settings window: Apple's menu material */
+body.vibrant :is(.ctx,.pop,#t-drop,#hsugg,#hengs,#tprev,.box,.sheet,#toast){background:var(--surface);color:var(--ink);
+  -webkit-backdrop-filter:blur(30px) saturate(1.8);backdrop-filter:blur(30px) saturate(1.8);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.2),inset 0 .5px 0 rgba(255,255,255,.6),0 10px 36px rgba(0,0,0,.2)}
+body.vibrant.dark :is(.ctx,.pop,#t-drop,#hsugg,#hengs,#tprev,.box,.sheet,#toast){box-shadow:0 0 0 .5px rgba(0,0,0,.8),inset 0 0 0 .5px rgba(255,255,255,.16),0 10px 36px rgba(0,0,0,.5)}
+body.vibrant .ctx{border-radius:7px;padding:5px}
+body.vibrant .ci{height:22px;border-radius:4px}
+body.vibrant .cs{margin:5px 10px;background:var(--line)}
+body.vibrant :is(.pop,#t-drop,.box,.sheet){border-radius:12px}
+body.vibrant .s,body.vibrant .hl{border-radius:6px}
+body.vibrant .overlay.in{background:rgba(0,0,0,.1)}
+body.vibrant #pnav{background:none;border-right:.5px solid var(--line)}
+body.vibrant #psec{background:var(--vcontent)}
+body.vibrant :is(.btn,.field select){background:var(--surface2);border:0;box-shadow:0 0 0 .5px rgba(0,0,0,.14),0 .5px 1.5px rgba(0,0,0,.12)}
+body.vibrant.dark :is(.btn,.field select){box-shadow:inset 0 .5px 0 rgba(255,255,255,.14),0 0 0 .5px rgba(0,0,0,.6),0 .5px 1.5px rgba(0,0,0,.3)}
+body.vibrant .btn:hover{background:var(--surface2);filter:brightness(.97)}
+body.vibrant .switch i{background:color-mix(in srgb,var(--ink) 11%,transparent);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.12)}
+body.vibrant #toast{border-radius:12px;padding:9px 12px}
+body.vibrant .tact{color:var(--accent);background:var(--soft2)}
+body.vibrant.collapsed #sidebar{background:var(--surface);-webkit-backdrop-filter:blur(30px) saturate(1.8);backdrop-filter:blur(30px) saturate(1.8);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.2),0 18px 50px rgba(0,0,0,.25)}
+/* traffic lights turn grey in a window that's in the background (any look) */
+body.inactive .lights:not(:hover) button{background:color-mix(in srgb,var(--ink) 16%,transparent);box-shadow:none}
+/* previews of the macOS look */
+.tprev.v{background:linear-gradient(140deg,#cdd5e3,#e5dbe7)}
+.tprev.v i{background:rgba(0,0,0,.09)}
+.tprev.v i:first-child{background:rgba(0,0,0,.15)}
+.tprev.v.d{background:linear-gradient(140deg,#2a2e38,#2b2630)}
+.tprev.v.d i{background:rgba(255,255,255,.1)}
+.tprev.v.d i:first-child{background:rgba(255,255,255,.2)}
+.tprev.v.d::after{background:#1e1e1e}
+.spv.macos{background:linear-gradient(135deg,#cdd5e3,#e5dbe7)}
+.spv.macos .sb i{background:rgba(0,0,0,.09)}
+.spv.macos .sb i:first-child{background:rgba(0,0,0,.15)}
+.spv.macos.d{background:linear-gradient(135deg,#2a2e38,#2b2630)}
+.spv.macos.d .sb i{background:rgba(255,255,255,.1)}
+.spv.macos.d .sb i:first-child{background:rgba(255,255,255,.2)}
+
 /* ---- Liquid Glass ----
    Refraction is real: each .lg element gets an SVG lens filter (see LG in the script) that bends
    whatever is behind it. CSS adds the tint, rim highlights and a light that follows the pointer. */
@@ -994,6 +1051,8 @@ const THEMES = [
   { id: 'aurora', name: 'Aurora', c: ['#10213f', '#1b5e5a'], dark: true, accent: '#5eead4' },
   { id: 'synthwave', name: 'Synthwave', c: ['#2b1055', '#7a1f6e'], dark: true, accent: '#ff7ad9' },
   { id: 'graphite', name: 'Graphite', c: ['#232326', '#303034'], dark: true },
+  { id: 'macos', name: 'macOS', c: ['#e8e8ea', '#e2e2e6'], vib: true, accent: '#007aff' },
+  { id: 'macos-dark', name: 'macOS Dark', c: ['#2a2a2c', '#242426'], vib: true, dark: true, accent: '#0a84ff' },
   { id: 'apple', name: 'Apple', c: ['#ececf0', '#e4e4e9'], apple: true, accent: '#0a84ff' },
   { id: 'apple-dark', name: 'Apple Dark', c: ['#2c2c2f', '#232325'], apple: true, dark: true, accent: '#0a84ff' },
   { id: 'glass', name: 'Liquid Glass', c: ['#eef2ff', '#fde9ff'], glass: true, accent: '#0a84ff' },
@@ -1009,7 +1068,7 @@ const FONTS = {
 }
 const lum = hex => { const n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255 }
 // a theme you made or installed, in the same shape as the built-in THEMES
-const userTheme = t => ({ id: t.id, name: t.name, c: [t.colors.c1, t.colors.c2], dark: !!t.dark, glass: t.style === 'glass', apple: t.style === 'apple',
+const userTheme = t => ({ id: t.id, name: t.name, c: [t.colors.c1, t.colors.c2], dark: !!t.dark, glass: t.style === 'glass', apple: t.style === 'apple', vib: t.style === 'macos',
   accent: t.colors.accent || (t.style === 'gradient' ? undefined : '#0a84ff'), user: true })
 function themeOf(s) {
   if (draft && s.theme === draft.id) return userTheme(draft)
@@ -1036,8 +1095,14 @@ function applyTheme() {
     ? { soft: 'rgba(255,255,255,.06)', soft2: 'rgba(255,255,255,.11)', hard: 'rgba(255,255,255,.16)', surface: 'rgba(28,28,40,.62)', surface2: 'rgba(255,255,255,.08)', sel: 'rgba(255,255,255,.1)' }
     : { soft: 'rgba(255,255,255,.22)', soft2: 'rgba(255,255,255,.36)', hard: 'rgba(255,255,255,.58)', surface: 'rgba(255,255,255,.62)', surface2: 'rgba(255,255,255,.5)', sel: 'rgba(255,255,255,.6)' },
     { 'tab-r': '18px', 'frame-r': '18px' })
+  if (th.vib) Object.assign(tok, d
+    ? { ink: 'rgba(255,255,255,.86)', inv: '#1e1e1e', soft: 'rgba(255,255,255,.06)', soft2: 'rgba(255,255,255,.1)', hard: 'rgba(255,255,255,.12)',
+        surface: 'rgba(38,38,40,.8)', surface2: 'rgba(255,255,255,.12)', line: 'rgba(255,255,255,.1)', frame: '#1e1e1e', sel: 'rgba(255,255,255,.12)' }
+    : { ink: 'rgba(0,0,0,.85)', inv: '#fff', soft: 'rgba(0,0,0,.05)', soft2: 'rgba(0,0,0,.08)', hard: 'rgba(0,0,0,.1)',
+        surface: 'rgba(246,246,246,.8)', surface2: '#fff', line: 'rgba(0,0,0,.1)', frame: '#fff', sel: 'rgba(0,0,0,.1)' },
+    { 'tab-r': '6px', 'frame-r': '8px' })
   if (th.accent) tok.accent = th.accent
-  const font = FONTS[st.font === 'auto' ? (th.apple || th.glass ? 'apple' : 'system') : st.font] || FONTS.system
+  const font = FONTS[st.font === 'auto' ? (th.apple || th.glass || th.vib ? 'apple' : 'system') : st.font] || FONTS.system
   const ga = (th.clear ? st.glass / 3 : st.glass) / 100
   Object.assign(tok, { c1: th.c[0], c2: th.c[1], font: font[0], 'font-d': font[1], r: st.radius, gap: st.gap + 'px',
     gtint: d ? `rgba(14,12,24,${ga})` : `rgba(255,255,255,${ga})` })
@@ -1053,16 +1118,25 @@ function applyTheme() {
     tintc: d ? `rgba(12,10,18,${tintA})` : `rgba(255,255,255,${tintA})`, hdim: st.homeDim / 100, hblur: st.homeBlur + 'px',
     cap: d ? 'rgba(255,255,255,.1)' : 'rgba(255,255,255,.55)', cap2: d ? 'rgba(255,255,255,.16)' : 'rgba(255,255,255,.78)', caphi: d ? .16 : .85,
   })
+  if (th.vib) Object.assign(tok, {
+    cap: d ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.05)', cap2: d ? 'rgba(255,255,255,.11)' : 'rgba(0,0,0,.08)', caphi: 0,
+    vtint: d ? 'rgba(30,30,32,.42)' : 'rgba(238,238,240,.42)', vtint2: d ? 'rgba(30,30,32,.72)' : 'rgba(236,236,238,.72)',
+    vflat: d ? '#2b2b2d' : '#e9e9eb', vcontent: d ? 'rgba(30,30,32,.62)' : 'rgba(250,250,250,.7)',
+  })
   body.dataset.winbg = mode
   body.classList.toggle('topbar', st.toolbar !== 'sidebar')
   body.classList.toggle('calm', !!st.calm)
   for (const [k, v] of Object.entries(tok)) body.style.setProperty('--' + k, v)
-  for (const [c, on] of Object.entries({ dark: d, apple: !!th.apple, glass: !!th.glass, grain: st.grain && !th.glass && !th.apple, mac: st.buttons === 'mac', compact: st.density === 'compact' }))
+  for (const [c, on] of Object.entries({ dark: d, apple: !!th.apple, glass: !!th.glass, vibrant: !!th.vib, grain: st.grain && !th.glass && !th.apple && !th.vib, mac: st.buttons === 'mac', compact: st.density === 'compact' }))
     body.classList.toggle(c, on)
   body.classList.toggle('desk', !!th.glass && st.backdrop === 'desktop')
   setWall(); paintPalette()
-  const mat = th.glass && st.backdrop === 'desktop' ? st.material : 'none'
-  if (mat + d !== lastMaterial) { lastMaterial = mat + d; invoke('set_material', { kind: mat, dark: d }).catch(() => {}) }
+  const mat = th.vib ? 'vibrancy' : th.glass && st.backdrop === 'desktop' ? st.material : 'none'
+  if (mat + d !== lastMaterial) {
+    lastMaterial = mat + d
+    // no system window blur (Linux): the macOS look falls back to the blurred wallpaper
+    invoke('set_material', { kind: mat, dark: d }).then(() => body.classList.remove('novib'), () => body.classList.toggle('novib', mat === 'vibrancy'))
+  }
 }
 
 // ---------------- Liquid Glass engine ----------------
@@ -1212,6 +1286,7 @@ const host = u => { try { return new URL(u).hostname.replace(/^www\./, '') } cat
 const ico = u => `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host(u))}&sz=64`
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => `&#${c.charCodeAt(0)};`)
 const mkTab = url => ({ id: uid(), url, title: host(url), seen: Date.now() })
+const MACLOOK = matchMedia('(prefers-color-scheme: dark)').matches ? 'macos-dark' : 'macos'
 const mkSpace = (name, theme) => ({ id: uid(), name, theme, pinned: [], today: [], active: null })
 const label = t => t.name || t.title
 
@@ -1219,7 +1294,7 @@ let S = null
 try { S = JSON.parse(localStorage.getItem('gallium')) } catch {}
 S ||= {
   favorites: ['https://www.google.com', 'https://www.youtube.com', 'https://github.com', 'https://mail.google.com'].map(mkTab),
-  spaces: [mkSpace('Personal', 'lavender'), mkSpace('Work', 'ocean')], cur: 0, collapsed: false, sbw: 264,
+  spaces: [mkSpace('Personal', MACLOOK), mkSpace('Work', MACLOOK)], cur: 0, collapsed: false, sbw: 264,
 }
 S.settings = {
   engine: 'google', suggest: true, archive: 0, radius: 1, gap: 8, density: 'comfy', font: 'auto', buttons: /Mac/.test(navigator.userAgent) ? 'mac' : 'windows',
@@ -1911,14 +1986,14 @@ const NUMERIC = new Set(['archive', 'radius', 'gap', 'glass', 'tint', 'homeDim',
 const SECTIONS = {
   appearance: () => {
     const cur = space().theme, sp = space(), st = S.settings
-    const card = th => `<button class="tcard${th.id === cur ? ' on' : ''}" data-act="theme" data-id="${th.id}"><span class="tprev${th.dark ? ' d' : ''}${th.glass ? ' g' : ''}${th.apple ? ' a' : ''}" style="--a:${th.c[0]};--b:${th.c[1]}"><i></i><i></i><i></i></span><span class="tname">${th.name}</span></button>`
+    const card = th => `<button class="tcard${th.id === cur ? ' on' : ''}" data-act="theme" data-id="${th.id}"><span class="tprev${th.dark ? ' d' : ''}${th.glass ? ' g' : ''}${th.apple ? ' a' : ''}${th.vib ? ' v' : ''}" style="--a:${th.c[0]};--b:${th.c[1]}"><i></i><i></i><i></i></span><span class="tname">${th.name}</span></button>`
     const group = f => `<div class="themes">${THEMES.filter(f).map(card).join('')}</div>`
     return `<h2>Appearance</h2>
       <div class="themes-head"><h3>Theme for “${esc(sp.name)}”</h3><button class="btn sm" data-act="theme-all">Use for every space</button></div>
       <h4>Yours</h4><div class="themes">${S.themes.map(t => card(userTheme(t))).join('')}<button class="tcard" data-act="studio"><span class="tprev new">${svg('plus')}</span><span class="tname">New theme…</span></button></div>
-      <h4>Apple &amp; Liquid Glass</h4>${group(t => t.apple || t.glass)}
-      <h4>Light</h4>${group(t => !t.dark && !t.apple && !t.glass)}
-      <h4>Dark</h4>${group(t => t.dark && !t.apple && !t.glass)}
+      <h4>macOS, Apple &amp; Liquid Glass</h4>${group(t => t.vib || t.apple || t.glass)}
+      <h4>Light</h4>${group(t => !t.dark && !t.apple && !t.glass && !t.vib)}
+      <h4>Dark</h4>${group(t => t.dark && !t.apple && !t.glass && !t.vib)}
       ${field('Custom colors', 'Pick two colors for your own gradient. Text turns light or dark to match.',
         `<div class="custom"><input type="color" data-custom="c1" value="${sp.custom?.c1 || '#c9b6ff'}"><input type="color" data-custom="c2" value="${sp.custom?.c2 || '#ffc4e1'}"><button class="btn sm" data-act="theme-custom">${cur === 'custom' ? 'In use' : 'Use'}</button></div>`)}
       <h3>Details</h3>
@@ -2461,6 +2536,7 @@ const BTN = {
   't-side': toggleSidebar, 't-ov': () => openOverview(), 't-back': () => shortcut('alt+arrowleft'), 't-fwd': () => shortcut('alt+arrowright'),
   't-reload': () => shortcut('ctrl+r'), 't-site': copy, 't-new': newTab,
 }
+appWin.onFocusChanged(({ payload }) => body.classList.toggle('inactive', !payload)).catch(() => {})
 const WIN = { close: () => appWin.close(), min: () => appWin.minimize(), max: () => appWin.toggleMaximize() }
 document.addEventListener('click', e => { const w = e.target.closest('[data-win]'); if (w) WIN[w.dataset.win]() })
 $('#titlebar').addEventListener('click', e => { const b = e.target.closest('button, #t-url'); if (b) BTN[b.id]?.() })
@@ -2851,7 +2927,7 @@ function studioOpen(base) {
   studioPrev = { theme: sp.theme, custom: sp.custom, settings: { ...S.settings } }
   draft = base ? structuredClone(base) : {
     id: 'u-' + uid(), name: 'My Theme', author: '', version: '1.0', description: '',
-    style: th.glass ? 'glass' : th.apple ? 'apple' : 'gradient', dark: !!th.dark,
+    style: th.vib ? 'macos' : th.glass ? 'glass' : th.apple ? 'apple' : 'gradient', dark: !!th.dark,
     colors: { c1: rgbHex(th.c[0]), c2: rgbHex(th.c[1]), ...(th.accent ? { accent: th.accent } : {}) },
     settings: { font: S.settings.font, radius: S.settings.radius, glass: S.settings.glass },
   }
@@ -2876,7 +2952,7 @@ function studioRender() {
     <div class="sbody">
       <div class="spv"><div class="sb"><i></i><i></i><i></i><i></i></div><div class="pg"><b></b><b></b><span></span></div></div>
       <label class="f">Name</label><input type="text" data-t="name" value="${esc(d.name)}" maxlength="60" spellcheck="false">
-      <label class="f">Style</label>${seg('style', [['gradient', 'Gradient'], ['apple', 'Apple'], ['glass', 'Liquid Glass']])}
+      <label class="f">Style</label>${seg('style', [['macos', 'macOS'], ['gradient', 'Gradient'], ['apple', 'Apple'], ['glass', 'Liquid Glass']])}
       <label class="f">Appearance</label>${seg('dark', [[false, 'Light'], [true, 'Dark']])}
       <label class="f">Colours</label>
       <div class="swatches"><input type="color" data-c="c1" value="${d.colors.c1}" title="First colour"><input type="color" data-c="c2" value="${d.colors.c2}" title="Second colour">
@@ -3284,10 +3360,10 @@ void main(){
 
   // ---- steps ----
   const applyAll = id => { S.spaces.forEach(s => { s.theme = id; delete s.custom }); save(); render(); sync() }
-  const LOOKS = ['glass', 'glass-dark', 'apple', 'apple-dark'].map(id => THEMES.find(t => t.id === id))
+  const LOOKS = ['macos', 'macos-dark', 'glass', 'glass-dark'].map(id => THEMES.find(t => t.id === id))
   const STEPS = [
     () => `<h2>Choose your look</h2><p class="osub">Pick a style. You can fine-tune everything later in Settings.</p>
-      <div class="ogrid">${LOOKS.map(th => `<button class="tcard${space().theme === th.id ? ' on' : ''}" data-look="${th.id}"><span class="tprev${th.dark ? ' d' : ''}${th.glass ? ' g' : ''}${th.apple ? ' a' : ''}" style="--a:${th.c[0]};--b:${th.c[1]}"><i></i><i></i><i></i></span><span class="tname">${th.name}</span></button>`).join('')}</div>`,
+      <div class="ogrid">${LOOKS.map(th => `<button class="tcard${space().theme === th.id ? ' on' : ''}" data-look="${th.id}"><span class="tprev${th.dark ? ' d' : ''}${th.glass ? ' g' : ''}${th.apple ? ' a' : ''}${th.vib ? ' v' : ''}" style="--a:${th.c[0]};--b:${th.c[1]}"><i></i><i></i><i></i></span><span class="tname">${th.name}</span></button>`).join('')}</div>`,
     () => `<h2>Pick a wallpaper</h2><p class="osub">It fills your home screen and tints the whole window.</p>
       <div class="ogrid">${WALLS.map(([id, name]) => `<button class="wcard${S.settings.wall === id ? ' on' : ''}" data-wall="${id}"><img src="${wallThumb(id)}" alt="" loading="lazy"><span>${esc(name)}</span></button>`).join('')}</div>`,
     () => `<h2>Search your way</h2><p class="osub">Choose a search engine and where your tabs live.</p>
@@ -3392,7 +3468,14 @@ body.classList.toggle('collapsed', !!S.collapsed)
 applyMods()
 invoke('tab_close_all').finally(() => {
   activate(space().active)
-  if (!S.onboarded) ONB.begin()
+  if (!S.onboarded) { S.macLook = 1; ONB.begin() }
+  else if (!S.macLook) {
+    S.macLook = 1
+    const prev = S.spaces.map(s => [s.theme, s.custom]), look = themeOf(space()).dark ? 'macos-dark' : 'macos'
+    S.spaces.forEach(s => { s.theme = look; delete s.custom }); save(); applyTheme(); render()
+    setTimeout(() => toast('Now in the macOS look', 'check', { label: 'Undo', run: () => {
+      S.spaces.forEach((s, i) => { s.theme = prev[i][0]; if (prev[i][1]) s.custom = prev[i][1] }); save(); applyTheme(); render() } }), 1500)
+  }
   else invoke('pkg_pending').then(ps => ps.forEach(p => openPkgFile(p, 'opened from a file'))).catch(() => {})
   autoArchive(); setInterval(autoArchive, 10 * 60e3)
   requestAnimationFrame(() => requestAnimationFrame(() => { body.classList.remove('boot'); appWin.show() }))

@@ -612,26 +612,35 @@ fn tab_close_all(app: AppHandle) {
     }
 }
 
-/// Window backdrop for glass themes: none | mica | acrylic | tabbed.
+/// Window backdrop: none | mica | acrylic | tabbed (glass themes) | vibrancy (the macOS look: the system's
+/// behind-window blur, light or dark like the system appearance; it goes flat while the window is in the background).
 #[tauri::command]
 fn set_material(app: AppHandle, kind: String, dark: bool) -> Result<(), String> {
-    use tauri::window::{Effect, EffectsBuilder};
+    use tauri::window::{Effect, EffectState, EffectsBuilder};
     let win = app.get_window("main").ok_or("no window")?;
+    let theme = (kind == "vibrancy").then_some(if dark { tauri::Theme::Dark } else { tauri::Theme::Light });
+    let _ = win.set_theme(theme);
     #[cfg(target_os = "macos")]
     let effect = match kind.as_str() {
         "none" => return win.set_effects(None).map_err(|e| e.to_string()),
+        "vibrancy" => Effect::Sidebar, // NSVisualEffectView's own sidebar material
         _ => Effect::UnderWindowBackground,
     };
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(windows)]
     let effect = match (kind.as_str(), dark) {
         ("mica", false) => Effect::MicaLight,
         ("mica", true) => Effect::MicaDark,
         ("tabbed", false) => Effect::TabbedLight,
         ("tabbed", true) => Effect::TabbedDark,
-        ("acrylic", _) => Effect::Acrylic,
+        ("acrylic" | "vibrancy", _) => Effect::Acrylic, // blurs the desktop and windows behind, like vibrancy
         _ => return win.set_effects(None).map_err(|e| e.to_string()),
     };
-    win.set_effects(EffectsBuilder::new().effect(effect).build()).map_err(|e| e.to_string())
+    #[cfg(not(any(windows, target_os = "macos")))]
+    let effect = {
+        let _ = win.set_effects(None);
+        return if kind == "none" { Ok(()) } else { Err("this system has no window blur".into()) };
+    };
+    win.set_effects(EffectsBuilder::new().effect(effect).state(EffectState::FollowsWindowActiveState).build()).map_err(|e| e.to_string())
 }
 
 /// JPEG snapshot of a tab, so the UI can draw over (or animate) a picture of the page.

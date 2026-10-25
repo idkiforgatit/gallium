@@ -5,7 +5,7 @@
 ;(function (root) {
   const LIMIT = { theme: 6 * 1024 * 1024, mod: 100 * 1024 }
   const HEX = /^#[0-9a-f]{6}$/i
-  const STYLES = { gradient: 'Gradient', apple: 'Apple', glass: 'Liquid Glass' }
+  const STYLES = { gradient: 'Gradient', apple: 'Apple', glass: 'Liquid Glass', macos: 'macOS' }
   const FONTS = { auto: 'Automatic', system: 'Segoe UI', apple: 'SF Pro', geometric: 'Bahnschrift', serif: 'Georgia', mono: 'Cascadia Code' }
   const WINBG = { blur: 'Blurred photo', gradient: 'Soft gradient', solid: 'Solid colour', theme: 'Theme colours' }
   const TOP = { theme: ['gallium', 'type', 'name', 'author', 'version', 'description', 'style', 'dark', 'colors', 'settings', 'wallpaper'],

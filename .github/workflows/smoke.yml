@@ -1,6 +1,7 @@
 name: Try the release builds
-# Installs the released Windows, Mac and Linux builds on clean machines, opens Gallium, and takes screenshots
-# so we can see it really starts. Run it by hand from the Actions tab after a release.
+# Installs the released Windows, Mac and Linux builds on clean machines with a colourful desktop picture,
+# opens Gallium, goes through the welcome, and takes screenshots of the intro and of the browser itself
+# (so the window material, the desktop blurred through the window, can be checked). Run it by hand after a release.
 on:
   workflow_dispatch:
     inputs:
@@ -10,35 +11,32 @@ jobs:
   linux:
     runs-on: ubuntu-22.04
     steps:
+      - uses: actions/checkout@v4
       - name: Install the .deb and a virtual screen
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*_amd64.deb'
           sudo apt-get update -qq
-          sudo apt-get install -y -qq ./Gallium_*_amd64.deb xvfb imagemagick dbus-x11 xdotool
-          dpkg -L gallium | grep '/bin/'
+          sudo apt-get install -y -qq ./Gallium_*_amd64.deb xvfb imagemagick dbus-x11 xdotool feh
       - name: Open Gallium and take screenshots
         run: |
           xvfb-run -a -s "-screen 0 1440x900x24" bash -c '
+            feh --bg-fill src/wallpapers/braies.jpg
             dbus-launch gallium > app.log 2>&1 & pid=$!
-            sleep 12; import -window root shot-1.png
-            sleep 15; import -window root shot-2.png
-            xdotool search --pid $pid --onlyvisible windowactivate --sync key Return || xdotool key Return
-            sleep 8; import -window root shot-3.png
+            sleep 14; import -window root shot-1.png
+            xdotool key Return; sleep 6; xdotool key Escape; sleep 6
+            import -window root shot-2.png
             if kill -0 $pid; then echo "STILL RUNNING"; else echo "EXITED"; fi
             kill $pid || true'
-          cat app.log | tail -30
-          find ~ -name gallium.log -exec cat {} \; || true
       - uses: actions/upload-artifact@v4
         with:
           name: linux
-          path: |
-            shot-*.png
-            app.log
+          path: shot-*.png
   mac:
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Install the .dmg
         env:
           GH_TOKEN: ${{ github.token }}
@@ -47,41 +45,33 @@ jobs:
           hdiutil attach Gallium_*_universal.dmg -mountpoint /Volumes/Gallium -nobrowse
           cp -R /Volumes/Gallium/Gallium.app /Applications/
           hdiutil detach /Volumes/Gallium
-          codesign -dv /Applications/Gallium.app 2>&1 | head -5
-          lipo -archs /Applications/Gallium.app/Contents/MacOS/*
+          osascript -e 'tell application "System Events" to tell every desktop to set picture to POSIX file "'"$PWD"'/src/wallpapers/braies.jpg"' || true
       - name: Open Gallium and take screenshots
         run: |
-          open /Applications/Gallium.app; sleep 2; pid=$(pgrep -n gallium); echo pid $pid > app.log  # like a double-click in Finder
-          sleep 12; screencapture -x shot-1.png
-          sleep 15; screencapture -x shot-2.png
-          # press Return on "Get started", then Return again on the first step's Continue
-          osascript -e 'tell application "System Events" to set frontmost of (first process whose unix id is '$pid') to true' || true
-          osascript -e 'tell application "System Events" to key code 36' || true
-          sleep 8; screencapture -x shot-3.png
-          osascript -e 'tell application "System Events" to keystroke "s" using command down' || true
-          sleep 4; screencapture -x shot-4.png
+          open /Applications/Gallium.app; sleep 14; pid=$(pgrep -n gallium)
+          screencapture -x shot-1.png
+          osascript -e 'tell application "System Events" to key code 36'; sleep 6
+          osascript -e 'tell application "System Events" to key code 53'; sleep 6
+          screencapture -x shot-2.png
           if kill -0 $pid; then echo "STILL RUNNING"; else echo "EXITED"; fi
           kill $pid || true
-          tail -30 app.log
-          find ~/Library -name gallium.log -exec cat {} \; || true
       - uses: actions/upload-artifact@v4
         with:
           name: mac
-          path: |
-            shot-*.png
-            app.log
+          path: shot-*.png
   windows:
     runs-on: windows-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Install with the setup .exe
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release download "${{ inputs.tag }}" -R "${{ github.repository }}" -p '*_x64-setup.exe'
-          $exe = (Get-ChildItem *_x64-setup.exe).FullName
-          Start-Process $exe -ArgumentList '/S' -Wait
-          Get-ChildItem "$env:LOCALAPPDATA\Gallium" | Select-Object -First 5
+          Start-Process (Get-ChildItem *_x64-setup.exe).FullName -ArgumentList '/S' -Wait
+          Add-Type -Namespace W -Name U -MemberDefinition '[DllImport("user32.dll")] public static extern int SystemParametersInfo(int a, int b, string c, int d);'
+          [W.U]::SystemParametersInfo(20, 0, "$PWD\src\wallpapers\braies.jpg", 3)
       - name: Open Gallium and take screenshots
         shell: pwsh
         run: |
@@ -93,8 +83,11 @@ jobs:
             $bmp.Save("$PWD\$name.png")
           }
           $p = Start-Process "$env:LOCALAPPDATA\Gallium\gallium.exe" -PassThru
-          Start-Sleep 12; Shot shot-1
-          Start-Sleep 15; Shot shot-2
+          Start-Sleep 14; Shot shot-1
+          $ws = New-Object -ComObject WScript.Shell
+          $null = $ws.AppActivate($p.Id); $ws.SendKeys('{ENTER}'); Start-Sleep 6
+          $null = $ws.AppActivate($p.Id); $ws.SendKeys('{ESC}'); Start-Sleep 6
+          Shot shot-2
           if ($p.HasExited) { "EXITED" } else { "STILL RUNNING"; Stop-Process $p.Id }
       - uses: actions/upload-artifact@v4
         with:
