@@ -1,6 +1,6 @@
 {
-  "scannedAt": "2026-10-24T10:38:25.560Z",
-  "engine": "ClamAV 1.5.4/28163/Sat Oct 24 06:26:10 2026",
+  "scannedAt": "2026-10-25T19:55:55.741Z",
+  "engine": "ClamAV 1.5.4/28164/Sun Oct 25 06:24:12 2026",
   "files": {
     "sequoia-glass.gtheme": {
       "sha256": "93189689d305853ba4f2f2cb27490291e933fe2e1f2ca2ab14c5728cf9a38ae3",
