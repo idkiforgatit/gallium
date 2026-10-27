@@ -1271,13 +1271,14 @@ fn main() {
                 .transparent(true) // lets glass themes show the Mica/Acrylic backdrop
                 .visible(false)
                 .build()?;
-            // Small screens: open at most 90% of the screen, centred
+            // Open centred in the usable part of the screen (not under the menu bar, Dock or taskbar), at most 90% of it.
+            // Positioned by hand: center() can't be trusted while the window is still hidden.
             if let Ok(Some(m)) = win.current_monitor() {
-                let s = m.size().to_logical::<f64>(m.scale_factor());
-                if s.width < 1600.0 || s.height < 1000.0 {
-                    let _ = win.set_size(LogicalSize::new(1440f64.min(s.width * 0.9), 900f64.min(s.height * 0.9)));
-                    let _ = win.center();
-                }
+                let (k, a) = (m.scale_factor(), m.work_area());
+                let (p, s) = (a.position.to_logical::<f64>(k), a.size.to_logical::<f64>(k));
+                let (w, h) = (1440f64.min(s.width * 0.9), 900f64.min(s.height * 0.9));
+                let _ = win.set_size(LogicalSize::new(w, h));
+                let _ = win.set_position(LogicalPosition::new(p.x + (s.width - w) / 2.0, p.y + (s.height - h) / 2.0));
             }
             let w = win.clone();
             std::thread::spawn(move || {

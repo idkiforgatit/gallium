@@ -72,6 +72,11 @@ jobs:
           Start-Process (Get-ChildItem *_x64-setup.exe).FullName -ArgumentList '/S' -Wait
           Add-Type -Namespace W -Name U -MemberDefinition '[DllImport("user32.dll")] public static extern int SystemParametersInfo(int a, int b, string c, int d);'
           [W.U]::SystemParametersInfo(20, 0, "$PWD\src\wallpapers\braies.jpg", 3)
+          # Windows Server has "Transparency effects" off, which turns window blur (Acrylic, Mica) into flat colour
+          $k = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+          "transparency was: " + (Get-ItemProperty $k -ErrorAction SilentlyContinue).EnableTransparency
+          New-Item $k -Force | Out-Null; Set-ItemProperty $k EnableTransparency 1 -Type DWord
+          rundll32.exe user32.dll,UpdatePerUserSystemParameters
       - name: Open Gallium and take screenshots
         shell: pwsh
         run: |
